@@ -12,15 +12,16 @@ import {
   useDeleteService,
   useServices,
 } from "../hooks/useServices";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { isIsoDate, toDateInput } from "../utils/utils";
+import { Spinner } from "./widget/Spinner";
 
 // Local type for Form State including UI-specific fields
 
 export const TripEditModal = () => {
   const { setIsEdit } = modalStore();
   const { setTripId, tripId } = tripsStore();
-  const { data: tripResponse } = useTrip(tripId!);
+  const { data: tripResponse, isLoading } = useTrip(tripId!);
   const { updateTripMutate } = useUpdateTrip();
   const { deleteServiceMutate } = useDeleteService();
   const { data: services } = useServices();
@@ -31,12 +32,12 @@ export const TripEditModal = () => {
 
   const form = useForm({
     defaultValues: {
-      apellido: trip?.apellido,
-      destino: trip?.destino,
-      valor_total: trip?.valor_total,
-      fecha_ida: toDateInput(trip?.fecha_ida),
-      fecha_vuelta: toDateInput(trip?.fecha_vuelta),
-      fecha: toDateInput(trip?.fecha),
+      apellido: trip?.apellido ?? "",
+      destino: trip?.destino ?? "internacional",
+      valor_total: trip?.valor_total ?? 0,
+      fecha_ida: toDateInput(trip?.fecha_ida) ?? "",
+      fecha_vuelta: toDateInput(trip?.fecha_vuelta) ?? "",
+      fecha: toDateInput(trip?.fecha) ?? "",
       moneda:
         trip?.moneda?.toLowerCase() === "usd"
           ? 2
@@ -52,10 +53,13 @@ export const TripEditModal = () => {
           moneda:
             (s.moneda as unknown as string)?.toLowerCase() === "usd" ? 2 : 1,
           cotizacion: s.cotizacion,
-          observacion: s.observacion,
+          observacion: (s as any).observacion ?? null,
         })) ?? [],
       cotizacion: trip?.cotizacion ?? null,
     } as UpdateTripRequest,
+    onSubmitInvalid: () => {
+      toast.error("Por favor revisá los campos requeridos antes de guardar");
+    },
     onSubmit: ({ value }) => {
 
       const serviciosOriginales = trip?.servicios ?? [];
@@ -115,36 +119,13 @@ export const TripEditModal = () => {
     },
   });
 
-  useEffect(() => {
-    if (!trip) return;
-    form.reset({
-      apellido: trip.apellido ?? "",
-      destino:
-        (trip.destino as "internacional" | "nacional") ?? "internacional",
-      valor_total: trip.valor_total ?? 0,
-      fecha_ida: toDateInput(trip.fecha_ida),
-      fecha_vuelta: toDateInput(trip.fecha_vuelta),
-      fecha: toDateInput(trip.fecha),
-      moneda:
-        trip.moneda?.toLowerCase() === "usd"
-          ? 2
-          : trip.moneda?.toLowerCase() === "mixto"
-            ? 3
-            : 1,
-      valor_total_usd: trip.valor_total_usd ?? 0,
-      cotizacion: trip.cotizacion ?? null,
-      servicios:
-        trip.servicios?.map((s) => ({
-          id: s.id,
-          valor: s.valor ?? 0,
-          pagado_por: s.pagado_por ?? "pendiente",
-          moneda:
-            (s.moneda as unknown as string)?.toLowerCase() === "usd" ? 2 : 1,
-          cotizacion: s.cotizacion ?? null,
-          observacion: s.observacion ?? null,
-        })) ?? [],
-    } as UpdateTripRequest);
-  }, [trip, form]);
+  if (isLoading || !trip) {
+    return (
+      <div className="bg-white rounded-2xl shadow-lg w-full max-w-6xl p-6 relative animate-fadeIn text-black flex items-center justify-center min-h-[200px]">
+        <Spinner size={40} text="Cargando viaje..." />
+      </div>
+    );
+  }
 
   return (
     <div

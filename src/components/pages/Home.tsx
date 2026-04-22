@@ -19,6 +19,7 @@ function Home() {
 
   const { isOpen, isCreate, setIsCreate, isEdit } = modalStore();
   const { data: trips, isLoading } = useTrips();
+  const { tripId } = tripsStore();
   const [searchTerm, setSearchTerm] = useState<string>("");
 
   const searchHandleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -110,7 +111,7 @@ function Home() {
 
       {isEdit && (
         <Modal>
-          <TripEditModal />
+          <TripEditModal key={tripId} />
         </Modal>
       )}
       {isCreate && (
