@@ -19,12 +19,12 @@ export function Table<T>({
   noDataMessage = "No hay reservas añadidas para este período.",
 }: Props<T>) {
   return (
-    <div className="overflow-hidden rounded-2xl border border-black shadow-sm">
+    <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white">
       <table className="w-full border-collapse bg-white">
         <thead>
-          <tr className="bg-black text-white">
+          <tr className="bg-black text-white ">
             {headers.map((header) => (
-              <th key={header.key} className="py-4 px-4 text-center text-xs font-bold uppercase tracking-wider">
+              <th key={header.key} className="py-2.5 px-4 text-center text-[13px] font-semibold">
                 {header.label}
               </th>
             ))}
@@ -33,7 +33,7 @@ export function Table<T>({
         <tbody>
           {data.length === 0 ? (
             <tr>
-              <td colSpan={headers.length} className="p-3 text-center p-12 text-center text-sm font-medium text-gray-400 italic">
+              <td colSpan={headers.length} className="p-8 text-center text-[14px] font-light text-gray-600 ">
                 {noDataMessage}
               </td>
             </tr>

@@ -7,6 +7,7 @@ type FinanceStore = {
   setMonthFinance: (month: number | null) => void;
   currency: "ARS" | "USD" | null;
   setCurrency: (currency: "ARS" | "USD" | null) => void;
+  resetFilters: () => void;
 };
 
 export const financeStore = create<FinanceStore>((set) => ({
@@ -16,4 +17,5 @@ export const financeStore = create<FinanceStore>((set) => ({
   setMonthFinance: (month) => set({ month }),
   currency: null,
   setCurrency: (currency) => set({ currency }),
+  resetFilters: () => set({ year: 2026, month: null, currency: null }),
 }));

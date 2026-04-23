@@ -4,8 +4,8 @@ import { tripsStore } from "../store/tripsStore";
 import { Spinner } from "./widget/Spinner";
 import { formattedAmount } from "../utils/utils";
 import { renderEstado } from "../utils/utilsTsx";
-import { toast } from "sonner";
 import { PiXBold } from "react-icons/pi";
+import Swal from "sweetalert2";
 
 
 export const TripModal = () => {
@@ -28,15 +28,31 @@ export const TripModal = () => {
 
   const handleDelete = () => {
     if (!tripId) return;
-    toast.warning(`¿Estás seguro de que quieres eliminar el viaje "${tripId}"?`, {
-      duration: 3000,
-      action: {
-        label: "Eliminar",
-        onClick: () => {
-          deleteTrip(tripId);
-          handleClose();
-        },
-      },
+
+    Swal.fire({
+      title: `Eliminar reserva con legajo ${tripId}`,
+      text: "¿Estás seguro? Esta acción es irreversible.",
+      width: "300px",
+      showCancelButton: true,
+      confirmButtonText: "Eliminar",
+      cancelButtonText: "Cancelar",
+      reverseButtons: true,
+      backdrop: `rgba(0,0,0,0.3)`,
+      color: "#1D1D1F",
+      background: "#ffffff",
+      customClass: {
+        popup: "rounded-[24px] shadow-[0_8px_30px_rgb(0,0,0,0.12)] border border-gray-100 py-5 px-3",
+        title: "text-[16px] font-semibold text-black mt-0",
+        htmlContainer: "text-[13px] text-gray-500 font-medium mt-1 mb-6 mx-0",
+        actions: "flex w-full gap-2 px-3 m-0",
+        confirmButton: "flex-1 bg-[#FF3B30] hover:bg-[#E3342B] text-white font-semibold py-2.5 rounded-xl transition-colors text-[13px] m-0",
+        cancelButton: "flex-1 bg-[#e8e8e8] hover:bg-[#dcdcdc] text-black font-semibold py-2.5 rounded-xl transition-colors text-[13px] m-0"
+      }
+    }).then((result) => {
+      if (result.isConfirmed) {
+        deleteTrip(tripId);
+        handleClose();
+      }
     });
   };
 

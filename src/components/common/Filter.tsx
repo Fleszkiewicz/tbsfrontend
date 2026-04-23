@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { IoChevronDown } from "react-icons/io5";
+import { IoChevronDown, IoCheckmark } from "react-icons/io5";
 
 type Option = {
   label: string;
@@ -31,19 +31,18 @@ const CustomSelect = ({ label, value, options, onChange }: CustomSelectProps) =>
   const selectedOption = options.find((opt) => opt.value === value) || options[0];
 
   return (
-    <div className="flex flex-col gap-1.5 relative select-none" ref={containerRef}>
-      <span className="text-[11px] font-black text-black uppercase tracking-widest ml-1">{label}</span>
+    <div className="relative select-none" ref={containerRef}>
       <div
         onClick={() => setIsOpen(!isOpen)}
-        className="bg-gray-100 border border-transparent hover:border-gray-200 shadow-sm rounded-full px-4 py-2 text-xs font-bold text-gray-700 flex items-center justify-between gap-2 cursor-pointer transition-all duration-200 min-w-[125px]"
+        className="bg-[#e8e8e8] hover:bg-[#dfdfdf] rounded-2xl px-4 py-2.5 text-[14px] font-medium text-[#1D1D1F] flex items-center justify-between gap-4 cursor-pointer transition-all duration-200"
       >
-        <span className="capitalize">{selectedOption?.label}</span>
-        <IoChevronDown className={`transition-transform duration-300 ${isOpen ? "rotate-180" : ""}`} size={14} />
+        <span className="capitalize">{label === 'Tipo' ? '' : selectedOption?.label || label}</span>
+        <IoChevronDown className={`transition-transform duration-300 text-gray-400 ${isOpen ? "rotate-180" : ""}`} size={14} />
       </div>
 
       {isOpen && (
-        <div className="absolute top-[calc(100%+8px)] left-0 w-full min-w-[160px] bg-white border border-gray-100 rounded-2xl shadow-2xl py-2 z-[100] animate-in fade-in zoom-in duration-200">
-          <div className="max-h-[250px] overflow-y-auto custom-scrollbar">
+        <div className="absolute top-[calc(100%+8px)] left-0 min-w-[140px] bg-white rounded-2xl shadow-[0_4px_20px_rgba(0,0,0,0.15)] p-1.5 z-[100] animate-in fade-in duration-100 border border-gray-100/50">
+          <div className="max-h-[250px] overflow-y-auto custom-scrollbar flex flex-col">
             {options.map((opt, idx) => (
               <div
                 key={idx}
@@ -51,10 +50,11 @@ const CustomSelect = ({ label, value, options, onChange }: CustomSelectProps) =>
                   onChange(opt.value);
                   setIsOpen(false);
                 }}
-                className={`px-5 py-2.5 text-xs font-semibold cursor-pointer transition-colors capitalize ${opt.value === value ? "bg-black text-white" : "text-gray-600 hover:bg-gray-50 hover:text-black"
+                className={`px-3 py-2 text-[13px] cursor-pointer transition-colors flex justify-between items-center rounded-lg capitalize ${opt.value === value ? "bg-[#f5f5f5] text-black font-semibold" : "text-gray-600 hover:bg-[#fcfcfc] font-medium"
                   }`}
               >
                 {opt.label}
+                {opt.value === value && <IoCheckmark size={14} className="text-black ml-2" />}
               </div>
             ))}
           </div>
@@ -87,21 +87,6 @@ export const Filter = ({
 }: Props) => {
   return (
     <div className="flex flex-wrap items-center gap-4">
-      {/* Filtro Tipo */}
-      {setFilter && (
-        <CustomSelect
-          label="Tipo"
-          value={filter ?? "desc"}
-          options={[
-            { label: "Antiguos", value: "asc" },
-            { label: "Recientes", value: "desc" },
-            { label: "Pendiente", value: "pendiente" },
-            { label: "Finalizado", value: "finalizado" },
-          ]}
-          onChange={setFilter}
-        />
-      )}
-
       {/* Filtro Año */}
       {setYear && (
         <CustomSelect
@@ -121,7 +106,7 @@ export const Filter = ({
           label="Mes"
           value={month ?? null}
           options={[
-            { label: "Todos", value: null },
+            { label: "Mes", value: null },
             ...Array.from({ length: 12 }, (_, i) => ({
               label: new Date(0, i).toLocaleString("es-AR", { month: "long" }),
               value: i + 1,
@@ -131,35 +116,33 @@ export const Filter = ({
         />
       )}
 
-
       {/* Filtro Moneda */}
       {setCurrency && (
-        <div className="flex flex-col gap-1.5 select-none">
-          <span className="text-[11px] font-black text-black uppercase tracking-widest ml-1">Moneda</span>
-          <div className="flex bg-gray-100 border border-transparent rounded-full p-1 shadow-sm h-[38px] items-center">
-            <button
-              type="button"
-              onClick={() => setCurrency(null)}
-              className={`px-3 py-1.5 text-[10px] font-black rounded-full transition-all duration-200 h-full flex items-center ${!currency ? "bg-black text-white shadow-md" : "text-gray-400 hover:text-gray-900"}`}
-            >
-              TODOS
-            </button>
-            <button
-              type="button"
-              onClick={() => setCurrency("ARS")}
-              className={`px-3 py-1.5 text-[10px] font-black rounded-full transition-all duration-200 h-full flex items-center ${currency === "ARS" ? "bg-black text-white shadow-md" : "text-gray-400 hover:text-gray-900"}`}
-            >
-              ARS
-            </button>
-            <button
-              type="button"
-              onClick={() => setCurrency("USD")}
-              className={`px-3 py-1.5 text-[10px] font-black rounded-full transition-all duration-200 h-full flex items-center ${currency === "USD" ? "bg-black text-white shadow-md" : "text-gray-400 hover:text-gray-900"}`}
-            >
-              USD
-            </button>
-          </div>
-        </div>
+        <CustomSelect
+          label="Moneda"
+          value={currency ?? null}
+          options={[
+            { label: "Moneda", value: null },
+            { label: "ARS", value: "ARS" },
+            { label: "USD", value: "USD" },
+          ]}
+          onChange={setCurrency}
+        />
+      )}
+
+      {/* Filtro Tipo */}
+      {setFilter && (
+        <CustomSelect
+          label="Recientes"
+          value={filter ?? "Recientes"}
+          options={[
+            { label: "Recientes", value: "desc" },
+            { label: "Antiguos", value: "asc" },
+            { label: "Pendiente", value: "pendiente" },
+            { label: "Finalizado", value: "finalizado" },
+          ]}
+          onChange={setFilter}
+        />
       )}
     </div>
   );

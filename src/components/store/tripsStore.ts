@@ -11,6 +11,7 @@ interface TripsStore {
   setYear: (year: number | null) => void;
   setMonth: (month: number | null) => void;
   setPage: (page: number | ((prev: number) => number)) => void;
+  resetFilters: () => void;
 }
 
 export const tripsStore = create<TripsStore>((set) => ({
@@ -27,4 +28,5 @@ export const tripsStore = create<TripsStore>((set) => ({
     set((state) => ({
       page: typeof page === "function" ? page(state.page) : page,
     })),
+  resetFilters: () => set({ filter: "desc", year: 2026, month: null, page: 1 }),
 }));

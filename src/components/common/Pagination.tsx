@@ -1,6 +1,5 @@
 import { useTrips } from "../hooks/useTrips";
-import { BiLastPage } from "react-icons/bi";
-import { BiFirstPage } from "react-icons/bi";
+import { IoChevronBack, IoChevronForward } from "react-icons/io5";
 
 type Props = {
   page: number;
@@ -11,31 +10,30 @@ export const Pagination = ({ page, setPage }: Props) => {
   const { data: trips } = useTrips();
   const totalPages = trips?.pagination?.totalPages ?? 1;
 
-  return (
-    <section className="flex justify-center items-center gap-6 mt-4 select-none">
-      {page > 1 && (
-        <button
-          disabled={page <= 1}
-          onClick={() => setPage((p) => Math.max(p - 1, 1))}
-          className="w-10 h-10 flex items-center justify-center bg-white border border-gray-100 rounded-full shadow-sm hover:shadow-md hover:border-gray-200 transition-all text-gray-600 disabled:opacity-50"
-        >
-          <BiFirstPage size={24} />
-        </button>
-      )}
+  if (totalPages <= 0) return null;
 
-      <span className="text-sm font-medium text-gray-500 tracking-wide uppercase">
-        Página <span className="text-black font-bold">{totalPages === 0 ? 0 : page}</span> de <span className="text-black font-bold">{totalPages}</span>
+  return (
+    <div className="flex justify-between items-center w-full mt-4 select-none px-2">
+      <span className="text-[13px] font-medium text-gray-500">
+        Página {totalPages === 0 ? 0 : page} de {totalPages}
       </span>
 
-      {totalPages > 0 && page !== totalPages && (
+      <div className="flex items-center gap-4">
+        <button
+          disabled={page <= 1}
+          onClick={() => setPage((p) => Math.max((p as number) - 1, 1))}
+          className="text-gray-400 hover:text-black disabled:opacity-30 disabled:hover:text-gray-400 transition-colors cursor-pointer disabled:cursor-default"
+        >
+          <IoChevronBack size={18} />
+        </button>
         <button
           disabled={page >= totalPages}
-          onClick={() => setPage((p) => p + 1)}
-          className="w-10 h-10 flex items-center justify-center bg-white border border-gray-100 rounded-full shadow-sm hover:shadow-md hover:border-gray-200 transition-all text-gray-600 disabled:opacity-50"
+          onClick={() => setPage((p) => (p as number) + 1)}
+          className="text-gray-400 hover:text-black disabled:opacity-30 disabled:hover:text-gray-400 transition-colors cursor-pointer disabled:cursor-default"
         >
-          <BiLastPage size={24} />
+          <IoChevronForward size={18} />
         </button>
-      )}
-    </section>
+      </div>
+    </div>
   );
 };

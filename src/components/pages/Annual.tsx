@@ -2,23 +2,22 @@ import { useFinance } from "../hooks/useFinance";
 import { financeStore } from "../store/financeStore";
 import { Filter } from "../common/Filter";
 import { FinanceTable } from "../common/FinanceTable";
+import { IoReloadOutline } from "react-icons/io5";
 
 function Annual() {
-  const { year, month, currency, setYear, setMonthFinance, setCurrency } =
+  const { year, month, currency, setYear, setMonthFinance, setCurrency, resetFilters } =
     financeStore();
   const { data: finance, isLoading } = useFinance();
 
   return (
     <>
 
-      <div className="relative z-20 h-full flex items-center justify-center">
-        <h1 className="text-5xl font-bold text-black drop-shadow-lg text-center mt-24 mb-2 select-none">
-          FINANZAS
+      <div className="max-w-[1000px] mx-auto mt-28 mb-4 px-4">
+        <h1 className="text-[35px] font-semibold text-black select-none cursor-default mb-8">
+          Resumen de finanzas
         </h1>
-      </div>
 
-      <section className="max-w-[900px] mx-auto mt-6 select-none">
-        <div className="flex items-center mb-4 ml-6 justify-end select-none">
+        <div className="flex items-center gap-3 text-xs mb-8 select-none flex-wrap justify-start">
           <Filter
             year={year}
             setYear={setYear}
@@ -27,6 +26,14 @@ function Annual() {
             currency={currency}
             setCurrency={setCurrency}
           />
+
+          <button
+            className="text-gray-400 font-medium hover:text-black hover:bg-gray-100 hover:rotate-180 transition-all duration-300 ml-1 p-1 rounded-full"
+            onClick={() => resetFilters()}
+            title="Limpiar todos los filtros"
+          >
+            <IoReloadOutline size={20} />
+          </button>
         </div>
 
         <div className="mb-4">
@@ -42,8 +49,7 @@ function Annual() {
             </div>
           )}
         </div>
-
-      </section>
+      </div>
 
     </>
   );
