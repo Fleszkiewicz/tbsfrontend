@@ -4,6 +4,7 @@ import { IoChevronDown, IoCheckmark } from "react-icons/io5";
 type Option = {
   label: string;
   value: string | number | null;
+  mobileHidden?: boolean;
 };
 
 type CustomSelectProps = {
@@ -34,10 +35,10 @@ const CustomSelect = ({ label, value, options, onChange }: CustomSelectProps) =>
     <div className="relative select-none" ref={containerRef}>
       <div
         onClick={() => setIsOpen(!isOpen)}
-        className="bg-[#e8e8e8] hover:bg-[#dfdfdf] rounded-2xl px-4 py-2.5 text-[14px] font-medium text-[#1D1D1F] flex items-center justify-between gap-4 cursor-pointer transition-all duration-200"
+        className="bg-[#e8e8e8] hover:bg-[#dfdfdf] rounded-2xl px-3 py-1.5 md:px-4 md:py-2.5 text-[13px] md:text-[14px] font-medium text-[#1D1D1F] flex items-center justify-between gap-2 md:gap-4 cursor-pointer transition-all duration-200"
       >
         <span className="capitalize">{label === 'Tipo' ? '' : selectedOption?.label || label}</span>
-        <IoChevronDown className={`transition-transform duration-300 text-gray-400 ${isOpen ? "rotate-180" : ""}`} size={14} />
+        <IoChevronDown className={`transition-transform duration-300 text-gray-400 w-3 h-3 md:w-3.5 md:h-3.5 ${isOpen ? "rotate-180" : ""}`} />
       </div>
 
       {isOpen && (
@@ -50,8 +51,8 @@ const CustomSelect = ({ label, value, options, onChange }: CustomSelectProps) =>
                   onChange(opt.value);
                   setIsOpen(false);
                 }}
-                className={`px-3 py-2 text-[13px] cursor-pointer transition-colors flex justify-between items-center rounded-lg capitalize ${opt.value === value ? "bg-[#f5f5f5] text-black font-semibold" : "text-gray-600 hover:bg-[#fcfcfc] font-medium"
-                  }`}
+                className={`px-3 py-2 text-[13px] cursor-pointer transition-colors justify-between items-center rounded-lg capitalize ${opt.value === value ? "bg-[#f5f5f5] text-black font-semibold" : "text-gray-600 hover:bg-[#fcfcfc] font-medium"
+                  } ${opt.mobileHidden ? "hidden md:flex" : "flex"}`}
               >
                 {opt.label}
                 {opt.value === value && <IoCheckmark size={14} className="text-black ml-2" />}
@@ -86,7 +87,7 @@ export const Filter = ({
   setCurrency,
 }: Props) => {
   return (
-    <div className="flex flex-wrap items-center gap-4">
+    <div className="flex flex-wrap items-center gap-2 md:gap-4">
       {/* Filtro Año */}
       {setYear && (
         <CustomSelect
@@ -122,7 +123,7 @@ export const Filter = ({
           label="Moneda"
           value={currency ?? null}
           options={[
-            { label: "Moneda", value: null },
+            { label: "Moneda", value: null, mobileHidden: true },
             { label: "ARS", value: "ARS" },
             { label: "USD", value: "USD" },
           ]}

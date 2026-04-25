@@ -41,39 +41,39 @@ function Navbar() {
   };
 
   const navLinkClass = ({ isActive }: { isActive: boolean }) =>
-    `flex items-center gap-2 px-6 py-2 text-sm font-semibold transition-all duration-200 rounded-full ${isActive ? "bg-black text-white" : "bg-transparent text-gray-500 hover:text-black hover:bg-gray-100"
+    `flex items-center justify-center gap-2 px-3 md:px-6 py-2 text-sm font-semibold transition-all duration-200 rounded-full ${isActive ? "bg-black text-white" : "bg-transparent text-gray-500 hover:text-black hover:bg-gray-100"
     }`;
 
   return (
     <>
-      <div className="fixed top-0 left-0 w-full z-50 px-10 py-3 flex items-center justify-between bg-white/90 backdrop-blur-md border-b border-gray-200/80">
+      <div className="fixed top-0 left-0 w-full z-50 px-4 md:px-10 py-3 flex items-center justify-between bg-white/90 backdrop-blur-md border-b border-gray-200/80">
         {/* Izquierda: Perfil de Usuario */}
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full bg-black flex items-center justify-center overflow-hidden flex-shrink-0 text-white">
+          <div className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-black flex items-center justify-center overflow-hidden flex-shrink-0 text-white">
             {user?.avatar ? (
               <img className="w-full h-full object-cover" src={user.avatar} alt="Avatar" />
             ) : (
-              <FiUser size={20} />
+              <FiUser className="w-4 h-4 md:w-5 md:h-5" />
             )}
           </div>
-          <span className="text-sm font-medium text-black capitalize">
+          <span className="hidden md:inline text-sm font-medium text-black capitalize">
             Hola, {user?.nombre || "Usuario"}!
           </span>
         </div>
 
         {/* Centro: Navegación */}
-        <nav className="flex items-center gap-2">
+        <nav className="flex items-center gap-1 md:gap-2">
           <NavLink to="/home" className={navLinkClass}>
-            <IoHomeOutline size={18} />
-            <span>Home</span>
+            <IoHomeOutline size={20} />
+            <span className="hidden md:inline">Home</span>
           </NavLink>
           <NavLink to="/finance" className={navLinkClass}>
-            <FiDollarSign size={18} />
-            <span>Finanzas</span>
+            <FiDollarSign size={20} />
+            <span className="hidden md:inline">Finanzas</span>
           </NavLink>
           <NavLink to="/expenses" className={navLinkClass}>
-            <IoReceiptOutline size={18} />
-            <span>Expensas</span>
+            <IoReceiptOutline size={20} />
+            <span className="hidden md:inline">Expensas</span>
           </NavLink>
         </nav>
 
@@ -81,10 +81,10 @@ function Navbar() {
         <div className="flex items-center justify-end">
           <button
             onClick={handleLogoutClick}
-            className="flex items-center gap-2 px-4 py-2 text-[13px] font-semibold text-gray-500 hover:text-black hover:bg-gray-100 rounded-full transition-all duration-200 "
+            className="flex items-center gap-2 px-3 md:px-4 py-2 text-[13px] font-semibold text-gray-500 hover:text-black hover:bg-gray-100 rounded-full transition-all duration-200 "
           >
-            <span>Cerrar sesión</span>
-            <IoLogOutOutline size={16} strokeWidth={2} />
+            <span className="hidden md:inline">Cerrar sesión</span>
+            <IoLogOutOutline size={20} strokeWidth={2} />
           </button>
         </div>
       </div>

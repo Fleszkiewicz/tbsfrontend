@@ -6,7 +6,6 @@ const headers = [
     { label: "ID", key: "id" },
     { label: "Motivo", key: "motivo" },
     { label: "Fecha", key: "fecha" },
-    { label: "Moneda", key: "moneda" },
     { label: "Monto", key: "monto" },
     { label: "Acciones", key: "acciones" },
 ];
@@ -36,22 +35,19 @@ export function ExpensesTable({
                         key={expense.id}
                         className="border-b border-gray-250 hover:bg-gray-100 transition-colors cursor-pointer group"
                     >
-                        <td className="py-4 px-4 text-sm font-bold text-gray-700 text-center">
+                        <td className="py-3 md:py-4 px-2 md:px-4 text-[12px] md:text-sm font-bold text-gray-700 text-center">
                             {expense.id}
                         </td>
-                        <td className="py-4 px-4 text-sm font-medium text-gray-600 text-center">
+                        <td className="py-3 md:py-4 px-2 md:px-4 text-[12px] md:text-sm font-medium text-gray-600 text-center">
                             {expense.motivo}
                         </td>
-                        <td className="py-4 px-4 text-sm font-medium text-gray-600 text-center">
+                        <td className="py-3 md:py-4 px-2 md:px-4 text-[12px] md:text-sm font-medium text-gray-600 text-center">
                             {expense.fecha ? new Date(expense.fecha).toLocaleDateString("es-AR") : "-"}
                         </td>
-                        <td className="py-4 px-4 text-sm text-gray-600 font-medium text-center">
-                            {expense.moneda}
+                        <td className="py-3 md:py-4 px-2 md:px-4 text-[12px] md:text-sm font-bold text-gray-800 text-center uppercase">
+                            {expense.moneda} {formattedAmount(expense.costo)}
                         </td>
-                        <td className="py-4 px-4 text-sm font-bold text-gray-800 text-center">
-                            {expense.moneda === "USD" ? `USD ${formattedAmount(expense.costo)}` : `$${formattedAmount(expense.costo)}`}
-                        </td>
-                        <td className="py-4 px-4 text-center">
+                        <td className="py-3 md:py-4 px-1 md:px-4 text-center">
                             <div className="flex justify-center gap-5">
                                 <button
                                     className="text-red-400 hover:text-red-600 shadow-sm transition-colors"

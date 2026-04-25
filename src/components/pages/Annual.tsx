@@ -12,12 +12,12 @@ function Annual() {
   return (
     <>
 
-      <div className="max-w-[1000px] mx-auto mt-28 mb-4 px-4">
-        <h1 className="text-[35px] font-semibold text-black select-none cursor-default mb-8">
-          Resumen de finanzas
+      <div className="max-w-[1000px] mx-auto mt-24 md:mt-28 mb-4 px-4">
+        <h1 className="lg:text-[35px] text-[29px] font-semibold text-black select-none cursor-default mb-4 md:mb-8 ">
+          Resumen de Finanzas
         </h1>
 
-        <div className="flex items-center gap-3 text-xs mb-8 select-none flex-wrap justify-start">
+        <div className="flex items-center gap-3 text-xs mb-4 md:mb-8  select-none flex-wrap justify-start">
           <Filter
             year={year}
             setYear={setYear}

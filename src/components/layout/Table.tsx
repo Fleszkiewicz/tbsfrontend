@@ -3,6 +3,7 @@ import React from "react";
 type Header = {
   label: string;
   key: string;
+  className?: string;
 };
 
 type Props<T> = {
@@ -24,7 +25,7 @@ export function Table<T>({
         <thead>
           <tr className="bg-black text-white ">
             {headers.map((header) => (
-              <th key={header.key} className="py-2.5 px-4 text-center text-[13px] font-semibold">
+              <th key={header.key} className={`py-2.5 px-2 md:px-4 text-center text-[11px] md:text-[13px] font-semibold ${header.className || ""}`}>
                 {header.label}
               </th>
             ))}
@@ -33,7 +34,7 @@ export function Table<T>({
         <tbody>
           {data.length === 0 ? (
             <tr>
-              <td colSpan={headers.length} className="p-8 text-center text-[14px] font-light text-gray-600 ">
+              <td colSpan={headers.length} className="p-6 md:p-8 text-center text-[12px] md:text-[14px] font-light text-gray-600 ">
                 {noDataMessage}
               </td>
             </tr>

@@ -10,7 +10,7 @@ import { renderEstado } from "../utils/utilsTsx";
 const headers = [
   { label: "Legajo", key: "id" },
   { label: "Apellido", key: "apellido" },
-  { label: "Fecha creación", key: "fecha" },
+  { label: "Fecha creación", key: "fecha", className: "hidden md:table-cell" },
   { label: "Estado", key: "estado" },
   { label: "Acciones", key: "acciones" },
 ];
@@ -41,18 +41,18 @@ export function TripsTable({
               setTripId(trip.id);
             }}
           >
-            <td className="py-3 px-4 text-sm font-bold text-gray-700 text-center">{trip.id}</td>
-            <td className="py-3 px-4 text-sm font-medium text-gray-600 capitalize text-center">{trip.apellido}</td>
-            <td className="py-3 px-4 text-sm font-medium text-gray-600 text-center">
+            <td className="py-3 px-2 md:px-4 text-[12px] md:text-sm font-bold text-gray-700 text-center">{trip.id}</td>
+            <td className="py-3 px-2 md:px-4 text-[12px] md:text-sm font-medium text-gray-600 capitalize text-center">{trip.apellido}</td>
+            <td className="py-3 px-2 md:px-4 text-[12px] md:text-sm font-medium text-gray-600 text-center hidden md:table-cell">
               {new Date(trip.fecha).toLocaleDateString("es-AR")}
             </td>
-            <td className="py-3 px-4 text-center">
+            <td className="py-3 px-2 md:px-4 text-center">
               {renderEstado(trip.estado)}
             </td>
-            <td className="py-3 px-3 text-center">
+            <td className="py-3 px-1 md:px-3 text-center">
               <div className="flex justify-center gap-">
                 <button
-                  className="text-blue-600 hover:text-blue-700 transition-colors hover:bg-blue-100 p-1.5 rounded-lg"
+                  className="text-blue-600 hover:text-blue-700 transition-colors hover:bg-blue-100 p-1 md:p-1.5 rounded-lg"
                   onClick={(e) => {
                     e.stopPropagation();
                     setTripId(trip.id);
