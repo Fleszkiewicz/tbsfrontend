@@ -116,7 +116,7 @@ export const TripModal = () => {
                   </div>
                   <div className="flex gap-4 items-center text-[15px] mt-1">
                     <span className="font-bold min-w-[80px]">Estado:</span>
-                    <div>{trip?.estado && renderEstado(trip.estado)}</div>
+                    <div>{trip?.estado && renderEstado(trip.estado, trip.fecha_ida, trip.fecha_vuelta)}</div>
                   </div>
                 </div>
               </div>
@@ -131,20 +131,55 @@ export const TripModal = () => {
                     <span className="font-bold min-w-[100px]">Moneda:</span>
                     <p className="text-gray-600 font-medium uppercase">{trip?.moneda}</p>
                   </div>
-                  <div className="flex gap-2 items-center text-[15px] mt-0.5">
-                    <span className="font-bold min-w-[100px]">Valor total:</span>
-                    <p className="text-gray-600 font-semibold">${trip?.valor_total && formattedAmount(trip.valor_total)}</p>
-                  </div>
-                  <div className="flex gap-2 items-center text-[15px]">
-                    <span className="font-bold min-w-[100px]">Costo:</span>
-                    <p className="text-gray-600 font-semibold">${trip?.costo && formattedAmount(trip.costo)}</p>
-                  </div>
-                  <div className="flex gap-2 items-center text-[15px] mt-1">
-                    <span className="font-bold min-w-[100px]">Ganancia:</span>
-                    <p className={`font-black ${(trip?.ganancia ?? 0) < 0 ? "text-red-700" : "text-green-600"}`}>
-                      ${trip?.ganancia && formattedAmount(trip.ganancia)}
-                    </p>
-                  </div>
+                  
+                  {/* ARS VALUES */}
+                  {(trip?.moneda === "ars" || trip?.moneda === "mixto") && (
+                    <div className="mt-2 border-l-2 border-blue-500 pl-3">
+                      <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">ARS</p>
+                      <div className="flex gap-2 items-center text-[15px] mt-0.5">
+                        <span className="font-bold min-w-[90px]">Valor total:</span>
+                        <p className="text-gray-600 font-semibold">${trip?.valor_total != null ? formattedAmount(trip.valor_total) : 0}</p>
+                      </div>
+                      <div className="flex gap-2 items-center text-[15px]">
+                        <span className="font-bold min-w-[90px]">Costo:</span>
+                        <p className="text-gray-600 font-semibold">${trip?.costo != null ? formattedAmount(trip.costo) : 0}</p>
+                      </div>
+                      <div className="flex gap-2 items-center text-[15px] mt-1">
+                        <span className="font-bold min-w-[90px]">Ganancia:</span>
+                        <p className={`font-black ${(trip?.ganancia ?? 0) < 0 ? "text-red-700" : "text-green-600"}`}>
+                          ${trip?.ganancia != null ? formattedAmount(trip.ganancia) : 0}
+                        </p>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* USD VALUES */}
+                  {(trip?.moneda === "usd" || trip?.moneda === "mixto") && (
+                    <div className="mt-2 border-l-2 border-green-500 pl-3">
+                      <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">USD</p>
+                      <div className="flex gap-2 items-center text-[15px] mt-0.5">
+                        <span className="font-bold min-w-[90px]">Valor total:</span>
+                        <p className="text-gray-600 font-semibold">U$D {trip?.valor_total_usd != null ? formattedAmount(trip.valor_total_usd) : 0}</p>
+                      </div>
+                      <div className="flex gap-2 items-center text-[15px]">
+                        <span className="font-bold min-w-[90px]">Costo:</span>
+                        <p className="text-gray-600 font-semibold">U$D {trip?.costo_usd != null ? formattedAmount(trip.costo_usd) : 0}</p>
+                      </div>
+                      <div className="flex gap-2 items-center text-[15px] mt-1">
+                        <span className="font-bold min-w-[90px]">Ganancia:</span>
+                        <p className={`font-black ${(trip?.ganancia_usd ?? 0) < 0 ? "text-red-700" : "text-green-600"}`}>
+                          U$D {trip?.ganancia_usd != null ? formattedAmount(trip.ganancia_usd) : 0}
+                        </p>
+                      </div>
+                    </div>
+                  )}
+
+                  {(trip?.moneda === "usd" || trip?.moneda === "mixto" || trip?.cotizacion) && (
+                    <div className="flex gap-2 items-center text-[15px] mt-2">
+                      <span className="font-bold min-w-[100px]">Cotización:</span>
+                      <p className="text-gray-600 font-semibold">${trip?.cotizacion != null ? formattedAmount(trip.cotizacion) : "-"}</p>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>

@@ -9,7 +9,7 @@ type Header = {
 type Props<T> = {
   headers: Header[];
   data: T[];
-  renderRow: (item: T) => React.ReactNode;
+  renderRow: (item: T, index: number) => React.ReactNode;
   noDataMessage?: string;
 };
 
@@ -39,7 +39,7 @@ export function Table<T>({
               </td>
             </tr>
           ) : (
-            data.map((item) => renderRow(item))
+            data.map((item, index) => renderRow(item, index))
           )}
         </tbody>
       </table>

@@ -27,7 +27,7 @@ export const ExpenseCreateModal = ({ onClose }: Props) => {
 
   return (
     <div
-      className="w-full max-w-[420px] bg-white rounded-[20px] overflow-hidden text-black shadow-2xl relative animate-in zoom-in-95 duration-200"
+      className="w-full max-w-[420px] bg-white rounded-[20px] text-black shadow-2xl relative animate-in zoom-in-95 duration-200"
       onClick={(e) => e.stopPropagation()}
     >
       {/* Header */}

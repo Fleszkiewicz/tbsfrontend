@@ -19,6 +19,7 @@ import CreateTrip from "./pages/CreateTrip.tsx";
 const Annual = lazy(() => import("./pages/Annual.tsx"));
 const Home = lazy(() => import("./pages/Home.tsx"));
 const Expenses = lazy(() => import("./pages/Expenses.tsx"));
+const Trip = lazy(() => import("./pages/Trip.tsx"));
 
 function App() {
   return (
@@ -68,6 +69,7 @@ function App() {
                 <Route path="/finance" element={<Annual />} />
                 <Route path="/expenses" element={<Expenses />} />
                 <Route path="/createtrip" element={<CreateTrip />} />
+                <Route path="/trip/:id" element={<Trip />} />
               </Route>
             </Route>
           </Routes>

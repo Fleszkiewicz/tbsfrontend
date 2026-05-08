@@ -19,7 +19,7 @@ function Navbar() {
   const handleLogoutClick = async () => {
     const result = await Swal.fire({
       title: "¿Cerrar sesión?",
-      text: "Tendrás que volver a ingresar tus datos.",
+      text: "Tendrás que volver a ingresar tus datos para acceder.",
       showCancelButton: true,
       confirmButtonText: "Cerrar sesión",
       cancelButtonText: "Cancelar",

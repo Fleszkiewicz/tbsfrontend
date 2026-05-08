@@ -6,6 +6,7 @@ import { modalStore } from "../store/modalStore";
 import { useDeleteTrip } from "../hooks/useTrips";
 import Swal from "sweetalert2";
 import { renderEstado } from "../utils/utilsTsx";
+import { useNavigate } from "react-router-dom";
 
 const headers = [
   { label: "Legajo", key: "id" },
@@ -20,8 +21,7 @@ export function TripsTable({
 }: {
   filteredTrips: Trip[] | undefined;
 }) {
-  const { setTripId } = tripsStore();
-  const { setIsOpen } = modalStore();
+  const navigate = useNavigate();
   const { mutate: trip } = useDeleteTrip();
 
   const handleDelete = (id: string) => {
@@ -37,8 +37,7 @@ export function TripsTable({
             key={trip.id}
             className="border-b border-gray-250 hover:bg-gray-100 transition-colors cursor-pointer group "
             onClick={() => {
-              setIsOpen(true);
-              setTripId(trip.id);
+              navigate(`/trip/${trip.id}`);
             }}
           >
             <td className="py-3 px-2 md:px-4 text-[12px] md:text-sm font-bold text-gray-700 text-center">{trip.id}</td>
@@ -47,7 +46,7 @@ export function TripsTable({
               {new Date(trip.fecha).toLocaleDateString("es-AR")}
             </td>
             <td className="py-3 px-2 md:px-4 text-center">
-              {renderEstado(trip.estado)}
+              {renderEstado(trip.estado, trip.fecha_ida, trip.fecha_vuelta)}
             </td>
             <td className="py-3 px-1 md:px-3 text-center">
               <div className="flex justify-center gap-">
@@ -55,8 +54,7 @@ export function TripsTable({
                   className="text-blue-600 hover:text-blue-700 transition-colors hover:bg-blue-100 p-1 md:p-1.5 rounded-lg"
                   onClick={(e) => {
                     e.stopPropagation();
-                    setTripId(trip.id);
-                    setIsOpen(true);
+                    navigate(`/trip/${trip.id}`);
                   }}
                   title="Ver detalles"
                 >

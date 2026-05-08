@@ -6,19 +6,25 @@ import type { CreateTripRequest } from "../types/types";
 import { BtnCloseModal } from "./BtnCloseModal";
 import { useForm } from "@tanstack/react-form";
 import { useState, useEffect } from "react";
+import { isIsoDate, toDateInput } from "../utils/utils";
+import { CustomDatePicker } from "./CustomDatePicker";
+import { CustomSelect } from "./CustomSelect";
 
 export const TripCreateModal = () => {
   const { setIsCreate } = modalStore();
   const { data: services } = useServices();
   const { mutateAsync: createTrip } = useCreateTrip();
+  const now = new Date();
+  const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
 
   const form = useForm({
     defaultValues: {
       moneda: 0,
       valor_total: 0,
+      valor_total_usd: 0,
       destino: "",
       apellido: "",
-      fecha: "",
+      fecha: today,
       fecha_ida: "",
       fecha_vuelta: "",
       servicios: [],
@@ -26,14 +32,15 @@ export const TripCreateModal = () => {
     } as CreateTripRequest,
     onSubmit: async ({ value, formApi }) => {
       const trip: CreateTripRequest = {
-        fecha_ida: value.fecha_ida,
-        fecha_vuelta: value.fecha_vuelta,
-        fecha: value.fecha,
+        fecha_ida: toDateInput(value.fecha_ida),
+        fecha_vuelta: toDateInput(value.fecha_vuelta),
+        fecha: toDateInput(value.fecha),
         moneda: value.moneda,
         destino: value.destino,
         apellido: value.apellido,
-        valor_total: value.valor_total,
-        cotizacion: value.moneda === 2 ? value.cotizacion : null,
+        valor_total: value.moneda === 2 ? 0 : value.valor_total,
+        valor_total_usd: (value.moneda === 2 || value.moneda === 3) ? (value.valor_total_usd || (value.moneda === 2 ? value.valor_total : 0)) : 0,
+        cotizacion: (value.moneda === 2 || value.moneda === 3) ? value.cotizacion : null,
         servicios: value.servicios.map((s) => {
           const originalService = services?.data?.find((os) => os.id === s.id);
           const isUSD = originalService?.moneda?.toLowerCase() === "usd";
@@ -130,19 +137,17 @@ export const TripCreateModal = () => {
               {(field) => (
                 <div className="flex flex-col">
                   <label className="block font-semibold mb-1">Destino:</label>
-                  <select
-                    onChange={(e) =>
-                      field.handleChange(
-                        e.target.value as "nacional" | "internacional" | "",
-                      )
-                    }
+                  <CustomSelect
                     value={field.state.value}
-                    className="border p-2 rounded w-full"
-                  >
-                    <option value="">Seleccionar</option>
-                    <option value="internacional">Internacional</option>
-                    <option value="nacional">Nacional</option>
-                  </select>
+                    onChange={(val) =>
+                      field.handleChange(val as "nacional" | "internacional" | "")
+                    }
+                    options={[
+                      { label: "Seleccionar", value: "" },
+                      { label: "Internacional", value: "internacional" },
+                      { label: "Nacional", value: "nacional" },
+                    ]}
+                  />
                   {field.state.meta.errors.length > 0 && (
                     <em className="text-red-600 text-sm">
                       {field.state.meta.errors.join(", ")}
@@ -208,25 +213,26 @@ export const TripCreateModal = () => {
                       <label className="block font-semibold mb-1">
                         Moneda:
                       </label>
-                      <select
-                        onChange={(e) => {
-                          const val = Number(e.target.value) as 0 | 1 | 2;
-                          field.handleChange(val);
-                          setSelectedMoneda(val);
+                      <CustomSelect
+                        value={field.state.value ?? 0}
+                        onChange={(val) => {
+                          const numVal = Number(val) as 0 | 1 | 2 | 3;
+                          field.handleChange(numVal);
+                          setSelectedMoneda(numVal);
 
-                          if (val === 2) {
+                          if (numVal === 2 || numVal === 3) {
                             form.setFieldValue("cotizacion", 0);
                           } else {
                             form.setFieldValue("cotizacion", null);
                           }
                         }}
-                        value={field.state.value ?? 0}
-                        className="border p-2 rounded w-full"
-                      >
-                        <option value={0}>Seleccionar</option>
-                        <option value={1}>ARS</option>
-                        <option value={2}>USD</option>
-                      </select>
+                        options={[
+                          { label: "Seleccionar", value: 0 },
+                          { label: "ARS", value: 1 },
+                          { label: "USD", value: 2 },
+                          { label: "Mixto", value: 3 },
+                        ]}
+                      />
                       {field.state.meta.errors.length > 0 && (
                         <em className="text-red-600 text-sm">
                           {field.state.meta.errors.join(", ")}
@@ -237,7 +243,49 @@ export const TripCreateModal = () => {
                 </form.Field>
               </div>
 
-              {(selectedMoneda === 2 ||
+              {selectedMoneda === 3 && (
+                <div className="w-full">
+                  <form.Field
+                    name="valor_total_usd"
+                    validators={{
+                      onSubmit: ({ value }) => {
+                        if (!value || value <= 0) return "El valor USD es obligatorio";
+                      },
+                    }}
+                  >
+                    {(field) => (
+                      <div className="flex flex-col">
+                        <label className="block font-semibold mb-1">Valor USD:</label>
+                        <div className="flex items-center gap-1">
+                          <span className="text-xl font-semibold text-gray-500">$</span>
+                          <input
+                            type="text"
+                            value={
+                              field.state.value &&
+                              new Intl.NumberFormat("es-AR", {
+                                minimumFractionDigits: 0,
+                                maximumFractionDigits: 0,
+                              }).format(field.state.value)
+                            }
+                            onChange={(e) => {
+                              const soloNumeros = e.target.value.replace(/\D/g, "");
+                              field.handleChange(Number(soloNumeros));
+                            }}
+                            className="border p-2 rounded w-full"
+                          />
+                        </div>
+                        {field.state.meta.errors.length > 0 && (
+                          <em className="text-red-600 text-sm">
+                            {field.state.meta.errors.join(", ")}
+                          </em>
+                        )}
+                      </div>
+                    )}
+                  </form.Field>
+                </div>
+              )}
+
+              {(selectedMoneda === 2 || selectedMoneda === 3 ||
                 form
                   .getFieldValue("servicios")
                   .some(
@@ -262,7 +310,7 @@ export const TripCreateModal = () => {
                           );
 
                         if (
-                          (moneda === 2 || hasUSDService) &&
+                          (moneda === 2 || moneda === 3 || hasUSDService) &&
                           (!value || Number(value) <= 0)
                         ) {
                           return "La cotización debe ser mayor a 0";
@@ -281,7 +329,7 @@ export const TripCreateModal = () => {
                           );
 
                         if (
-                          (moneda === 2 || hasUSDService) &&
+                          (moneda === 2 || moneda === 3 || hasUSDService) &&
                           (!value || Number(value) <= 0)
                         ) {
                           return "La cotización es obligatoria y debe ser mayor a 0";
@@ -292,7 +340,7 @@ export const TripCreateModal = () => {
                     {(field) => (
                       <div className="flex flex-col">
                         <label className="block font-semibold mb-1 whitespace-nowrap">
-                          {selectedMoneda === 2
+                          {selectedMoneda === 2 || selectedMoneda === 3
                             ? "Cotización USD:"
                             : "Cotización Servicios USD:"}
                         </label>
@@ -328,24 +376,23 @@ export const TripCreateModal = () => {
               )}
             </div>
 
-            <form.Field
-              name="fecha"
-              validators={{
-                onSubmit: ({ value }) => {
-                  if (!value) return "La fecha es obligatoria";
-                },
-              }}
-            >
+              <form.Field
+                name="fecha"
+                validators={{
+                  onSubmit: ({ value }) => {
+                    if (!value) return "La fecha es obligatoria";
+                    if (!isIsoDate(value)) return "Formato válido: yyyy-mm-dd";
+                  },
+                }}
+              >
               {(field) => (
                 <div className="flex flex-col">
                   <label className="block font-semibold mb-1">
                     Fecha creación:
                   </label>
-                  <input
-                    type="date"
+                  <CustomDatePicker
                     value={field.state.value || ""}
-                    onChange={(e) => field.handleChange(e.target.value)}
-                    className="border p-2 rounded w-full"
+                    onChange={(val) => field.handleChange(val)}
                   />
                   {field.state.meta.errors.length > 0 && (
                     <em className="text-red-600 text-sm">
@@ -355,24 +402,23 @@ export const TripCreateModal = () => {
                 </div>
               )}
             </form.Field>
-            <form.Field
-              name="fecha_ida"
-              validators={{
-                onSubmit: ({ value }) => {
-                  if (!value) return "La fecha de ida es obligatoria";
-                },
-              }}
-            >
+              <form.Field
+                name="fecha_ida"
+                validators={{
+                  onSubmit: ({ value }) => {
+                    if (!value) return "La fecha de ida es obligatoria";
+                    if (!isIsoDate(value)) return "Formato válido: yyyy-mm-dd";
+                  },
+                }}
+              >
               {(field) => (
                 <div className="flex flex-col">
                   <label className="block font-semibold mb-1">
                     Fecha de ida:
                   </label>
-                  <input
-                    type="date"
+                  <CustomDatePicker
                     value={field.state.value || ""}
-                    onChange={(e) => field.handleChange(e.target.value)}
-                    className="border p-2 rounded w-full"
+                    onChange={(val) => field.handleChange(val)}
                   />
                   {field.state.meta.errors.length > 0 && (
                     <em className="text-red-600 text-sm">
@@ -383,18 +429,21 @@ export const TripCreateModal = () => {
               )}
             </form.Field>
 
-            <form.Field
-              name="fecha_vuelta"
-              validators={{
-                onSubmit: ({ value, fieldApi }) => {
-                  if (!value) return "La fecha de vuelta es obligatoria";
-                  const fechaIda = fieldApi.form.getFieldValue("fecha_ida");
-                  if (fechaIda && value < fechaIda) {
-                    return "La vuelta no puede ser antes que la ida";
-                  }
-                },
-              }}
-            >
+              <form.Field
+                name="fecha_vuelta"
+                validators={{
+                  onSubmit: ({ value, fieldApi }) => {
+                    if (!value) return "La fecha de vuelta es obligatoria";
+                    if (!isIsoDate(value)) return "Formato válido: yyyy-mm-dd";
+                    const fechaVuelta = toDateInput(value);
+                    const fechaIda = fieldApi.form.getFieldValue("fecha_ida");
+                    const fechaIdaNormalizada = toDateInput(fechaIda);
+                    if (fechaIdaNormalizada && fechaVuelta < fechaIdaNormalizada) {
+                      return "La vuelta no puede ser antes que la ida";
+                    }
+                  },
+                }}
+              >
               {(field) => {
                 const fechaIda = field.form.getFieldValue(
                   "fecha_ida",
@@ -404,13 +453,10 @@ export const TripCreateModal = () => {
                     <label className="block font-semibold mb-1">
                       Fecha de vuelta:
                     </label>
-                    <input
-                      type="date"
-                      value={field.state.value || ""}
-                      onChange={(e) => field.handleChange(e.target.value)}
-                      className="border p-2 rounded w-full"
-                      min={fechaIda}
-                    />
+                      <CustomDatePicker
+                        value={field.state.value || ""}
+                        onChange={(val) => field.handleChange(val)}
+                      />
                     {field.state.meta.errors.length > 0 && (
                       <em className="text-red-600 text-sm">
                         {field.state.meta.errors.join(", ")}
@@ -480,12 +526,17 @@ export const TripCreateModal = () => {
           </div>
 
           <div className="flex justify-center">
-            <button
-              type="submit"
-              className="w-1/4 py-2 mt-6 bg-blue-600 text-white rounded hover:bg-blue-700 select-none"
-            >
-              Crear viaje
-            </button>
+            <form.Subscribe selector={(state) => state.isSubmitting}>
+              {(isSubmitting) => (
+                <button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="w-1/4 py-2 mt-6 bg-blue-600 text-white rounded hover:bg-blue-700 select-none disabled:opacity-60 disabled:cursor-not-allowed"
+                >
+                  {isSubmitting ? "Creando..." : "Crear viaje"}
+                </button>
+              )}
+            </form.Subscribe>
           </div>
         </form>
       </section>

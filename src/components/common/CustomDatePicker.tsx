@@ -73,15 +73,15 @@ export const CustomDatePicker = ({ value, onChange }: Props) => {
       {/* Input Facade */}
       <div
         onClick={() => setIsOpen(!isOpen)}
-        className="w-full bg-[#f5f5f5] rounded-xl px-4 py-2.5 flex items-center justify-between cursor-pointer transition-colors"
+        className={`w-full bg-[#f0f0f0] rounded-xl px-4 py-2.5 flex items-center justify-between transition-all duration-200 border-none cursor-pointer hover:bg-[#e8e8e8] ${isOpen ? "ring-2 ring-black/10" : ""}`}
       >
         <span className="text-[14px] font-medium text-[#1D1D1F]">{displayValue}</span>
-        <FiCalendar className="text-black" size={16} />
+        <FiCalendar className="text-gray-400" size={16} />
       </div>
 
       {/* Popover Calendar */}
       {isOpen && (
-        <div className="absolute bottom-[calc(100%+8px)] left-0 w-[270px] bg-white rounded-[24px] shadow-[0_8px_30px_rgb(0,0,0,0.12)] p-4 z-50 animate-in fade-in zoom-in-95 duration-200 border border-gray-100/50">
+        <div className="absolute top-[calc(100%+8px)] left-0 w-[270px] bg-white rounded-[24px] shadow-[0_8px_30px_rgb(0,0,0,0.12)] p-4 z-[100] animate-in fade-in duration-100 border border-gray-100/50">
 
           {/* Header */}
           <div className="flex justify-between items-center mb-4">

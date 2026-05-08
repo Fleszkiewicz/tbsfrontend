@@ -1,24 +1,24 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useTrips } from "../hooks/useTrips";
 import { modalStore } from "../store/modalStore";
 import { tripsStore } from "../store/tripsStore";
 import { Filter } from "../common/Filter";
 import { Spinner } from "../common/widget/Spinner";
 import { Modal } from "../layout/Modal";
-import { TripModal } from "../common/TripModal";
 import { Pagination } from "../common/Pagination";
 import { TripsTable } from "../common/TripsTable";
-import { TripCreateModal } from "../common/TripCreateModal";
 import { TripEditModal } from "../common/TripEditModal";
 import { IoAdd, IoSearch, IoReloadOutline } from "react-icons/io5";
 
 
 
 function Home() {
+  const navigate = useNavigate();
   const { filter, page, setFilter, setMonth, setPage, year, setYear, month, resetFilters } =
     tripsStore();
 
-  const { isOpen, isCreate, setIsCreate, isEdit } = modalStore();
+  const { isOpen, isEdit } = modalStore();
   const { data: trips, isLoading } = useTrips();
   const [searchTerm, setSearchTerm] = useState<string>("");
 
@@ -53,7 +53,7 @@ function Home() {
         <div className="flex items-center gap-4 mb-4 md:mb-8 select-none flex-wrap">
           <button
             className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-black flex items-center justify-center text-white flex-shrink-0 hover:bg-gray-800 transition-colors shadow-[0_4px_10px_rgba(0,0,0,0.15)]"
-            onClick={() => setIsCreate(true)}
+            onClick={() => navigate("/createtrip")}
           >
             <IoAdd className="w-5 h-5 md:w-[26px] md:h-[26px]" />
           </button>
@@ -107,20 +107,9 @@ function Home() {
         <Pagination page={page} setPage={setPage} />
       </div>
 
-      {isOpen && (
-        <Modal>
-          <TripModal />
-        </Modal>
-      )}
-
       {isEdit && (
         <Modal>
           <TripEditModal />
-        </Modal>
-      )}
-      {isCreate && (
-        <Modal>
-          <TripCreateModal />
         </Modal>
       )}
     </>
