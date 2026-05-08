@@ -2,7 +2,7 @@ import { logOut } from "../services/auth.services";
 import { useNavigate, NavLink } from "react-router-dom";
 import { useUser } from "../hooks/useUser";
 import Swal from "sweetalert2";
-import { IoHomeOutline, IoReceiptOutline, IoLogOutOutline } from "react-icons/io5";
+import { IoHomeOutline, IoReceiptOutline, IoLogOutOutline, IoPieChartOutline } from "react-icons/io5";
 import { FiDollarSign, FiUser } from "react-icons/fi";
 
 function Navbar() {
@@ -74,6 +74,10 @@ function Navbar() {
           <NavLink to="/expenses" className={navLinkClass}>
             <IoReceiptOutline size={20} />
             <span className="hidden md:inline">Expensas</span>
+          </NavLink>
+          <NavLink to="/dashboard" className={navLinkClass}>
+            <IoPieChartOutline size={20} />
+            <span className="hidden md:inline">Estadisticas</span>
           </NavLink>
         </nav>
 

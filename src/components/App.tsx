@@ -20,13 +20,14 @@ const Annual = lazy(() => import("./pages/Annual.tsx"));
 const Home = lazy(() => import("./pages/Home.tsx"));
 const Expenses = lazy(() => import("./pages/Expenses.tsx"));
 const Trip = lazy(() => import("./pages/Trip.tsx"));
+const Dashboard = lazy(() => import("./pages/Dashboard.tsx"));
 
 function App() {
   return (
     <Router>
-      <Toaster 
-        position="bottom-right" 
-        duration={2500} 
+      <Toaster
+        position="bottom-right"
+        duration={2500}
         toastOptions={{
           style: {
             background: "#1C1C1E",
@@ -49,9 +50,9 @@ function App() {
           ),
           error: (
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="mr-1">
-              <path d="M15.429 2H8.571L2 8.571V15.429L8.571 22H15.429L22 15.429V8.571L15.429 2Z" fill="#F59E0B"/>
-              <path d="M12 7V13" stroke="#1C1C1E" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
-              <circle cx="12" cy="16.5" r="1.5" fill="#1C1C1E"/>
+              <path d="M15.429 2H8.571L2 8.571V15.429L8.571 22H15.429L22 15.429V8.571L15.429 2Z" fill="#F59E0B" />
+              <path d="M12 7V13" stroke="#1C1C1E" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+              <circle cx="12" cy="16.5" r="1.5" fill="#1C1C1E" />
             </svg>
           )
         }}
@@ -68,6 +69,7 @@ function App() {
                 <Route path="/home" element={<Home />} />
                 <Route path="/finance" element={<Annual />} />
                 <Route path="/expenses" element={<Expenses />} />
+                <Route path="/dashboard" element={<Dashboard />} />
                 <Route path="/createtrip" element={<CreateTrip />} />
                 <Route path="/trip/:id" element={<Trip />} />
               </Route>
