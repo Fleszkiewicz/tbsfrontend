@@ -8,9 +8,8 @@ import {
   IoLocationOutline,
   IoPeopleOutline,
   IoAddOutline,
-  IoTrashOutline,
-  IoCloseOutline,
 } from "react-icons/io5";
+import { LuTrash2 } from "react-icons/lu";
 
 import { isIsoDate, toDateInput } from "../utils/utils";
 import { useServices } from "../hooks/useServices";
@@ -570,33 +569,33 @@ function CreateTrip() {
             </div>
           }
           title="Información de destino"
-          action={
-            <button
-              type="button"
-              onClick={() => {
-                setEditingDestinoIndex(null);
-                setShowDestinoModal(true);
-              }}
-              className="flex items-center gap-1 text-[13px] font-medium hover:text-black transition-colors select-none"
-            >
-              <IoAddOutline size={16} />
-              Añadir destino
-            </button>
-          }
         >
           {/* Tabla de destinos */}
           <div className="mb-4">
             <Table
               headers={[
                 { label: "Destino", key: "destino" },
-                { label: "Inicio", key: "inicio" },
-                { label: "Fin", key: "fin" },
+                { label: "Desde", key: "inicio" },
+                { label: "Hasta", key: "fin" },
                 { label: "Servicios", key: "servicios" },
                 { label: "Estado", key: "estado" },
                 { label: "Acciones", key: "acciones" },
               ]}
               data={destinos}
-              noDataMessage="No hay destinos agregados aún"
+              noDataMessage="No hay destinos agregados aún."
+              footerAction={
+                <button
+                  type="button"
+                  onClick={() => {
+                    setEditingDestinoIndex(null);
+                    setShowDestinoModal(true);
+                  }}
+                  className="w-full flex items-center justify-center gap-1.5 py-3 text-[13px] font-medium text-gray-500 hover:bg-gray-100 hover:text-black transition-colors"
+                >
+                  <IoAddOutline size={18} />
+                  Añadir destino
+                </button>
+              }
               renderRow={(d, idx) => (
                 <tr
                   key={idx}
@@ -622,11 +621,11 @@ function CreateTrip() {
                     <div className="flex justify-center">
                       <button
                         type="button"
-                        className="text-red-500 hover:text-red-600 transition-colors hover:bg-red-100 p-1.5 rounded-lg"
+                        className="text-gray-500 hover:text-red-600 transition-colors p-1.5 rounded-lg"
                         onClick={(e) => handleRemoveDestino(idx, e)}
                         title="Eliminar destino"
                       >
-                        <IoTrashOutline size={16} />
+                        <LuTrash2 size={16} />
                       </button>
                     </div>
                   </td>
@@ -756,7 +755,7 @@ function CreateTrip() {
                     className="text-gray-400 hover:text-red-500 transition-colors"
                     title="Eliminar pasajero"
                   >
-                    <IoTrashOutline size={16} />
+                    <LuTrash2 size={16} />
                   </button>
                 </div>
                 <div className="grid grid-cols-6 gap-4">
@@ -830,7 +829,7 @@ function CreateTrip() {
             <button
               type="button"
               onClick={addPasajero}
-              className="flex items-center justify-center gap-2 w-full py-3 text-[13px] font-medium  rounded-2xl transition-all select-none"
+              className="flex items-center justify-center gap-2 w-full py-3 text-[13px] font-medium text-gray-500 hover:text-black hover:bg-gray-100 rounded-2xl transition-all select-none"
             >
               <IoAddOutline size={18} />
               Añadir pasajero

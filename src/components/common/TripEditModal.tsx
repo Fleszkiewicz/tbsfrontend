@@ -725,7 +725,7 @@ export const TripEditModal = () => {
                           className="w-32"
                           disabled
                           value="pendiente"
-                          onChange={() => {}}
+                          onChange={() => { }}
                           options={[{ label: "Pendiente", value: "pendiente" }]}
                         />
 

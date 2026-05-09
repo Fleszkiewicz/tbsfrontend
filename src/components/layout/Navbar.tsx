@@ -2,8 +2,9 @@ import { logOut } from "../services/auth.services";
 import { useNavigate, NavLink } from "react-router-dom";
 import { useUser } from "../hooks/useUser";
 import Swal from "sweetalert2";
-import { IoHomeOutline, IoReceiptOutline, IoLogOutOutline, IoPieChartOutline } from "react-icons/io5";
+import { IoHomeOutline, IoReceiptOutline, IoPieChartOutline } from "react-icons/io5";
 import { FiDollarSign, FiUser } from "react-icons/fi";
+import { LuLogOut } from "react-icons/lu";
 
 function Navbar() {
   const navigate = useNavigate();
@@ -88,7 +89,7 @@ function Navbar() {
             className="flex items-center gap-2 px-3 md:px-4 py-2 text-[13px] font-semibold text-gray-500 hover:text-black hover:bg-gray-100 rounded-full transition-all duration-200 "
           >
             <span className="hidden md:inline">Cerrar sesión</span>
-            <IoLogOutOutline size={20} strokeWidth={2} />
+            <LuLogOut size={18} strokeWidth={2} />
           </button>
         </div>
       </div>

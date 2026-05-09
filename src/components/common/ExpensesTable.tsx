@@ -1,6 +1,6 @@
 import { Table } from "../layout/Table";
 import { formattedAmount } from "../utils/utils";
-import { FiTrash2 } from "react-icons/fi";
+import { LuTrash2 } from "react-icons/lu";
 
 const headers = [
     { label: "ID", key: "id" },
@@ -50,14 +50,14 @@ export function ExpensesTable({
                         <td className="py-3 md:py-4 px-1 md:px-4 text-center">
                             <div className="flex justify-center gap-5">
                                 <button
-                                    className="text-red-400 hover:text-red-600 shadow-sm transition-colors"
+                                    className="text-gray-500 hover:text-red-600 shadow-sm transition-colors"
                                     onClick={(e) => {
                                         e.stopPropagation();
                                         console.log("Eliminar expensa", expense.id);
                                     }}
                                     title="Eliminar"
                                 >
-                                    <FiTrash2 size={16} />
+                                    <LuTrash2 size={16} />
                                 </button>
                             </div>
                         </td>

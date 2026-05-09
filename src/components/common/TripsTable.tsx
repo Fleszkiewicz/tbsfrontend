@@ -1,12 +1,11 @@
 import { Table } from "../layout/Table";
-import { FiTrash2, FiEdit2 } from "react-icons/fi";
 import type { Trip } from "../types/types";
-import { tripsStore } from "../store/tripsStore";
-import { modalStore } from "../store/modalStore";
 import { useDeleteTrip } from "../hooks/useTrips";
 import Swal from "sweetalert2";
 import { renderEstado } from "../utils/utilsTsx";
 import { useNavigate } from "react-router-dom";
+import { LuTrash2 } from "react-icons/lu";
+
 
 const headers = [
   { label: "Legajo", key: "id" },
@@ -50,18 +49,9 @@ export function TripsTable({
             </td>
             <td className="py-3 px-1 md:px-3 text-center">
               <div className="flex justify-center gap-">
+
                 <button
-                  className="text-blue-600 hover:text-blue-700 transition-colors hover:bg-blue-100 p-1 md:p-1.5 rounded-lg"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    navigate(`/trip/${trip.id}`);
-                  }}
-                  title="Ver detalles"
-                >
-                  <FiEdit2 size={16} />
-                </button>
-                <button
-                  className="text-red-500 hover:text-red-600 transition-colors hover:bg-red-100 p-1.5 rounded-lg"
+                  className="text-gray-500 hover:text-red-600 transition-colors p-1.5 rounded-lg"
                   onClick={(e) => {
                     e.stopPropagation();
                     Swal.fire({
@@ -91,7 +81,7 @@ export function TripsTable({
                   }}
                   title="Eliminar"
                 >
-                  <FiTrash2 size={16} />
+                  <LuTrash2 size={16} />
                 </button>
               </div>
             </td>

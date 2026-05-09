@@ -24,7 +24,7 @@ export const DestinationModal = ({ isOpen, onClose, onSave }: Props) => {
     fecha_vuelta: "",
     servicios: [],
   });
-  
+
   const [selectedServiceIds, setSelectedServiceIds] = useState<number[]>([]);
 
   useEffect(() => {
@@ -46,7 +46,7 @@ export const DestinationModal = ({ isOpen, onClose, onSave }: Props) => {
 
   const handleSave = () => {
     if (!newDestino.destino) return;
-    
+
     const detailedServicios = selectedServiceIds.map((id) => {
       const serviceDef = services?.data?.find((s) => s.id === id);
       return {
@@ -58,7 +58,7 @@ export const DestinationModal = ({ isOpen, onClose, onSave }: Props) => {
         observacion: ""
       };
     });
-    
+
     onSave({ ...newDestino, servicios: detailedServicios });
     onClose();
   };
@@ -103,14 +103,14 @@ export const DestinationModal = ({ isOpen, onClose, onSave }: Props) => {
               />
             </div>
             <div className="flex flex-col">
-              <label className={labelCls}>Fecha Ida</label>
+              <label className={labelCls}>Desde</label>
               <CustomDatePicker
                 value={newDestino.fecha_ida}
                 onChange={(val) => setNewDestino((p) => ({ ...p, fecha_ida: val }))}
               />
             </div>
             <div className="flex flex-col">
-              <label className={labelCls}>Fecha Vuelta</label>
+              <label className={labelCls}>Hasta</label>
               <CustomDatePicker
                 value={newDestino.fecha_vuelta}
                 onChange={(val) => setNewDestino((p) => ({ ...p, fecha_vuelta: val }))}
