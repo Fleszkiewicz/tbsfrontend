@@ -1,14 +1,27 @@
+import { useState, useRef, useEffect } from "react";
 import { logOut } from "../services/auth.services";
 import { useNavigate, NavLink } from "react-router-dom";
 import { useUser } from "../hooks/useUser";
 import Swal from "sweetalert2";
-import { IoHomeOutline, IoReceiptOutline, IoPieChartOutline } from "react-icons/io5";
+import { IoHomeOutline, IoReceiptOutline, IoPieChartOutline, IoChevronDown } from "react-icons/io5";
 import { FiDollarSign, FiUser } from "react-icons/fi";
 import { LuLogOut } from "react-icons/lu";
 
 function Navbar() {
   const navigate = useNavigate();
   const { clearUser, user } = useUser();
+  const [isOpen, setIsOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   const handleLogOut = async () => {
     clearUser();
@@ -47,21 +60,26 @@ function Navbar() {
 
   return (
     <>
-      <div className="fixed top-0 left-0 w-full z-50 px-4 md:px-10 py-3 flex items-center justify-between bg-white/90 backdrop-blur-md border-b border-gray-200/80">
+      <div className="fixed top-0 left-0 w-full z-50 px-4 md:px-10 py-2.5 flex items-center justify-between bg-white/90 backdrop-blur-md border-b border-gray-200/80">
         {/* Izquierda: Perfil de Usuario */}
-        <div className="flex items-center gap-3">
-          <div className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-black flex items-center justify-center overflow-hidden flex-shrink-0 text-white">
-            {user?.avatar ? (
-              <img className="w-full h-full object-cover" src={user.avatar} alt="Avatar" />
-            ) : (
-              <FiUser className="w-4 h-4 md:w-5 md:h-5" />
-            )}
+        <div
+          className="flex items-center gap-2.5 cursor-pointer select-none group"
+          onClick={() => navigate("/home")}
+        >
+          <img
+            src="https://res.cloudinary.com/dttpgbmdx/image/upload/v1752706284/tbs-logo_frbbyo.png"
+            alt="The Black Sheep Logo"
+            className="w-10 h-10 object-contain"
+          />
+          <div className="hidden md:flex flex-col items-start leading-tight">
+            <span className="text-[17px] font-bold text-black tracking-tight group-hover:opacity-80 transition-opacity">
+              TheBlackSheep
+            </span>
+            <span className="text-[10px] text-gray-500 font-medium -mt-0.5 ml-0.5">
+              Conocemos tu destino.
+            </span>
           </div>
-          <span className="hidden md:inline text-sm font-medium text-black capitalize">
-            Hola, {user?.nombre || "Usuario"}!
-          </span>
         </div>
-
         {/* Centro: Navegación */}
         <nav className="flex items-center gap-1 md:gap-2">
           <NavLink to="/home" className={navLinkClass}>
@@ -84,13 +102,68 @@ function Navbar() {
 
         {/* Derecha: Notificaciones / Actions */}
         <div className="flex items-center justify-end">
-          <button
-            onClick={handleLogoutClick}
-            className="flex items-center gap-2 px-3 md:px-4 py-2 text-[13px] font-semibold text-gray-500 hover:text-black hover:bg-gray-100 rounded-full transition-all duration-200 "
-          >
-            <span className="hidden md:inline">Cerrar sesión</span>
-            <LuLogOut size={18} strokeWidth={2} />
-          </button>
+          <div className="relative" ref={dropdownRef}>
+            <div
+              className="flex items-center gap-3 cursor-pointer select-none p-1 rounded-2xl transition-all duration-200 group"
+              onClick={() => setIsOpen(!isOpen)}
+            >
+              <div className="hidden md:flex flex-col items-end leading-tight ml-2">
+                <span className="text-[13px] font-semibold text-black capitalize">
+                  {user?.nombre || "Usuario"}
+                </span>
+                <span className="text-[11px] text-gray-500 font-medium">
+                  {user?.email}
+                </span>
+              </div>
+              <div className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-black flex items-center justify-center overflow-hidden flex-shrink-0 text-white shadow-sm">
+                {user?.avatar ? (
+                  <img className="w-full h-full object-cover" src={user.avatar} alt="Avatar" />
+                ) : (
+                  <FiUser className="w-4 h-4 md:w-5 md:h-5" />
+                )}
+              </div>
+              <IoChevronDown
+                className={`text-gray-400 hover:text-black transition-transform duration-300 mr-1 ${isOpen ? "rotate-180" : ""}`}
+                size={16}
+              />
+            </div>
+
+            {/* Dropdown Menu */}
+            {isOpen && (
+              <div className="absolute top-full right-0 mt-2 w-64 bg-white rounded-[24px] shadow-[0_10px_40px_rgba(0,0,0,0.12)] border border-gray-100 overflow-hidden animate-in fade-in zoom-in-95 duration-200 z-[100]">
+                <div className="p-6 flex flex-col items-center text-center">
+                  <div className="w-14 h-14 rounded-full bg-black flex items-center justify-center overflow-hidden mb-3 shadow-md">
+                    {user?.avatar ? (
+                      <img className="w-full h-full object-cover" src={user.avatar} alt="Avatar" />
+                    ) : (
+                      <FiUser size={20} className="text-white" />
+                    )}
+                  </div>
+                  <h3 className="text-[15px] font-bold text-black capitalize">
+                    {user?.nombre || "Usuario"}
+                  </h3>
+                  <p className="text-[12px] text-gray-500 font-medium truncate w-full px-2">
+                    {user?.email}
+                  </p>
+                </div>
+
+                <div className="h-px bg-gray-100 mx-4" />
+
+                <div className="p-2">
+                  <button
+                    onClick={() => {
+                      setIsOpen(false);
+                      handleLogoutClick();
+                    }}
+                    className="w-full flex items-center justify-center gap-2 py-3 px-4 text-[13px] font-semibold text-red-500 hover:bg-red-50 rounded-xl transition-colors"
+                  >
+                    <LuLogOut size={16} />
+                    Cerrar sesión
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </>
