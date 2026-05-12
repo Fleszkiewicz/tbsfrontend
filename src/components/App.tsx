@@ -9,7 +9,7 @@ import { ProtectedLayout } from "./config/ProtectedLayout.tsx";
 import { AuthProvider } from "./provider/AuthProvider.tsx";
 import { ProtectedRoutes } from "./config/ProtectedRoutes.tsx";
 import { Toaster } from "sonner";
-import { Loader } from "./common/Loader.tsx";
+import { Loader } from "./common/ui/Loader.tsx";
 
 import Login from "./pages/Login.tsx";
 import { AuthSuccess } from "./pages/AuthSuccess.tsx";

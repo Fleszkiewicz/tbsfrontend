@@ -1,4 +1,4 @@
-import { useTrips } from "../hooks/useTrips";
+import { useTrips } from "../../hooks/useTrips";
 import { IoChevronBack, IoChevronForward } from "react-icons/io5";
 
 type Props = {

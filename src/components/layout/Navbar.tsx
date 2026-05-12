@@ -60,7 +60,7 @@ function Navbar() {
 
   return (
     <>
-      <div className="fixed top-0 left-0 w-full z-50 px-4 md:px-10 py-2.5 flex items-center justify-between bg-white/90 backdrop-blur-md border-b border-gray-200/80">
+      <div className="fixed top-0 left-0 w-full z-[500] px-4 md:px-10 py-2.5 flex items-center justify-between bg-white/90 backdrop-blur-md border-b border-gray-200/80">
         {/* Izquierda: Perfil de Usuario */}
         <div
           className="flex items-center gap-2.5 cursor-pointer select-none group"
@@ -111,8 +111,9 @@ function Navbar() {
                 <span className="text-[13px] font-semibold text-black capitalize">
                   {user?.nombre || "Usuario"}
                 </span>
-                <span className="text-[11px] text-gray-500 font-medium">
-                  {user?.email}
+                <span className="text-[11px] text-gray-500 font-medium mt-0.5">
+                  {/* {user?.email} */}
+                  Sesion activa.
                 </span>
               </div>
               <div className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-black flex items-center justify-center overflow-hidden flex-shrink-0 text-white shadow-sm">
@@ -169,6 +170,5 @@ function Navbar() {
     </>
   );
 }
-
 
 export default Navbar;

@@ -1,14 +1,13 @@
 import { useState, useEffect } from "react";
+import Swal from "sweetalert2";
 import { toast } from "sonner";
 import { IoCloseOutline, IoLocationOutline } from "react-icons/io5";
 import { IoIosAdd } from "react-icons/io";
-import { CustomDatePicker } from "./CustomDatePicker";
-import { CustomSelect } from "./CustomSelect";
-import { useServices } from "../hooks/useServices";
-import type { DestinoEntry, DestinoServiceDetail } from "../types/types";
+import { CustomDatePicker } from "../ui/CustomDatePicker";
+import { CustomSelect } from "../ui/CustomSelect";
+import { useServices } from "../../hooks/useServices";
+import type { DestinoEntry, DestinoServiceDetail } from "../../types/types";
 
-const inputCls =
-  "w-full bg-[#f0f0f0] rounded-xl px-4 py-2.5 text-[14px] font-medium text-[#1D1D1F] outline-none focus:ring-2 focus:ring-black/10 transition-all placeholder:text-gray-400 border-none";
 const labelCls =
   "block text-[12px] text-gray-400 font-medium mb-1.5 select-none";
 
@@ -46,6 +45,40 @@ export const DestinationEditModal = ({ isOpen, onClose, onSave, initialData }: P
 
   if (!isOpen) return null;
 
+  const handleSafeClose = () => {
+    // Simple comparison to check for changes
+    const hasChanges = JSON.stringify(newDestino) !== JSON.stringify(initialData);
+
+    if (hasChanges) {
+      Swal.fire({
+        title: "¿Cerrar formulario?",
+        text: "Hay cambios sin guardar. Si cierras el formulario, se perderán todos los datos ingresados.",
+        width: "300px",
+        showCancelButton: true,
+        confirmButtonText: "Sí, cerrar",
+        cancelButtonText: "Cancelar",
+        reverseButtons: true,
+        backdrop: `rgba(0,0,0,0.3)`,
+        color: "#1D1D1F",
+        background: "#ffffff",
+        customClass: {
+          popup: "rounded-[24px] shadow-[0_8px_30px_rgb(0,0,0,0.12)] border border-gray-100 py-5 px-3",
+          title: "text-[16px] font-semibold text-black mt-0",
+          htmlContainer: "text-[13px] text-gray-500 font-medium mt-1 mb-6 mx-0",
+          actions: "flex w-full gap-2 px-3 m-0",
+          confirmButton: "flex-1 bg-[#FF3B30] hover:bg-[#E3342B] text-white font-semibold py-2.5 rounded-xl transition-colors text-[13px] m-0",
+          cancelButton: "flex-1 bg-[#e8e8e8] hover:bg-[#dcdcdc] text-black font-semibold py-2.5 rounded-xl transition-colors text-[13px] m-0"
+        }
+      }).then((result) => {
+        if (result.isConfirmed) {
+          onClose();
+        }
+      });
+    } else {
+      onClose();
+    }
+  };
+
   const handleSave = () => {
     onSave(newDestino);
     onClose();
@@ -80,7 +113,7 @@ export const DestinationEditModal = ({ isOpen, onClose, onSave, initialData }: P
   return (
     <section
       className="fixed inset-0 bg-black/40 z-[1000] flex items-center justify-center p-4 animate-in fade-in duration-200"
-      onClick={onClose}
+      onClick={handleSafeClose}
     >
       <div
         className="w-full max-w-[1250px] bg-white rounded-[20px] shadow-2xl animate-in zoom-in-95 duration-200 flex flex-col max-h-[90vh]"
@@ -96,7 +129,7 @@ export const DestinationEditModal = ({ isOpen, onClose, onSave, initialData }: P
           </h2>
           <button
             type="button"
-            onClick={onClose}
+            onClick={handleSafeClose}
             className="text-gray-400 hover:text-black transition-colors"
           >
             <IoCloseOutline size={22} />

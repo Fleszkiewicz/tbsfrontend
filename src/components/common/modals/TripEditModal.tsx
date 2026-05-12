@@ -1,21 +1,21 @@
-import { useTrip, useUpdateTrip } from "../hooks/useTrips";
-import { modalStore } from "../store/modalStore";
-import { tripsStore } from "../store/tripsStore";
+import { useTrip, useUpdateTrip } from "../../hooks/useTrips";
+import { modalStore } from "../../store/modalStore";
+import { tripsStore } from "../../store/tripsStore";
 import { IoClose, IoCloseCircle } from "react-icons/io5";
-import { renderEstado } from "../utils/utilsTsx";
+import { renderEstado } from "../../utils/utilsTsx";
 import { useForm } from "@tanstack/react-form";
-import type { UpdateTripRequest, UpdateServiceData } from "../types/types";
+import type { UpdateTripRequest, UpdateServiceData } from "../../types/types";
 import { IoIosAdd, IoIosRemove } from "react-icons/io";
 import { toast } from "sonner";
 import {
   useCreateService,
   useDeleteService,
   useServices,
-} from "../hooks/useServices";
-import { formattedAmount } from "../utils/utils";
+} from "../../hooks/useServices";
+import { formattedAmount } from "../../utils/utils";
 import { useState, useEffect } from "react";
-import { CustomDatePicker } from "./CustomDatePicker";
-import { CustomSelect } from "./CustomSelect";
+import { CustomDatePicker } from "../ui/CustomDatePicker";
+import { CustomSelect } from "../ui/CustomSelect";
 
 // Local type for Form State including UI-specific fields
 

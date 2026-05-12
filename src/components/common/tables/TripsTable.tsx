@@ -1,8 +1,8 @@
-import { Table } from "../layout/Table";
-import type { Trip } from "../types/types";
-import { useDeleteTrip } from "../hooks/useTrips";
+import { Table } from "../../layout/Table";
+import type { Trip } from "../../types/types";
+import { useDeleteTrip } from "../../hooks/useTrips";
 import Swal from "sweetalert2";
-import { renderEstado } from "../utils/utilsTsx";
+import { renderEstado } from "../../utils/utilsTsx";
 import { useNavigate } from "react-router-dom";
 import { LuTrash2 } from "react-icons/lu";
 

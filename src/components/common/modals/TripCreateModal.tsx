@@ -1,14 +1,14 @@
-import { useServices } from "../hooks/useServices";
+import { useServices } from "../../hooks/useServices";
 import { toast } from "sonner";
-import { useCreateTrip } from "../hooks/useTrips";
-import { modalStore } from "../store/modalStore";
-import type { CreateTripRequest } from "../types/types";
-import { BtnCloseModal } from "./BtnCloseModal";
+import { useCreateTrip } from "../../hooks/useTrips";
+import { modalStore } from "../../store/modalStore";
+import type { CreateTripRequest } from "../../types/types";
+import { BtnCloseModal } from "../ui/BtnCloseModal";
 import { useForm } from "@tanstack/react-form";
 import { useState, useEffect } from "react";
-import { isIsoDate, toDateInput } from "../utils/utils";
-import { CustomDatePicker } from "./CustomDatePicker";
-import { CustomSelect } from "./CustomSelect";
+import { isIsoDate, toDateInput } from "../../utils/utils";
+import { CustomDatePicker } from "../ui/CustomDatePicker";
+import { CustomSelect } from "../ui/CustomSelect";
 
 export const TripCreateModal = () => {
   const { setIsCreate } = modalStore();
@@ -444,27 +444,22 @@ export const TripCreateModal = () => {
                   },
                 }}
               >
-              {(field) => {
-                const fechaIda = field.form.getFieldValue(
-                  "fecha_ida",
-                ) as string;
-                return (
-                  <div className="flex flex-col">
-                    <label className="block font-semibold mb-1">
-                      Fecha de vuelta:
-                    </label>
-                      <CustomDatePicker
-                        value={field.state.value || ""}
-                        onChange={(val) => field.handleChange(val)}
-                      />
-                    {field.state.meta.errors.length > 0 && (
-                      <em className="text-red-600 text-sm">
-                        {field.state.meta.errors.join(", ")}
-                      </em>
-                    )}
-                  </div>
-                );
-              }}
+              {(field) => (
+                <div className="flex flex-col">
+                  <label className="block font-semibold mb-1">
+                    Fecha de vuelta:
+                  </label>
+                    <CustomDatePicker
+                      value={field.state.value || ""}
+                      onChange={(val) => field.handleChange(val)}
+                    />
+                  {field.state.meta.errors.length > 0 && (
+                    <em className="text-red-600 text-sm">
+                      {field.state.meta.errors.join(", ")}
+                    </em>
+                  )}
+                </div>
+              )}
             </form.Field>
 
             {/* Row 4: Servicios (Full Width) */}

@@ -1,11 +1,12 @@
-import { Table } from "../layout/Table";
-import { formattedAmount } from "../utils/utils";
+import { Table } from "../../layout/Table";
+import { formattedAmount } from "../../utils/utils";
 import { LuTrash2 } from "react-icons/lu";
 
 const headers = [
     { label: "ID", key: "id" },
     { label: "Motivo", key: "motivo" },
     { label: "Fecha", key: "fecha" },
+    { label: "Cotización", key: "cotizacion" },
     { label: "Monto", key: "monto" },
     { label: "Acciones", key: "acciones" },
 ];
@@ -43,6 +44,9 @@ export function ExpensesTable({
                         </td>
                         <td className="py-3 md:py-4 px-2 md:px-4 text-[12px] md:text-sm font-medium text-gray-600 text-center">
                             {expense.fecha ? new Date(expense.fecha).toLocaleDateString("es-AR") : "-"}
+                        </td>
+                        <td className="py-3 md:py-4 px-2 md:px-4 text-[12px] md:text-sm font-bold text-gray-800 text-center uppercase">
+                            {expense.cotizacion ? formattedAmount(expense.cotizacion) : "-"}
                         </td>
                         <td className="py-3 md:py-4 px-2 md:px-4 text-[12px] md:text-sm font-bold text-gray-800 text-center uppercase">
                             {expense.moneda} {formattedAmount(expense.costo)}

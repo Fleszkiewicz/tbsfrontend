@@ -1,4 +1,4 @@
-import { Spinner } from "../common/widget/Spinner";
+import { Spinner } from "../common/ui/widget/Spinner";
 import { useUser } from "../hooks/useUser";
 import { Navigate, Outlet } from "react-router-dom";
 

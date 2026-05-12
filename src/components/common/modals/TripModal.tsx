@@ -1,9 +1,9 @@
-import { useTrip, useDeleteTrip } from "../hooks/useTrips";
-import { modalStore } from "../store/modalStore";
-import { tripsStore } from "../store/tripsStore";
-import { Spinner } from "./widget/Spinner";
-import { formattedAmount } from "../utils/utils";
-import { renderEstado } from "../utils/utilsTsx";
+import { useTrip, useDeleteTrip } from "../../hooks/useTrips";
+import { modalStore } from "../../store/modalStore";
+import { tripsStore } from "../../store/tripsStore";
+import { Spinner } from "../ui/widget/Spinner";
+import { formattedAmount } from "../../utils/utils";
+import { renderEstado } from "../../utils/utilsTsx";
 import { PiXBold } from "react-icons/pi";
 import Swal from "sweetalert2";
 

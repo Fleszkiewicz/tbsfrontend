@@ -1,5 +1,5 @@
-import type { FinanceData } from "../types/types";
-import { formattedAmount } from "../utils/utils";
+import type { FinanceData } from "../../types/types";
+import { formattedAmount } from "../../utils/utils";
 import { FiTrendingDown, FiTrendingUp } from "react-icons/fi";
 
 export function FinanceTable({ financeData, viewMode = null }: { financeData: FinanceData; viewMode?: "ARS" | "USD" | null }) {

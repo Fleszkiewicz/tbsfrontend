@@ -1,11 +1,11 @@
 import { useState } from "react";
-import { Filter } from "../common/Filter";
-import { Pagination } from "../common/Pagination";
-import { ExpensesTable } from "../common/ExpensesTable";
-import type { Expense } from "../common/ExpensesTable";
+import { Filter } from "../common/ui/Filter";
+import { Pagination } from "../common/ui/Pagination";
+import { ExpensesTable } from "../common/tables/ExpensesTable";
+import type { Expense } from "../common/tables/ExpensesTable";
 import { expensesStore } from "../store/expensesStore";
 import { IoSearch, IoAdd, IoReloadOutline } from "react-icons/io5";
-import { ExpenseCreateModal } from "../common/ExpenseCreateModal";
+import { ExpenseCreateModal } from "../common/modals/ExpenseCreateModal";
 
 const MOCK_EXPENSES: Expense[] = [
     { id: 1, motivo: "Alquiler Oficina", moneda: "ARS", cotizacion: null, costo: 150000 },
@@ -91,14 +91,10 @@ function Expenses() {
                 </div>
             </div>
 
-            {isCreateModalOpen && (
-                <section
-                    className="fixed inset-0 bg-black/40 z-[1000] flex items-center justify-center p-4 animate-in fade-in duration-200"
-                    onClick={() => setIsCreateModalOpen(false)}
-                >
-                    <ExpenseCreateModal onClose={() => setIsCreateModalOpen(false)} />
-                </section>
-            )}
+            <ExpenseCreateModal 
+                isOpen={isCreateModalOpen} 
+                onClose={() => setIsCreateModalOpen(false)} 
+            />
         </>
     );
 }

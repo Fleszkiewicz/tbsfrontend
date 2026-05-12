@@ -7,21 +7,25 @@ import {
   IoAirplaneOutline,
   IoLocationOutline,
   IoPeopleOutline,
-  IoAddOutline
+  IoAddOutline,
+  IoAttach
 } from "react-icons/io5";
-import { LuTrash2 } from "react-icons/lu";
+import { LuTrash2, LuFileText } from "react-icons/lu";
 
 
 import { formattedAmount } from "../utils/utils";
 import { useServices } from "../hooks/useServices";
 import { useTrip } from "../hooks/useTrips";
-import { CustomDatePicker } from "../common/CustomDatePicker";
-import { CustomSelect } from "../common/CustomSelect";
-import { Spinner } from "../common/widget/Spinner";
+import { CustomDatePicker } from "../common/ui/CustomDatePicker";
+import { CustomSelect } from "../common/ui/CustomSelect";
+import { Spinner } from "../common/ui/widget/Spinner";
 import { Table } from "../layout/Table";
-import { DestinationModal } from "../common/DestinationModal";
-import { DestinationEditModal } from "../common/DestinationEditModal";
-import type { DestinoEntry } from "../types/types";
+import { DestinationModal } from "../common/modals/DestinationModal";
+import { DestinationEditModal } from "../common/modals/DestinationEditModal";
+import { DestinationsTable } from "../common/tables/DestinationsTable";
+import { ArchiveTable } from "../common/tables/ArchiveTable";
+import { FileUploadModal } from "../common/modals/FileUploadModal";
+import type { DestinoEntry, TripFile } from "../types/types";
 
 // ─── Shared style tokens ──────────────────────────────────────────────────────
 const inputCls =
@@ -127,6 +131,25 @@ function Trip() {
     }));
   };
 
+  const [files, setFiles] = useState<TripFile[]>([]);
+  const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
+
+  const handleFileUpload = (newFiles: File[], category: string) => {
+    const mappedFiles: TripFile[] = newFiles.map(file => ({
+      id: Math.random().toString(36).substr(2, 9),
+      nombre: file.name,
+      categoria: category,
+      url: URL.createObjectURL(file),
+      fecha: new Date().toLocaleDateString("es-AR")
+    }));
+    setFiles(prev => [...prev, ...mappedFiles]);
+    toast.success(`${newFiles.length} archivos subidos correctamente.`);
+  };
+  const handleFileDelete = (id: string) => {
+    setFiles(prev => prev.filter(f => f.id !== id));
+    toast.success("Archivo eliminado.");
+  };
+
   const getExpirationBadge = (dateStr: string | undefined) => {
     if (!dateStr) return null;
     const expDate = new Date(dateStr + "T00:00:00");
@@ -154,6 +177,8 @@ function Trip() {
 
     return null;
   };
+
+
 
   // Set default form values once tripData is loaded
   const form = useForm({
@@ -418,65 +443,14 @@ function Trip() {
         >
           {/* Tabla de destinos */}
           <div className="mb-4">
-            <Table
-              headers={[
-                { label: "Destino", key: "destino" },
-                { label: "Inicio", key: "inicio" },
-                { label: "Fin", key: "fin" },
-                { label: "Servicios", key: "servicios" },
-                { label: "Estado", key: "estado" },
-                { label: "Acciones", key: "acciones" },
-              ]}
-              data={destinos}
-              noDataMessage="No hay destinos agregados aún."
-              footerAction={
-                <button
-                  type="button"
-                  onClick={() => {
-                    setEditingDestinoIndex(null);
-                    setShowDestinoModal(true);
-                  }}
-                  className="w-full flex items-center justify-center gap-1.5 py-3 text-[13px] font-medium text-gray-500 hover:bg-gray-100 hover:text-black transition-colors"
-                >
-                  <IoAddOutline size={18} />
-                  Añadir destino
-                </button>
-              }
-              renderRow={(d, idx) => (
-                <tr
-                  key={idx}
-                  onClick={() => handleEditDestino(idx)}
-                  className="border-b border-gray-250 hover:bg-gray-100 transition-colors group cursor-pointer"
-                >
-                  <td className="py-3 px-2 md:px-4 text-[12px] md:text-[13px] font-bold text-gray-700 capitalize text-center">
-                    {d.destino}
-                  </td>
-                  <td className="py-3 px-2 md:px-4 text-[12px] md:text-[13px] font-medium text-gray-600 text-center">
-                    {d.fecha_ida ? new Date(d.fecha_ida + "T00:00:00").toLocaleDateString("es-AR") : "-"}
-                  </td>
-                  <td className="py-3 px-2 md:px-4 text-[12px] md:text-[13px] font-medium text-gray-600 text-center">
-                    {d.fecha_vuelta ? new Date(d.fecha_vuelta + "T00:00:00").toLocaleDateString("es-AR") : "-"}
-                  </td>
-                  <td className="py-3 px-2 md:px-4 text-[12px] md:text-[13px] font-medium text-gray-600 text-center">
-                    {d.servicios.length > 0 ? d.servicios.length : "-"}
-                  </td>
-                  <td className="py-3 px-2 md:px-4 text-[12px] md:text-[13px] font-medium text-gray-400 text-center">
-                    -
-                  </td>
-                  <td className="py-3 px-1 md:px-3 text-center">
-                    <div className="flex justify-center">
-                      <button
-                        type="button"
-                        className="text-gray-500 hover:text-red-600 transition-colors p-1.5 rounded-lg"
-                        onClick={(e) => handleRemoveDestino(idx, e)}
-                        title="Eliminar destino"
-                      >
-                        <LuTrash2 size={16} />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              )}
+            <DestinationsTable
+              destinos={destinos}
+              onAdd={() => {
+                setEditingDestinoIndex(null);
+                setShowDestinoModal(true);
+              }}
+              onEdit={handleEditDestino}
+              onRemove={handleRemoveDestino}
             />
           </div>
         </SectionCard>
@@ -673,12 +647,36 @@ function Trip() {
 
           </div>
         </SectionCard>
+
+        {/* ══ SECCIÓN 4: Archivos ══ */}
+        <div className="">
+          <SectionCard
+            icon={
+              <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center">
+                <IoAttach size={18} className="text-black" />
+              </div>
+            }
+            title="Archivos adjuntos"
+          >
+            <ArchiveTable
+              files={files}
+              onUpload={() => setIsUploadModalOpen(true)}
+              onDelete={handleFileDelete}
+            />
+          </SectionCard>
+        </div>
       </form>
 
       <DestinationModal
         isOpen={showDestinoModal}
         onClose={() => setShowDestinoModal(false)}
         onSave={handleSaveDestino}
+      />
+
+      <FileUploadModal
+        isOpen={isUploadModalOpen}
+        onClose={() => setIsUploadModalOpen(false)}
+        onUpload={handleFileUpload}
       />
 
       {editingDestinoIndex !== null && (

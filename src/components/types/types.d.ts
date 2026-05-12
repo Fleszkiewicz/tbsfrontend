@@ -51,6 +51,15 @@ interface ApiSingleResponse<T> {
   timestamp: string;
 }
 
+export interface TripFile {
+  id: string;
+  nombre: string;
+  categoria: string;
+  url: string; // Para la descarga
+  fecha: string;
+}
+
+
 export type TripsApiResponse = ApiResponse<Trip>;
 export type TripApiResponse = ApiSingleResponse<Trip>;
 export type ServiceApiResponse = ApiResponse<Service>;

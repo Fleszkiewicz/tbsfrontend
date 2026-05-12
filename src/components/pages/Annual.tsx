@@ -1,7 +1,7 @@
 import { useFinance } from "../hooks/useFinance";
 import { financeStore } from "../store/financeStore";
-import { Filter } from "../common/Filter";
-import { FinanceTable } from "../common/FinanceTable";
+import { Filter } from "../common/ui/Filter";
+import { FinanceTable } from "../common/tables/FinanceTable";
 import { IoReloadOutline } from "react-icons/io5";
 
 function Annual() {
