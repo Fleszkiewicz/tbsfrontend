@@ -29,11 +29,11 @@ import type { DestinoEntry, TripFile } from "../types/types";
 
 // ─── Shared style tokens ──────────────────────────────────────────────────────
 const inputCls =
-  "w-full bg-[#f0f0f0] rounded-xl px-4 py-2.5 text-[14px] font-medium text-[#1D1D1F] outline-none focus:ring-2 focus:ring-black/10 transition-all placeholder:text-gray-400 border-none";
+  "w-full bg-[#f0f0f0] rounded-xl px-3 md:px-4 py-2 md:py-2.5 text-[13px] md:text-[14px] font-medium text-[#1D1D1F] outline-none focus:ring-2 focus:ring-black/10 transition-all placeholder:text-gray-400 border-none";
 const selectCls =
-  "w-full bg-[#f0f0f0] rounded-xl px-4 py-2.5 text-[14px] font-medium text-[#1D1D1F] outline-none focus:ring-2 focus:ring-black/10 transition-all appearance-none cursor-pointer border-none";
+  "w-full bg-[#f0f0f0] rounded-xl px-3 md:px-4 py-2 md:py-2.5 text-[13px] md:text-[14px] font-medium text-[#1D1D1F] outline-none focus:ring-2 focus:ring-black/10 transition-all appearance-none cursor-pointer border-none";
 const labelCls =
-  "block text-[12px] text-gray-400 font-medium mb-1.5 select-none";
+  "block text-[11px] md:text-[12px] text-gray-400 font-medium mb-1 md:mb-1.5 select-none";
 
 // ─── Section Card wrapper ─────────────────────────────────────────────────────
 function SectionCard({
@@ -76,6 +76,7 @@ function Trip() {
   const tripData = tripResponse?.data;
 
   // ── Local state: destinos ──
+  const [selectedMoneda, setSelectedMoneda] = useState<number>(0);
   const [destinos, setDestinos] = useState<DestinoEntry[]>([]);
   const [showDestinoModal, setShowDestinoModal] = useState(false);
   const [editingDestinoIndex, setEditingDestinoIndex] = useState<number | null>(null);
@@ -188,6 +189,10 @@ function Trip() {
       fecha_vuelta: "",
       destino: "",
       apellido: "",
+      moneda: 0,
+      valor_total: null,
+      valor_total_usd: null,
+      cotizacion: null,
     } as any,
     onSubmit: async () => {
       // Logic for saving modifications later
@@ -203,6 +208,15 @@ function Trip() {
       form.setFieldValue("fecha_vuelta", tripData.fecha_vuelta ? tripData.fecha_vuelta.split("T")[0] : "");
       form.setFieldValue("destino", tripData.destino?.toLowerCase() || "");
       form.setFieldValue("apellido", tripData.apellido || "");
+
+      const monedaMap: Record<string, number> = { "ars": 1, "usd": 2, "mixto": 3 };
+      const numMoneda = tripData.moneda ? (monedaMap[tripData.moneda.toLowerCase()] || 0) : 0;
+      form.setFieldValue("moneda", numMoneda);
+      setSelectedMoneda(numMoneda);
+
+      form.setFieldValue("valor_total", tripData.valor_total || null);
+      form.setFieldValue("valor_total_usd", tripData.valor_total_usd || null);
+      form.setFieldValue("cotizacion", tripData.cotizacion || null);
     }
   }, [tripData, form]);
 
@@ -226,7 +240,7 @@ function Trip() {
             <IoArrowBack size={15} />
             Volver
           </button>
-          <h1 className="text-[32px] font-bold text-[#1D1D1F] tracking-tight select-none cursor-default">
+          <h1 className="text-[29px] md:text-[32px] lg:text-[35px] font-bold text-[#1D1D1F] tracking-tight select-none cursor-default">
             Legajo {id}
           </h1>
         </div>
@@ -234,7 +248,7 @@ function Trip() {
         <button
           type="button"
           onClick={() => form.handleSubmit()}
-          className="bg-black text-white font-semibold text-[14px] px-6 py-2.5 rounded-full hover:bg-gray-800 active:scale-[0.97] transition-all shadow-sm select-none"
+          className="bg-black text-white font-semibold text-[12px] md:text-[14px] px-4 md:px-6 py-2 md:py-2.5 rounded-full hover:bg-gray-800 active:scale-[0.97] transition-all shadow-sm select-none"
         >
           Guardar cambios
         </button>
@@ -256,11 +270,11 @@ function Trip() {
           }
           title="Información de viaje"
         >
-          <div className="grid grid-cols-6 gap-5">
+          <div className="grid grid-cols-2 md:grid-cols-6 gap-5">
             {/* Fila 1: Creación | Inicio | Fin */}
             <form.Field name="fecha">
               {(field) => (
-                <div className="flex flex-col col-span-2">
+                <div className="flex flex-col col-span-1 md:col-span-2">
                   <label className={labelCls}>Creación de reserva</label>
                   <CustomDatePicker
                     value={field.state.value || ""}
@@ -272,7 +286,7 @@ function Trip() {
 
             <form.Field name="fecha_ida">
               {(field) => (
-                <div className="flex flex-col col-span-2">
+                <div className="flex flex-col col-span-1 md:col-span-2">
                   <label className={labelCls}>Fecha de inicio</label>
                   <CustomDatePicker
                     value={field.state.value || ""}
@@ -284,7 +298,7 @@ function Trip() {
 
             <form.Field name="fecha_vuelta">
               {(field) => (
-                <div className="flex flex-col col-span-2">
+                <div className="flex flex-col col-span-1 md:col-span-2">
                   <label className={labelCls}>Fecha de fin</label>
                   <CustomDatePicker
                     value={field.state.value || ""}
@@ -297,7 +311,7 @@ function Trip() {
             {/* Fila 2: Tipo de destino | Sucursal | Pago */}
             <form.Field name="destino">
               {(field) => (
-                <div className="flex flex-col col-span-2">
+                <div className="flex flex-col col-span-1 md:col-span-2">
                   <label className={labelCls}>Tipo de destino</label>
                   <CustomSelect
                     value={field.state.value || ""}
@@ -312,7 +326,7 @@ function Trip() {
               )}
             </form.Field>
 
-            <div className="flex flex-col col-span-2">
+            <div className="flex flex-col col-span-1 md:col-span-2">
               <label className={labelCls}>Sucursal</label>
               <CustomSelect
                 value=""
@@ -325,7 +339,7 @@ function Trip() {
               />
             </div>
 
-            <div className="flex flex-col col-span-2">
+            <div className="flex flex-col col-span-1 md:col-span-2">
               <label className={labelCls}>Pago</label>
               <CustomSelect
                 value=""
@@ -338,6 +352,178 @@ function Trip() {
                 ]}
               />
             </div>
+
+            {/* Fila 3+: Detalle económico */}
+            <form.Field
+              name="moneda"
+              validators={{
+                onSubmit: ({ value }) => {
+                  if (!value) return "La moneda es obligatoria";
+                },
+              }}
+            >
+              {(field) => (
+                <div className="flex flex-col col-span-1 md:col-span-3">
+                  <label className={labelCls}>Tipo de moneda</label>
+                  <CustomSelect
+                    value={field.state.value ?? 0}
+                    onChange={(val) => {
+                      const numVal = Number(val) as 0 | 1 | 2 | 3;
+                      field.handleChange(numVal);
+                      setSelectedMoneda(numVal);
+                      if (numVal === 2 || numVal === 3) {
+                        form.setFieldValue("cotizacion", 0);
+                      } else {
+                        form.setFieldValue("cotizacion", null);
+                      }
+                    }}
+                    options={[
+                      { label: "Seleccionar", value: 0 },
+                      { label: "ARS", value: 1 },
+                      { label: "USD", value: 2 },
+                      { label: "Mixto", value: 3 },
+                    ]}
+                  />
+                  {field.state.meta.errors.length > 0 && (
+                    <em className="text-red-500 text-[12px] mt-1 font-medium">{field.state.meta.errors.join(", ")}</em>
+                  )}
+                </div>
+              )}
+            </form.Field>
+
+            {(selectedMoneda === 1 || selectedMoneda === 3) ? (
+              <form.Field
+                name="valor_total"
+                validators={{
+                  onSubmit: ({ value }) => {
+                    if (!value) return "El valor total ARS es obligatorio";
+                  },
+                }}
+              >
+                {(field) => (
+                  <div className="flex flex-col col-span-1 md:col-span-3">
+                    <label className={labelCls}>Valor total ARS</label>
+                    <div className="relative">
+                      <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[14px] font-semibold text-gray-400">
+                        $
+                      </span>
+                      <input
+                        type="text"
+                        value={
+                          field.state.value
+                            ? new Intl.NumberFormat("es-AR", {
+                              minimumFractionDigits: 0,
+                              maximumFractionDigits: 0,
+                            }).format(field.state.value)
+                            : ""
+                        }
+                        onChange={(e) => {
+                          const soloNumeros = e.target.value.replace(/\D/g, "");
+                          field.handleChange(Number(soloNumeros));
+                        }}
+                        placeholder="0"
+                        className={`${inputCls} !pl-8`}
+                      />
+                    </div>
+                    {field.state.meta.errors.length > 0 && (
+                      <em className="text-red-500 text-[12px] mt-1 font-medium">{field.state.meta.errors.join(", ")}</em>
+                    )}
+                  </div>
+                )}
+              </form.Field>
+            ) : (
+              <div className="hidden md:block col-span-1 md:col-span-3"></div>
+            )}
+
+            {(selectedMoneda === 2 || selectedMoneda === 3) ? (
+              <form.Field
+                name="cotizacion"
+                validators={{
+                  onChange: ({ value }) => {
+                    if (!value || Number(value) <= 0) return "La cotización debe ser mayor a 0";
+                  },
+                  onSubmit: ({ value }) => {
+                    if (!value || Number(value) <= 0) return "La cotización es obligatoria y debe ser mayor a 0";
+                  },
+                }}
+              >
+                {(field) => (
+                  <div className="flex flex-col col-span-1 md:col-span-3">
+                    <label className={labelCls}>Cotización USD / ARS</label>
+                    <div className="relative">
+                      <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[14px] font-semibold text-gray-400">
+                        $
+                      </span>
+                      <input
+                        type="text"
+                        value={
+                          typeof field.state.value === "number"
+                            ? new Intl.NumberFormat("es-AR", {
+                              minimumFractionDigits: 0,
+                              maximumFractionDigits: 0,
+                            }).format(field.state.value)
+                            : ""
+                        }
+                        onChange={(e) => {
+                          const soloNumeros = e.target.value.replace(/\D/g, "");
+                          field.handleChange(Number(soloNumeros));
+                        }}
+                        placeholder="0"
+                        className={`${inputCls} !pl-8`}
+                      />
+                    </div>
+                    {field.state.meta.errors.length > 0 && (
+                      <em className="text-red-500 text-[12px] mt-1 font-medium">{field.state.meta.errors.join(", ")}</em>
+                    )}
+                  </div>
+                )}
+              </form.Field>
+            ) : (
+              <div className="hidden md:block col-span-1 md:col-span-3"></div>
+            )}
+
+            {(selectedMoneda === 2 || selectedMoneda === 3) && (
+              <form.Field
+                name="valor_total_usd"
+                validators={{
+                  onSubmit: ({ value }) => {
+                    if (!value) return "El valor total USD es obligatorio";
+                  },
+                }}
+              >
+                {(field) => (
+                  <div className="flex flex-col col-span-1 md:col-span-3">
+                    <label className={labelCls}>Valor total USD</label>
+                    <div className="relative">
+                      <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[14px] font-semibold text-gray-400">
+                        US$
+                      </span>
+                      <input
+                        type="text"
+                        value={
+                          field.state.value
+                            ? new Intl.NumberFormat("es-AR", {
+                              minimumFractionDigits: 0,
+                              maximumFractionDigits: 0,
+                            }).format(field.state.value)
+                            : ""
+                        }
+                        onChange={(e) => {
+                          const soloNumeros = e.target.value.replace(/\D/g, "");
+                          field.handleChange(Number(soloNumeros));
+                        }}
+                        placeholder="0"
+                        className={`${inputCls} !pl-12`}
+                      />
+                    </div>
+                    {field.state.meta.errors.length > 0 && (
+                      <em className="text-red-500 text-[12px] mt-1 font-medium">{field.state.meta.errors.join(", ")}</em>
+                    )}
+                  </div>
+                )}
+              </form.Field>
+            )}
+
           </div>
         </SectionCard>
 
@@ -471,16 +657,16 @@ function Trip() {
               <p className="text-[14px] font-semibold text-[#1D1D1F] mb-4 select-none">
                 Pasajero 1  -  Titular de la reserva
               </p>
-              <div className="grid grid-cols-6 gap-4">
+              <div className="grid grid-cols-2 md:grid-cols-6 gap-4">
                 {/* Fila 1: Nombre | Apellido | Tipo */}
-                <div className="flex flex-col col-span-2">
+                <div className="flex flex-col col-span-1 md:col-span-2">
                   <label className={labelCls}>Nombre</label>
                   <input type="text" placeholder="Nombre" className={inputCls} />
                 </div>
 
                 <form.Field name="apellido">
                   {(field) => (
-                    <div className="flex flex-col col-span-2">
+                    <div className="flex flex-col col-span-1 md:col-span-2">
                       <label className={labelCls}>Apellido</label>
                       <input
                         type="text"
@@ -493,7 +679,7 @@ function Trip() {
                   )}
                 </form.Field>
 
-                <div className="flex flex-col col-span-2">
+                <div className="flex flex-col col-span-1 md:col-span-2">
                   <label className={labelCls}>Edad</label>
                   <CustomSelect
                     value=""
@@ -507,13 +693,14 @@ function Trip() {
                     ]}
                   />
                 </div>
+                <div className="flex flex-col md:hidden"></div>
 
                 {/* Fila 2: DNI | Vencimiento DNI */}
-                <div className="flex flex-col col-span-3">
+                <div className="flex flex-col col-span-1 md:col-span-3">
                   <label className={labelCls}>DNI</label>
                   <input type="text" placeholder="00.000.000" className={inputCls} />
                 </div>
-                <div className="flex flex-col col-span-3">
+                <div className="flex flex-col col-span-1 md:col-span-3">
                   <label className={labelCls}>
                     Vencimiento DNI
                     {getExpirationBadge(passengerDates["p1"]?.dni)}
@@ -525,11 +712,11 @@ function Trip() {
                 </div>
 
                 {/* Fila 3: Pasaporte | Vencimiento Pasaporte */}
-                <div className="flex flex-col col-span-3">
+                <div className="flex flex-col col-span-1 md:col-span-3">
                   <label className={labelCls}>Pasaporte</label>
                   <input type="text" placeholder="AAA000000" className={inputCls} />
                 </div>
-                <div className="flex flex-col col-span-3">
+                <div className="flex flex-col col-span-1 md:col-span-3">
                   <label className={labelCls}>
                     Vencimiento Pasaporte
                     {getExpirationBadge(passengerDates["p1"]?.pasaporte)}
@@ -541,11 +728,11 @@ function Trip() {
                 </div>
 
                 {/* Fila 4: Email | Contacto */}
-                <div className="flex flex-col col-span-3">
+                <div className="flex flex-col col-span-1 md:col-span-3">
                   <label className={labelCls}>Email</label>
                   <input type="email" placeholder="correo@email.com" className={inputCls} />
                 </div>
-                <div className="flex flex-col col-span-3">
+                <div className="flex flex-col col-span-1 md:col-span-3">
                   <label className={labelCls}>Contacto</label>
                   <input type="text" placeholder="+54 11 0000-0000" className={inputCls} />
                 </div>
@@ -568,17 +755,17 @@ function Trip() {
                     <LuTrash2 size={16} />
                   </button>
                 </div>
-                <div className="grid grid-cols-6 gap-4">
+                <div className="grid grid-cols-2 md:grid-cols-6 gap-4">
                   {/* Fila 1: Nombre | Apellido | Tipo */}
-                  <div className="flex flex-col col-span-2">
+                  <div className="flex flex-col col-span-1 md:col-span-2">
                     <label className={labelCls}>Nombre</label>
                     <input type="text" placeholder="Nombre" className={inputCls} />
                   </div>
-                  <div className="flex flex-col col-span-2">
+                  <div className="flex flex-col col-span-1 md:col-span-2">
                     <label className={labelCls}>Apellido</label>
                     <input type="text" placeholder="Apellido" className={inputCls} />
                   </div>
-                  <div className="flex flex-col col-span-2">
+                  <div className="flex flex-col col-span-1 md:col-span-2">
                     <label className={labelCls}>Tipo de pasajero</label>
                     <CustomSelect
                       value=""
@@ -592,12 +779,13 @@ function Trip() {
                       ]}
                     />
                   </div>
+                  <div className="flex flex-col md:hidden"></div>
                   {/* Fila 2: DNI | Vencimiento DNI */}
-                  <div className="flex flex-col col-span-3">
+                  <div className="flex flex-col col-span-1 md:col-span-3">
                     <label className={labelCls}>DNI</label>
                     <input type="text" placeholder="00.000.000" className={inputCls} />
                   </div>
-                  <div className="flex flex-col col-span-3">
+                  <div className="flex flex-col col-span-1 md:col-span-3">
                     <label className={labelCls}>
                       Vencimiento DNI
                       {getExpirationBadge(passengerDates[id.toString()]?.dni)}
@@ -608,11 +796,11 @@ function Trip() {
                     />
                   </div>
                   {/* Fila 3: Pasaporte | Vencimiento Pasaporte */}
-                  <div className="flex flex-col col-span-3">
+                  <div className="flex flex-col col-span-1 md:col-span-3">
                     <label className={labelCls}>Pasaporte</label>
                     <input type="text" placeholder="AAA000000" className={inputCls} />
                   </div>
-                  <div className="flex flex-col col-span-3">
+                  <div className="flex flex-col col-span-1 md:col-span-3">
                     <label className={labelCls}>
                       Vencimiento Pasaporte
                       {getExpirationBadge(passengerDates[id.toString()]?.pasaporte)}
@@ -623,11 +811,11 @@ function Trip() {
                     />
                   </div>
                   {/* Fila 4: Email | Contacto */}
-                  <div className="flex flex-col col-span-3">
+                  <div className="flex flex-col col-span-1 md:col-span-3">
                     <label className={labelCls}>Email</label>
                     <input type="email" placeholder="correo@email.com" className={inputCls} />
                   </div>
-                  <div className="flex flex-col col-span-3">
+                  <div className="flex flex-col col-span-1 md:col-span-3">
                     <label className={labelCls}>Contacto</label>
                     <input type="text" placeholder="+54 11 0000-0000" className={inputCls} />
                   </div>

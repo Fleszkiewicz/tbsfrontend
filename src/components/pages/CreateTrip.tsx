@@ -26,11 +26,11 @@ import type { CreateTripRequest, DestinoEntry, TripFile } from "../types/types";
 
 // ─── Shared style tokens ──────────────────────────────────────────────────────
 const inputCls =
-  "w-full bg-[#f0f0f0] rounded-xl px-4 py-2.5 text-[14px] font-medium text-[#1D1D1F] outline-none focus:ring-2 focus:ring-black/10 transition-all placeholder:text-gray-400 border-none";
+  "w-full bg-[#f0f0f0] rounded-xl px-3 md:px-4 py-2 md:py-2.5 text-[13px] md:text-[14px] font-medium text-[#1D1D1F] outline-none focus:ring-2 focus:ring-black/10 transition-all placeholder:text-gray-400 border-none";
 const selectCls =
-  "w-full bg-[#f0f0f0] rounded-xl px-4 py-2.5 text-[14px] font-medium text-[#1D1D1F] outline-none focus:ring-2 focus:ring-black/10 transition-all appearance-none cursor-pointer border-none";
+  "w-full bg-[#f0f0f0] rounded-xl px-3 md:px-4 py-2 md:py-2.5 text-[13px] md:text-[14px] font-medium text-[#1D1D1F] outline-none focus:ring-2 focus:ring-black/10 transition-all appearance-none cursor-pointer border-none";
 const labelCls =
-  "block text-[12px] text-gray-400 font-medium mb-1.5 select-none";
+  "block text-[11px] md:text-[12px] text-gray-400 font-medium mb-1 md:mb-1.5 select-none";
 const errorCls = "text-red-500 text-[12px] mt-1 font-medium";
 
 // ─── Section Card wrapper ─────────────────────────────────────────────────────
@@ -248,7 +248,7 @@ function CreateTrip() {
             <IoArrowBack size={15} />
             Volver
           </button>
-          <h1 className="text-[32px] font-bold text-[#1D1D1F] tracking-tight select-none cursor-default">
+          <h1 className="text-[29px] md:text-[32px] lg:text-[35px] font-bold text-[#1D1D1F] tracking-tight select-none cursor-default">
             Nueva Reserva
           </h1>
         </div>
@@ -259,7 +259,7 @@ function CreateTrip() {
               type="button"
               onClick={() => form.handleSubmit()}
               disabled={isSubmitting}
-              className="bg-black text-white font-semibold text-[14px] px-6 py-2.5 rounded-full hover:bg-gray-800 active:scale-[0.97] transition-all shadow-sm disabled:opacity-50 disabled:cursor-not-allowed select-none"
+              className="bg-black text-white font-semibold text-[12px] md:text-[14px] px-4 md:px-6 py-2 md:py-2.5 rounded-full hover:bg-gray-800 active:scale-[0.97] transition-all shadow-sm disabled:opacity-50 disabled:cursor-not-allowed select-none"
             >
               {isSubmitting ? "Guardando..." : "Guardar reserva"}
             </button>
@@ -283,7 +283,7 @@ function CreateTrip() {
           }
           title="Información de viaje"
         >
-          <div className="grid grid-cols-6 gap-5">
+          <div className="grid grid-cols-2 md:grid-cols-6 gap-5">
             {/* Fila 1: Creación | Inicio | Fin */}
             <form.Field
               name="fecha"
@@ -295,7 +295,7 @@ function CreateTrip() {
               }}
             >
               {(field) => (
-                <div className="flex flex-col col-span-2">
+                <div className="flex flex-col col-span-1 md:col-span-2">
                   <label className={labelCls}>Creación de reserva</label>
                   <CustomDatePicker
                     value={field.state.value || ""}
@@ -318,7 +318,7 @@ function CreateTrip() {
               }}
             >
               {(field) => (
-                <div className="flex flex-col col-span-2">
+                <div className="flex flex-col col-span-1 md:col-span-2">
                   <label className={labelCls}>Fecha de inicio</label>
                   <CustomDatePicker
                     value={field.state.value || ""}
@@ -344,7 +344,7 @@ function CreateTrip() {
               }}
             >
               {(field) => (
-                <div className="flex flex-col col-span-2">
+                <div className="flex flex-col col-span-1 md:col-span-2">
                   <label className={labelCls}>Fecha de fin</label>
                   <CustomDatePicker
                     value={field.state.value || ""}
@@ -367,7 +367,7 @@ function CreateTrip() {
               }}
             >
               {(field) => (
-                <div className="flex flex-col col-span-2">
+                <div className="flex flex-col col-span-1 md:col-span-2">
                   <label className={labelCls}>Tipo de destino</label>
                   <CustomSelect
                     value={field.state.value}
@@ -387,7 +387,7 @@ function CreateTrip() {
               )}
             </form.Field>
 
-            <div className="flex flex-col col-span-2">
+            <div className="flex flex-col col-span-1 md:col-span-2">
               <label className={labelCls}>Sucursal</label>
               <CustomSelect
                 value=""
@@ -400,7 +400,7 @@ function CreateTrip() {
               />
             </div>
 
-            <div className="flex flex-col col-span-2">
+            <div className="flex flex-col col-span-1 md:col-span-2">
               <label className={labelCls}>Pago</label>
               <CustomSelect
                 value=""
@@ -424,7 +424,7 @@ function CreateTrip() {
               }}
             >
               {(field) => (
-                <div className="flex flex-col col-span-3">
+                <div className="flex flex-col col-span-1 md:col-span-3">
                   <label className={labelCls}>Tipo de moneda</label>
                   <CustomSelect
                     value={field.state.value ?? 0}
@@ -452,7 +452,7 @@ function CreateTrip() {
               )}
             </form.Field>
 
-            {(selectedMoneda === 1 || selectedMoneda === 3) && (
+            {(selectedMoneda === 1 || selectedMoneda === 3) ? (
               <form.Field
                 name="valor_total"
                 validators={{
@@ -462,10 +462,10 @@ function CreateTrip() {
                 }}
               >
                 {(field) => (
-                  <div className="flex flex-col col-span-3">
+                  <div className="flex flex-col col-span-1 md:col-span-3">
                     <label className={labelCls}>Valor total ARS</label>
                     <div className="relative">
-                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[14px] font-semibold text-gray-400 -ml-1">
+                      <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[14px] font-semibold text-gray-400">
                         $
                       </span>
                       <input
@@ -483,7 +483,7 @@ function CreateTrip() {
                           field.handleChange(Number(soloNumeros));
                         }}
                         placeholder="0"
-                        className={`${inputCls} pl-7`}
+                        className={`${inputCls} !pl-8`}
                       />
                     </div>
                     {field.state.meta.errors.length > 0 && (
@@ -492,51 +492,11 @@ function CreateTrip() {
                   </div>
                 )}
               </form.Field>
+            ) : (
+              <div className="hidden md:block col-span-1 md:col-span-3"></div>
             )}
 
-            {(selectedMoneda === 2 || selectedMoneda === 3) && (
-              <form.Field
-                name="valor_total_usd"
-                validators={{
-                  onSubmit: ({ value }) => {
-                    if (!value) return "El valor total USD es obligatorio";
-                  },
-                }}
-              >
-                {(field) => (
-                  <div className="flex flex-col col-span-3">
-                    <label className={labelCls}>Valor total USD</label>
-                    <div className="relative">
-                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[14px] font-semibold text-gray-400 -ml-2">
-                        US$
-                      </span>
-                      <input
-                        type="text"
-                        value={
-                          field.state.value
-                            ? new Intl.NumberFormat("es-AR", {
-                              minimumFractionDigits: 0,
-                              maximumFractionDigits: 0,
-                            }).format(field.state.value)
-                            : ""
-                        }
-                        onChange={(e) => {
-                          const soloNumeros = e.target.value.replace(/\D/g, "");
-                          field.handleChange(Number(soloNumeros));
-                        }}
-                        placeholder="0"
-                        className={`${inputCls} pl-10`}
-                      />
-                    </div>
-                    {field.state.meta.errors.length > 0 && (
-                      <em className={errorCls}>{field.state.meta.errors.join(", ")}</em>
-                    )}
-                  </div>
-                )}
-              </form.Field>
-            )}
-
-            {(selectedMoneda === 2 || selectedMoneda === 3) && (
+            {(selectedMoneda === 2 || selectedMoneda === 3) ? (
               <form.Field
                 name="cotizacion"
                 validators={{
@@ -549,10 +509,10 @@ function CreateTrip() {
                 }}
               >
                 {(field) => (
-                  <div className="flex flex-col col-span-3">
+                  <div className="flex flex-col col-span-1 md:col-span-3">
                     <label className={labelCls}>Cotización USD / ARS</label>
                     <div className="relative">
-                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[14px] font-semibold text-gray-400 -ml-1">
+                      <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[14px] font-semibold text-gray-400">
                         $
                       </span>
                       <input
@@ -570,7 +530,51 @@ function CreateTrip() {
                           field.handleChange(Number(soloNumeros));
                         }}
                         placeholder="0"
-                        className={`${inputCls} pl-7`}
+                        className={`${inputCls} !pl-8`}
+                      />
+                    </div>
+                    {field.state.meta.errors.length > 0 && (
+                      <em className={errorCls}>{field.state.meta.errors.join(", ")}</em>
+                    )}
+                  </div>
+                )}
+              </form.Field>
+            ) : (
+              <div className="hidden md:block col-span-1 md:col-span-3"></div>
+            )}
+
+            {(selectedMoneda === 2 || selectedMoneda === 3) && (
+              <form.Field
+                name="valor_total_usd"
+                validators={{
+                  onSubmit: ({ value }) => {
+                    if (!value) return "El valor total USD es obligatorio";
+                  },
+                }}
+              >
+                {(field) => (
+                  <div className="flex flex-col col-span-1 md:col-span-3">
+                    <label className={labelCls}>Valor total USD</label>
+                    <div className="relative">
+                      <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[14px] font-semibold text-gray-400">
+                        US$
+                      </span>
+                      <input
+                        type="text"
+                        value={
+                          field.state.value
+                            ? new Intl.NumberFormat("es-AR", {
+                              minimumFractionDigits: 0,
+                              maximumFractionDigits: 0,
+                            }).format(field.state.value)
+                            : ""
+                        }
+                        onChange={(e) => {
+                          const soloNumeros = e.target.value.replace(/\D/g, "");
+                          field.handleChange(Number(soloNumeros));
+                        }}
+                        placeholder="0"
+                        className={`${inputCls} !pl-12`}
                       />
                     </div>
                     {field.state.meta.errors.length > 0 && (
@@ -622,9 +626,9 @@ function CreateTrip() {
               <p className="text-[14px] font-semibold text-[#1D1D1F] mb-4 select-none">
                 Pasajero 1  -  Titular de la reserva
               </p>
-              <div className="grid grid-cols-6 gap-4">
+              <div className="grid grid-cols-2 md:grid-cols-6 gap-4">
                 {/* Fila 1: Nombre | Apellido | Tipo */}
-                <div className="flex flex-col col-span-2">
+                <div className="flex flex-col col-span-1 md:col-span-2">
                   <label className={labelCls}>Nombre</label>
                   <input type="text" placeholder="Nombre" className={inputCls} />
                 </div>
@@ -638,7 +642,7 @@ function CreateTrip() {
                   }}
                 >
                   {(field) => (
-                    <div className="flex flex-col col-span-2">
+                    <div className="flex flex-col col-span-1 md:col-span-2">
                       <label className={labelCls}>Apellido</label>
                       <input
                         type="text"
@@ -654,7 +658,7 @@ function CreateTrip() {
                   )}
                 </form.Field>
 
-                <div className="flex flex-col col-span-2">
+                <div className="flex flex-col col-span-1 md:col-span-2">
                   <label className={labelCls}>Edad</label>
                   <CustomSelect
                     value=""
@@ -668,13 +672,14 @@ function CreateTrip() {
                     ]}
                   />
                 </div>
+                <div className="flex flex-col md:hidden"></div>
 
                 {/* Fila 2: DNI | Vencimiento DNI */}
-                <div className="flex flex-col col-span-3">
+                <div className="flex flex-col col-span-1 md:col-span-3">
                   <label className={labelCls}>DNI</label>
                   <input type="text" placeholder="00.000.000" className={inputCls} />
                 </div>
-                <div className="flex flex-col col-span-3">
+                <div className="flex flex-col col-span-1 md:col-span-3">
                   <label className={labelCls}>
                     Vencimiento DNI
                     {getExpirationBadge(passengerDates["p1"]?.dni)}
@@ -686,11 +691,11 @@ function CreateTrip() {
                 </div>
 
                 {/* Fila 3: Pasaporte | Vencimiento Pasaporte */}
-                <div className="flex flex-col col-span-3">
+                <div className="flex flex-col col-span-1 md:col-span-3">
                   <label className={labelCls}>Pasaporte</label>
                   <input type="text" placeholder="AAA000000" className={inputCls} />
                 </div>
-                <div className="flex flex-col col-span-3">
+                <div className="flex flex-col col-span-1 md:col-span-3">
                   <label className={labelCls}>
                     Vencimiento Pasaporte
                     {getExpirationBadge(passengerDates["p1"]?.pasaporte)}
@@ -702,11 +707,11 @@ function CreateTrip() {
                 </div>
 
                 {/* Fila 4: Email | Contacto */}
-                <div className="flex flex-col col-span-3">
+                <div className="flex flex-col col-span-1 md:col-span-3">
                   <label className={labelCls}>Email</label>
                   <input type="email" placeholder="correo@email.com" className={inputCls} />
                 </div>
-                <div className="flex flex-col col-span-3">
+                <div className="flex flex-col col-span-1 md:col-span-3">
                   <label className={labelCls}>Contacto</label>
                   <input type="text" placeholder="+54 11 0000-0000" className={inputCls} />
                 </div>
@@ -729,17 +734,17 @@ function CreateTrip() {
                     <LuTrash2 size={16} />
                   </button>
                 </div>
-                <div className="grid grid-cols-6 gap-4">
+                <div className="grid grid-cols-2 md:grid-cols-6 gap-4">
                   {/* Fila 1: Nombre | Apellido | Tipo */}
-                  <div className="flex flex-col col-span-2">
+                  <div className="flex flex-col col-span-1 md:col-span-2">
                     <label className={labelCls}>Nombre</label>
                     <input type="text" placeholder="Nombre" className={inputCls} />
                   </div>
-                  <div className="flex flex-col col-span-2">
+                  <div className="flex flex-col col-span-1 md:col-span-2">
                     <label className={labelCls}>Apellido</label>
                     <input type="text" placeholder="Apellido" className={inputCls} />
                   </div>
-                  <div className="flex flex-col col-span-2">
+                  <div className="flex flex-col col-span-1 md:col-span-2">
                     <label className={labelCls}>Tipo de pasajero</label>
                     <CustomSelect
                       value=""
@@ -753,12 +758,13 @@ function CreateTrip() {
                       ]}
                     />
                   </div>
+                  <div className="flex flex-col md:hidden"></div>
                   {/* Fila 2: DNI | Vencimiento DNI */}
-                  <div className="flex flex-col col-span-3">
+                  <div className="flex flex-col col-span-1 md:col-span-3">
                     <label className={labelCls}>DNI</label>
                     <input type="text" placeholder="00.000.000" className={inputCls} />
                   </div>
-                  <div className="flex flex-col col-span-3">
+                  <div className="flex flex-col col-span-1 md:col-span-3">
                     <label className={labelCls}>
                       Vencimiento DNI
                       {getExpirationBadge(passengerDates[id.toString()]?.dni)}
@@ -769,11 +775,11 @@ function CreateTrip() {
                     />
                   </div>
                   {/* Fila 3: Pasaporte | Vencimiento Pasaporte */}
-                  <div className="flex flex-col col-span-3">
+                  <div className="flex flex-col col-span-1 md:col-span-3">
                     <label className={labelCls}>Pasaporte</label>
                     <input type="text" placeholder="AAA000000" className={inputCls} />
                   </div>
-                  <div className="flex flex-col col-span-3">
+                  <div className="flex flex-col col-span-1 md:col-span-3">
                     <label className={labelCls}>
                       Vencimiento Pasaporte
                       {getExpirationBadge(passengerDates[id.toString()]?.pasaporte)}
@@ -784,11 +790,11 @@ function CreateTrip() {
                     />
                   </div>
                   {/* Fila 4: Email | Contacto */}
-                  <div className="flex flex-col col-span-3">
+                  <div className="flex flex-col col-span-1 md:col-span-3">
                     <label className={labelCls}>Email</label>
                     <input type="email" placeholder="correo@email.com" className={inputCls} />
                   </div>
-                  <div className="flex flex-col col-span-3">
+                  <div className="flex flex-col col-span-1 md:col-span-3">
                     <label className={labelCls}>Contacto</label>
                     <input type="text" placeholder="+54 11 0000-0000" className={inputCls} />
                   </div>

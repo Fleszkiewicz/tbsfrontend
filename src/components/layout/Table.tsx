@@ -24,11 +24,11 @@ export function Table<T>({
   return (
     <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white flex flex-col">
       <div className="overflow-x-auto w-full">
-        <table className="w-full border-collapse bg-white">
+        <table className="w-full min-w-max border-collapse bg-white">
           <thead>
             <tr className="bg-black text-white ">
               {headers.map((header) => (
-                <th key={header.key} className={`py-2.5 px-2 md:px-4 text-center text-[11px] md:text-[13px] font-semibold ${header.className || ""}`}>
+                <th key={header.key} className={`py-3 px-4 md:px-5 text-center text-[12px] md:text-[13px] font-semibold whitespace-nowrap ${header.className || ""}`}>
                   {header.label}
                 </th>
               ))}

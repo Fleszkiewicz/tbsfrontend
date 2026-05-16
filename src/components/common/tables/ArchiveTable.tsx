@@ -64,7 +64,7 @@ export const ArchiveTable = ({ files, onUpload, onDelete }: ArchiveTableProps) =
               </span>
             </td>
             <td className="px-6 py-4 text-right">
-              <div className="flex items-center justify-end gap-2">
+              <div className="flex items-center justify-end gap-1 md:gap-2 -mr-3 md:mr-0">
                 <button
                   onClick={() => setPreviewFile(file)}
                   className="w-8 h-8 rounded-lg flex items-center justify-center text-gray-400 hover:text-blue-500 hover:bg-blue-50 transition-all"

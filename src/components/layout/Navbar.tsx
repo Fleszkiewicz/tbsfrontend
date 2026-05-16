@@ -69,7 +69,7 @@ function Navbar() {
           <img
             src="https://res.cloudinary.com/dttpgbmdx/image/upload/v1752706284/tbs-logo_frbbyo.png"
             alt="The Black Sheep Logo"
-            className="w-10 h-10 object-contain"
+            className="w-8 h-8 md:w-12 md:h-12 object-contain"
           />
           <div className="hidden md:flex flex-col items-start leading-tight">
             <span className="text-[17px] font-bold text-black tracking-tight group-hover:opacity-80 transition-opacity">
@@ -116,15 +116,15 @@ function Navbar() {
                   Sesion activa.
                 </span>
               </div>
-              <div className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-black flex items-center justify-center overflow-hidden flex-shrink-0 text-white shadow-sm">
+              <div className="w-7 h-7 md:w-10 md:h-10 rounded-full bg-black flex items-center justify-center overflow-hidden flex-shrink-0 text-white shadow-sm">
                 {user?.avatar ? (
                   <img className="w-full h-full object-cover" src={user.avatar} alt="Avatar" />
                 ) : (
-                  <FiUser className="w-4 h-4 md:w-5 md:h-5" />
+                  <FiUser className="w-3 h-3  md:w-5 md:h-5" />
                 )}
               </div>
               <IoChevronDown
-                className={`text-gray-400 hover:text-black transition-transform duration-300 mr-1 ${isOpen ? "rotate-180" : ""}`}
+                className={`w-3 h-3 -ml-2 -mr-3 md:-mr-1 md:ml-1 md:w-4 md:h-4 text-gray-400 hover:text-black transition-transform duration-300 mr-1 ${isOpen ? "rotate-180" : ""}`}
                 size={16}
               />
             </div>

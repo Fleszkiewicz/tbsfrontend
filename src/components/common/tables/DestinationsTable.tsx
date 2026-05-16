@@ -46,22 +46,22 @@ export const DestinationsTable = ({
           onClick={() => onEdit(idx)}
           className="border-b border-gray-250 hover:bg-gray-100 transition-colors group cursor-pointer"
         >
-          <td className="py-3 px-2 md:px-4 text-[12px] md:text-[13px] font-bold text-gray-700 capitalize text-center">
+          <td className="py-3 px-4 md:px-5 text-[13px] md:text-[14px] font-bold text-gray-700 capitalize text-center whitespace-nowrap">
             {d.destino}
           </td>
-          <td className="py-3 px-2 md:px-4 text-[12px] md:text-[13px] font-medium text-gray-600 text-center">
+          <td className="py-3 px-4 md:px-5 text-[13px] md:text-[14px] font-medium text-gray-600 text-center whitespace-nowrap">
             {d.fecha_ida ? new Date(d.fecha_ida + "T00:00:00").toLocaleDateString("es-AR") : "-"}
           </td>
-          <td className="py-3 px-2 md:px-4 text-[12px] md:text-[13px] font-medium text-gray-600 text-center">
+          <td className="py-3 px-4 md:px-5 text-[13px] md:text-[14px] font-medium text-gray-600 text-center whitespace-nowrap">
             {d.fecha_vuelta ? new Date(d.fecha_vuelta + "T00:00:00").toLocaleDateString("es-AR") : "-"}
           </td>
-          <td className="py-3 px-2 md:px-4 text-[12px] md:text-[13px] font-medium text-gray-600 text-center">
+          <td className="py-3 px-4 md:px-5 text-[13px] md:text-[14px] font-medium text-gray-600 text-center">
             {d.servicios.length > 0 ? d.servicios.length : "-"}
           </td>
-          <td className="py-3 px-2 md:px-4 text-[12px] md:text-[13px] font-medium text-gray-400 text-center">
+          <td className="py-3 px-4 md:px-5 text-[13px] md:text-[14px] font-medium text-gray-400 text-center">
             -
           </td>
-          <td className="py-3 px-1 md:px-3 text-center">
+          <td className="py-3 px-4 md:px-5 text-center">
             <div className="flex justify-center">
               <button
                 type="button"
