@@ -1,4 +1,4 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient, keepPreviousData } from "@tanstack/react-query";
 import { tripsStore } from "../store/tripsStore";
 import {
   createTrip,
@@ -12,11 +12,12 @@ import type { UpdateTripRequest } from "../types/types";
 import { modalStore } from "../store/modalStore";
 
 export const useTrips = () => {
-  const { filter, year, month, page } = tripsStore();
+  const { filter, year, month, page, search } = tripsStore();
 
   return useQuery({
-    queryKey: ["trips", filter, year, month, page],
-    queryFn: () => getTrips(filter, 10, page, month, year),
+    queryKey: ["trips", filter, year, month, page, search],
+    queryFn: () => getTrips(filter, 10, page, month, year, search),
+    placeholderData: keepPreviousData,
   });
 };
 

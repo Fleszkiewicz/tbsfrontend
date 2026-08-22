@@ -20,18 +20,14 @@ function Home() {
   const { isOpen, isCreate, setIsCreate, isEdit } = modalStore();
   const { data: trips, isLoading } = useTrips();
   const { tripId } = tripsStore();
-  const [searchTerm, setSearchTerm] = useState<string>("");
+  
+  const { search, setSearch } = tripsStore();
 
   const searchHandleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
-    setSearchTerm(value);
+    setSearch(value);
+    setPage(1);
   };
-
-  const filteredTrips = trips?.data.filter(
-    (item) =>
-      item.id.toString().includes(searchTerm) ||
-      item.apellido.toLowerCase().includes(searchTerm.toLowerCase())
-  );
 
   if (isLoading)
     return (
@@ -66,7 +62,7 @@ function Home() {
           <input
             type="text"
             placeholder="Buscar por legajo o nombre"
-            value={searchTerm}
+            value={search}
             onChange={searchHandleChange}
             className="px-3 py-2 mr-3 rounded border border-gray-300 shadow-sm min-w-[200px] flex-grow"
           />
@@ -81,7 +77,7 @@ function Home() {
           />
         </div>
 
-        <TripsTable filteredTrips={filteredTrips} />
+        <TripsTable filteredTrips={trips?.data} />
         <div className="flex justify-between items-center mt-4 select-none ">
           <Pagination page={page} setPage={setPage} />
           <div className="flex gap-2 select-none cursor-default">

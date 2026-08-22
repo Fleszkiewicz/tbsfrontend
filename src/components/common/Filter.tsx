@@ -56,9 +56,18 @@ export const Filter = ({
             value={year ?? ""}
             className="w-[90px] border border-gray-300 rounded px-2 py-1 shadow-sm"
           >
-            <option value={""}>Año</option>
-            <option value={2025}>2025</option>
-            <option value={2026}>2026</option>
+            <option value={""}>Todos</option>
+            {Array.from(
+              { length: new Date().getFullYear() - 2024 + 1 },
+              (_, i) => {
+                const y = new Date().getFullYear() - i;
+                return (
+                  <option key={y} value={y}>
+                    {y}
+                  </option>
+                );
+              }
+            )}
           </select>
         </div>
       )}
