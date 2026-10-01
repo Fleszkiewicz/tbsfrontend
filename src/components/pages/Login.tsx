@@ -3,7 +3,7 @@ import { API_URL } from "../config/axios";
 
 function Login() {
   const handleLogin = async () => {
-    window.location.href = `${API_URL}/auth/callback`;
+    window.location.href = `${API_URL}/auth/google`;
   };
 
   return (
