@@ -34,8 +34,10 @@ export function decodeToken(token: string | undefined): User | null {
   return user;
 }
 
-export const formattedAmount = (amount: number) => {
-  return Number(amount).toLocaleString("es-AR");
+export const formattedAmount = (amount: number, maxDecimals: number = 2) => {
+  return Number(amount).toLocaleString("es-AR", {
+    maximumFractionDigits: maxDecimals,
+  });
 };
 
 const isValidDateParts = (

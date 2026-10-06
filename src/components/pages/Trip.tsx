@@ -8,7 +8,11 @@ import {
   IoLocationOutline,
   IoPeopleOutline,
   IoAddOutline,
-  IoAttach
+  IoAttach,
+  IoCashOutline,
+  IoCheckmarkCircle,
+  IoCheckmark,
+  IoTimeOutline,
 } from "react-icons/io5";
 import { LuTrash2, LuFileText } from "react-icons/lu";
 
@@ -151,6 +155,29 @@ function Trip() {
     toast.success("Archivo eliminado.");
   };
 
+  // ── Local state: liquidación a socios (visual) ──
+  const [partnerPayouts, setPartnerPayouts] = useState<Record<string, boolean>>(() => {
+    if (!id) return { pablo: false, soledad: false, marian: false };
+    try {
+      const saved = localStorage.getItem(`tbs_payouts_${id}`);
+      return saved ? JSON.parse(saved) : { pablo: false, soledad: false, marian: false };
+    } catch {
+      return { pablo: false, soledad: false, marian: false };
+    }
+  });
+
+  const togglePartnerPayout = (partner: "pablo" | "soledad" | "marian") => {
+    setPartnerPayouts((prev) => {
+      const updated = { ...prev, [partner]: !prev[partner] };
+      if (id) {
+        try {
+          localStorage.setItem(`tbs_payouts_${id}`, JSON.stringify(updated));
+        } catch { }
+      }
+      return updated;
+    });
+  };
+
   const getExpirationBadge = (dateStr: string | undefined) => {
     if (!dateStr) return null;
     const expDate = new Date(dateStr + "T00:00:00");
@@ -227,6 +254,19 @@ function Trip() {
       </div>
     );
   }
+
+  // ── Cálculos de liquidación a socios (visual) ──
+  const monedaTrip = tripData?.moneda?.toLowerCase() || "ars";
+  const isUsdTrip = monedaTrip === "usd";
+  const isMixtoTrip = monedaTrip === "mixto";
+  const isArsTrip = monedaTrip === "ars" || (!isUsdTrip && !isMixtoTrip);
+
+  const gananciaArs = Number(tripData?.ganancia) || 0;
+  const gananciaUsd = Number(tripData?.ganancia_usd) || 0;
+  const cuotaArs = gananciaArs / 3;
+  const cuotaUsd = gananciaUsd / 3;
+
+  const paidCount = ["pablo", "soledad", "marian"].filter((k) => partnerPayouts[k]).length;
 
   return (
     <div className="max-w-[900px] mx-auto px-4 pt-24 md:pt-28 pb-16">
@@ -853,6 +893,123 @@ function Trip() {
             />
           </SectionCard>
         </div>
+
+        {/* ══ SECCIÓN 5: Liquidación a Socios ══ */}
+        <SectionCard
+          icon={
+            <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center">
+              <IoCashOutline size={18} className="text-black" />
+            </div>
+          }
+          title="Distribución de ganancias"
+
+        >
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+            {/* Resumen de Ganancias y Distribución */}
+            <div className="flex flex-col gap-3">
+              <div className=" border border-gray-200 rounded-2xl p-4 flex-1 flex flex-col justify-between">
+                <div>
+                  <span className="text-[12px] text-gray-500 font-medium block">Ganancia total del viaje</span>
+                  <div className="mt-1.5 flex flex-col gap-0.5">
+                    {(isArsTrip || isMixtoTrip) && (
+                      <span className="text-[20px] font-bold text-[#1D1D1F]">
+                        ${formattedAmount(gananciaArs)}
+                      </span>
+                    )}
+                    {(isUsdTrip || isMixtoTrip) && (
+                      <span className="text-[20px] font-bold text-[#1D1D1F]">
+                        USD {formattedAmount(gananciaUsd)}
+                      </span>
+                    )}
+                  </div>
+                </div>
+                <span className="text-[11px] text-gray-400 mt-2">Margen neto generado</span>
+              </div>
+
+              <div className=" border border-gray-200 rounded-2xl p-4 flex-1 flex flex-col justify-between">
+                <div>
+                  <span className="text-[12px] text-gray-500 font-medium block">Monto a abonar a cada socio</span>
+                  <div className="mt-1.5 flex flex-col gap-0.5">
+                    {(isArsTrip || isMixtoTrip) && (
+                      <span className="text-[20px] font-bold text-emerald-600">
+                        ${formattedAmount(cuotaArs)}
+                      </span>
+                    )}
+                    {(isUsdTrip || isMixtoTrip) && (
+                      <span className="text-[20px] font-bold text-emerald-600">
+                        USD {formattedAmount(cuotaUsd)}
+                      </span>
+                    )}
+                  </div>
+                </div>
+                <span className="text-[11px] text-gray-400 mt-2">División proporcional entre los 3 socios</span>
+              </div>
+            </div>
+
+            {/* Tarjetas de Socios con Checkboxes */}
+            <div className="flex flex-col gap-3">
+              {(
+                [
+                  { key: "pablo", name: "Pablo" },
+                  { key: "soledad", name: "Soledad" },
+                  { key: "marian", name: "Marian" },
+                ] as const
+              ).map(({ key, name }) => {
+                const isPaid = !!partnerPayouts[key];
+                return (
+                  <div
+                    key={key}
+                    onClick={() => togglePartnerPayout(key)}
+                    className={`group cursor-pointer rounded-2xl px-4 py-4 border transition-all duration-200 select-none flex items-center justify-between ${isPaid
+                      ? "bg-emerald-50/30 border-green-500 shadow-xs"
+                      : "bg-white border-gray-200 hover:border-gray-300 hover:bg-gray-50/50"
+                      }`}
+                  >
+                    <div className="flex items-center gap-3.5">
+                      {/* Checkbox estilizado */}
+                      <div
+                        className={`w-5 h-5 rounded-md flex items-center justify-center transition-all ${isPaid
+                          ? "bg-emerald-600 text-white shadow-xs"
+                          : "border-2 border-gray-300 group-hover:border-gray-400 bg-white"
+                          }`}
+                      >
+                        {isPaid && <IoCheckmark size={14} className="stroke-2" />}
+                      </div>
+
+                      <div>
+                        <div className="text-[14px] font-semibold text-[#1D1D1F] leading-tight">
+                          {name}
+                        </div>
+                        <div className="text-[12px] text-gray-500 font-medium mt-0.5">
+                          {(isArsTrip || isMixtoTrip) && (
+                            <span>${formattedAmount(cuotaArs)}</span>
+                          )}
+                          {isMixtoTrip && <span className="mx-1 text-gray-300">•</span>}
+                          {(isUsdTrip || isMixtoTrip) && (
+                            <span>USD {formattedAmount(cuotaUsd)}</span>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Estado: Abonado / Abonar */}
+                    <div>
+                      <span
+                        className={`text-[12px] font-semibold px-1.5 py-0.5 rounded-full flex items-center gap-1.5 transition-all ${isPaid
+                          ? "bg-green-100 text-emerald-700 "
+                          : "bg-gray-100 text-gray-600 group-hover:bg-gray-200 "
+                          }`}
+                      >
+
+                        {isPaid ? "Abonado" : "Pendiente"}
+                      </span>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </SectionCard>
       </form>
 
       <DestinationModal
