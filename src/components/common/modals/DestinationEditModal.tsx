@@ -116,7 +116,7 @@ export const DestinationEditModal = ({ isOpen, onClose, onSave, initialData }: P
       onClick={handleSafeClose}
     >
       <div
-        className="w-full max-w-[1250px] bg-white rounded-[20px] shadow-2xl animate-in zoom-in-95 duration-200 flex flex-col max-h-[90vh]"
+        className="w-full max-w-[1250px] bg-white rounded-[20px] shadow-2xl animate-in zoom-in-95 duration-200 flex flex-col max-h-[90vh] min-h-[520px]"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
@@ -138,7 +138,7 @@ export const DestinationEditModal = ({ isOpen, onClose, onSave, initialData }: P
 
         <div className="border-t border-gray-100 shrink-0" />
 
-        <div className="p-6 md:p-8 overflow-y-auto flex-1 pb-40" style={{ scrollbarWidth: "none" }}>
+        <div className="p-6 md:p-8 overflow-y-auto flex-1 pb-24" style={{ scrollbarWidth: "none" }}>
           {/* Dates */}
           <div className="mb-8">
             <div className="flex flex-wrap gap-6">
