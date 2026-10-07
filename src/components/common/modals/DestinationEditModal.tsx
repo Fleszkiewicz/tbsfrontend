@@ -227,13 +227,13 @@ export const DestinationEditModal = ({ isOpen, onClose, onSave, initialData }: P
                         {s.moneda === 2 ? (
                           <input
                             type="text"
-                            className="w-full bg-[#f0f0f0] rounded-lg px-2.5 py-3 text-[14px] font-medium text-[#1D1D1F] outline-none focus:ring-2 focus:ring-black/10 transition-all border-none"
+                            className="w-full bg-[#f0f0f0] rounded-lg px-2.5 py-1 text-[14px] font-medium text-[#1D1D1F] outline-none focus:ring-2 focus:ring-black/10 transition-all border-none"
                             value={s.cotizacion ? new Intl.NumberFormat("es-AR", { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(s.cotizacion) : ""}
                             onChange={(e) => {
                               const val = e.target.value.replace(/\D/g, "");
                               updateService(idx, "cotizacion", val ? Number(val) : null);
                             }}
-                            placeholder="-"
+                            placeholder="0"
                           />
                         ) : (
                           <div className="py-1 px-2.5 text-gray-400 text-center">-</div>

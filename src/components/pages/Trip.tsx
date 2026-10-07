@@ -18,6 +18,7 @@ import { LuTrash2, LuFileText } from "react-icons/lu";
 
 
 import { formattedAmount } from "../utils/utils";
+import { renderEstado } from "../utils/utilsTsx";
 import { useServices } from "../hooks/useServices";
 import { useTrip } from "../hooks/useTrips";
 import { CustomDatePicker } from "../common/ui/CustomDatePicker";
@@ -29,6 +30,7 @@ import { DestinationEditModal } from "../common/modals/DestinationEditModal";
 import { DestinationsTable } from "../common/tables/DestinationsTable";
 import { ArchiveTable } from "../common/tables/ArchiveTable";
 import { FileUploadModal } from "../common/modals/FileUploadModal";
+import { CancelTripModal } from "../common/modals/CancelTripModal";
 import type { DestinoEntry, TripFile } from "../types/types";
 
 // ─── Shared style tokens ──────────────────────────────────────────────────────
@@ -178,6 +180,29 @@ function Trip() {
     });
   };
 
+  // ── Local state: cancelación de legajo (visual) ──
+  const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
+  const [cancelStatus, setCancelStatus] = useState<{ isCanceled: boolean; motivo?: string }>(() => {
+    if (!id) return { isCanceled: false };
+    try {
+      const saved = localStorage.getItem(`tbs_canceled_${id}`);
+      return saved ? JSON.parse(saved) : { isCanceled: false };
+    } catch {
+      return { isCanceled: false };
+    }
+  });
+
+  const handleConfirmCancel = (motivo: string) => {
+    const updated = { isCanceled: true, motivo };
+    setCancelStatus(updated);
+    if (id) {
+      try {
+        localStorage.setItem(`tbs_canceled_${id}`, JSON.stringify(updated));
+      } catch { }
+    }
+    toast.success(`Legajo ${id} marcado como cancelado (${motivo})`);
+  };
+
   const getExpirationBadge = (dateStr: string | undefined) => {
     if (!dateStr) return null;
     const expDate = new Date(dateStr + "T00:00:00");
@@ -280,18 +305,38 @@ function Trip() {
             <IoArrowBack size={15} />
             Volver
           </button>
-          <h1 className="text-[29px] md:text-[32px] lg:text-[35px] font-bold text-[#1D1D1F] tracking-tight select-none cursor-default">
-            Legajo {id}
-          </h1>
+          <div className="flex items-center gap-3">
+            <h1 className="text-[29px] md:text-[32px] lg:text-[35px] font-bold text-[#1D1D1F] tracking-tight select-none cursor-default">
+              Legajo {id}
+            </h1>
+            <div>
+              {renderEstado(
+                cancelStatus.isCanceled ? "cancelado" : tripData?.estado || "pendiente",
+                tripData?.fecha_ida,
+                tripData?.fecha_vuelta
+              )}
+            </div>
+          </div>
         </div>
 
-        <button
-          type="button"
-          onClick={() => form.handleSubmit()}
-          className="bg-black text-white font-semibold text-[12px] md:text-[14px] px-4 md:px-6 py-2 md:py-2.5 rounded-full hover:bg-gray-800 active:scale-[0.97] transition-all shadow-sm select-none"
-        >
-          Guardar cambios
-        </button>
+        <div className="flex items-center gap-2.5">
+          <button
+            type="button"
+            onClick={() => setIsCancelModalOpen(true)}
+            className="w-10 h-10 rounded-full bg-[#f0f0f0] text-gray-600 hover:text-black hover:bg-gray-200/70 border border-gray-200/80 flex items-center justify-center transition-all active:scale-[0.96] shadow-xs select-none"
+            title="Cancelar legajo"
+          >
+            <LuTrash2 size={17} />
+          </button>
+
+          <button
+            type="button"
+            onClick={() => form.handleSubmit()}
+            className="bg-black text-white font-semibold text-[12px] md:text-[14px] px-4 md:px-6 py-2 md:py-2.5 rounded-full hover:bg-gray-800 active:scale-[0.97] transition-all shadow-sm select-none"
+          >
+            Guardar cambios
+          </button>
+        </div>
       </div>
 
       <form
@@ -910,12 +955,14 @@ function Trip() {
               <div className=" border border-gray-200 rounded-2xl p-4 flex-1 flex flex-col justify-between">
                 <div>
                   <span className="text-[12px] text-gray-500 font-medium block">Ganancia total del viaje</span>
-                  <div className="mt-1.5 flex flex-col gap-0.5">
+                  <div className="mt-1.5">
                     {(isArsTrip || isMixtoTrip) && (
                       <span className="text-[20px] font-bold text-[#1D1D1F]">
                         ${formattedAmount(gananciaArs)}
                       </span>
                     )}
+                    {isMixtoTrip && <span className="mx-2 text-gray-300 text-[20px]">&</span>}
+
                     {(isUsdTrip || isMixtoTrip) && (
                       <span className="text-[20px] font-bold text-[#1D1D1F]">
                         USD {formattedAmount(gananciaUsd)}
@@ -929,12 +976,13 @@ function Trip() {
               <div className=" border border-gray-200 rounded-2xl p-4 flex-1 flex flex-col justify-between">
                 <div>
                   <span className="text-[12px] text-gray-500 font-medium block">Monto a abonar a cada socio</span>
-                  <div className="mt-1.5 flex flex-col gap-0.5">
+                  <div className="mt-1.5 ">
                     {(isArsTrip || isMixtoTrip) && (
                       <span className="text-[20px] font-bold text-emerald-600">
                         ${formattedAmount(cuotaArs)}
                       </span>
                     )}
+                    {isMixtoTrip && <span className="mx-2 text-gray-300 text-[20px]">&</span>}
                     {(isUsdTrip || isMixtoTrip) && (
                       <span className="text-[20px] font-bold text-emerald-600">
                         USD {formattedAmount(cuotaUsd)}
@@ -984,7 +1032,7 @@ function Trip() {
                           {(isArsTrip || isMixtoTrip) && (
                             <span>${formattedAmount(cuotaArs)}</span>
                           )}
-                          {isMixtoTrip && <span className="mx-1 text-gray-300">•</span>}
+                          {isMixtoTrip && <span className="mx-2 text-gray-300 text-[14px]">&</span>}
                           {(isUsdTrip || isMixtoTrip) && (
                             <span>USD {formattedAmount(cuotaUsd)}</span>
                           )}
@@ -1032,6 +1080,14 @@ function Trip() {
           initialData={destinos[editingDestinoIndex]}
         />
       )}
+
+      <CancelTripModal
+        isOpen={isCancelModalOpen}
+        onClose={() => setIsCancelModalOpen(false)}
+        tripId={id}
+        currentMotivo={cancelStatus.motivo}
+        onConfirm={handleConfirmCancel}
+      />
     </div>
   );
 }

@@ -2,12 +2,45 @@ import { Table } from "../../layout/Table";
 import { IoAddOutline } from "react-icons/io5";
 import { LuTrash2 } from "react-icons/lu";
 import type { DestinoEntry } from "../../types/types";
+import { renderEstado } from "../../utils/utilsTsx";
 
 type DestinationsTableProps = {
   destinos: DestinoEntry[];
   onAdd: () => void;
   onEdit: (index: number) => void;
   onRemove: (index: number, e: React.MouseEvent) => void;
+};
+
+export const getDestinoEstado = (d: DestinoEntry): "finalizado" | "pendiente" => {
+  // Fechas obligatorias
+  if (!d.fecha_ida || !d.fecha_vuelta) return "pendiente";
+
+  // Debe tener al menos un servicio cargado
+  if (!d.servicios || d.servicios.length === 0) return "pendiente";
+
+  // Todos los servicios deben tener sus campos completos (menos observación)
+  const allServicesComplete = d.servicios.every((s) => {
+    // 1. Servicio seleccionado
+    if (!s.id || Number(s.id) <= 0) return false;
+
+    // 2. Valor ingresado y mayor a 0
+    if (typeof s.valor !== "number" || Number(s.valor) <= 0) return false;
+
+    // 3. Moneda válida (1: ARS, 2: USD)
+    if (s.moneda !== 1 && s.moneda !== 2) return false;
+
+    // 4. Si la moneda es USD (2), debe tener cotización mayor a 0
+    if (s.moneda === 2 && (!s.cotizacion || Number(s.cotizacion) <= 0)) {
+      return false;
+    }
+
+    // 5. Pagado por debe estar definido y no ser "pendiente"
+    if (!s.pagado_por || s.pagado_por === "pendiente") return false;
+
+    return true;
+  });
+
+  return allServicesComplete ? "finalizado" : "pendiente";
 };
 
 const headers = [
@@ -58,8 +91,8 @@ export const DestinationsTable = ({
           <td className="py-3 px-4 md:px-5 text-[13px] md:text-[14px] font-medium text-gray-600 text-center">
             {d.servicios.length > 0 ? d.servicios.length : "-"}
           </td>
-          <td className="py-3 px-4 md:px-5 text-[13px] md:text-[14px] font-medium text-gray-400 text-center">
-            -
+          <td className="py-3 px-4 md:px-5 text-center">
+            {renderEstado(getDestinoEstado(d))}
           </td>
           <td className="py-3 px-4 md:px-5 text-center">
             <div className="flex justify-center">
