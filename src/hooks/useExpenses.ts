@@ -4,6 +4,7 @@ import {
     useQuery,
     useQueryClient,
 } from "@tanstack/react-query";
+import { isAxiosError } from "axios";
 import { toast } from "sonner";
 import { expensesStore } from "../store/expensesStore";
 import {
@@ -11,7 +12,13 @@ import {
     deleteExpense,
     getExpenses,
 } from "../services/expenses.services";
-import { getErrorMessage } from "../utils/errors";
+
+const getErrorMessage = (error: unknown, fallback: string) => {
+    if (isAxiosError(error) && typeof error.response?.data?.error === "string") {
+        return error.response.data.error;
+    }
+    return fallback;
+};
 
 export const useExpenses = () => {
     const { year, month, currency, sucursal } = expensesStore();

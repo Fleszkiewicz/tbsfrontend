@@ -1,4 +1,10 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  keepPreviousData,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
+import { useDebounce } from "./useDebounce";
 import { tripsStore } from "../store/tripsStore";
 import {
   createTrip,
@@ -13,11 +19,14 @@ import { modalStore } from "../store/modalStore";
 import { getErrorMessage } from "../utils/errors";
 
 export const useTrips = () => {
-  const { filter, year, month, page } = tripsStore();
+  const { estado, year, month, page, search } = tripsStore();
+  const debouncedSearch = useDebounce(search.trim(), 300);
 
   return useQuery({
-    queryKey: ["trips", filter, year, month, page],
-    queryFn: () => getTrips(filter, 10, page, month, year),
+    queryKey: ["trips", estado, year, month, page, debouncedSearch],
+    queryFn: () =>
+      getTrips(estado ?? "desc", 10, page, month, year, debouncedSearch),
+    placeholderData: keepPreviousData,
   });
 };
 
@@ -31,40 +40,15 @@ export const useTrip = (id: string) => {
 
 export const useCreateTrip = () => {
   const queryClient = useQueryClient();
-  const { year, month, filter, page } = tripsStore.getState();
 
   return useMutation({
     mutationFn: createTrip,
-
-    onMutate: async () => {
-      await queryClient.cancelQueries({
-        queryKey: ["trips", { year, month, filter, page }],
-      });
-
-      const previousTrips = queryClient.getQueryData([
-        "trips",
-        { year, month, filter, page },
-      ]);
-
-      return { previousTrips };
-    },
-
     onSuccess: () => {
       toast.success("Reserva añadida correctamente");
-      queryClient.invalidateQueries({
-        queryKey: ["trips"],
-      });
+      queryClient.invalidateQueries({ queryKey: ["trips"] });
     },
-
-    onError: (err, _, context) => {
+    onError: (err) => {
       console.error("Error al crear el viaje", err);
-
-      if (context?.previousTrips) {
-        queryClient.setQueryData(
-          ["trips", { year, month, filter, page }],
-          context.previousTrips
-        );
-      }
     },
   });
 };

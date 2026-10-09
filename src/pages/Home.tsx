@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTrips } from "../hooks/useTrips";
 import { modalStore } from "../store/modalStore";
@@ -15,26 +14,17 @@ import { IoAdd, IoSearch, IoReloadOutline } from "react-icons/io5";
 
 function Home() {
   const navigate = useNavigate();
-  const { filter, page, setFilter, setMonth, setPage, year, setYear, month, resetFilters } =
-    tripsStore();
+  const {
+    estado, page, setEstado, setMonth, setPage, year, setYear, month,
+    resetFilters, search, setSearch,
+  } = tripsStore();
 
   const { isOpen, isEdit } = modalStore();
   const { data: trips, isLoading } = useTrips();
-  const [searchTerm, setSearchTerm] = useState<string>("");
 
   const searchHandleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    setSearchTerm(value);
+    setSearch(e.target.value);
   };
-
-
-
-
-  const filteredTrips = trips?.data.filter(
-    (item) =>
-      item.id.toString().includes(searchTerm) ||
-      item.apellido.toLowerCase().includes(searchTerm.toLowerCase())
-  );
 
   if (isLoading)
     return (
@@ -63,7 +53,7 @@ function Home() {
             <input
               type="text"
               placeholder="Buscar por legajo o nombre"
-              value={searchTerm}
+              value={search}
               onChange={searchHandleChange}
               className="w-full pl-9 md:pl-[38px] pr-3 md:pr-4 py-1.5 md:py-2.5 bg-[#e8e8e8] rounded-full border border-transparent focus:ring-1 focus:ring-gray-400 focus:outline-none transition-all text-[12px] md:text-[14px] font-medium text-[#1D1D1F] placeholder:text-gray-500"
             />
@@ -80,8 +70,7 @@ function Home() {
             <button
               className="text-gray-400 font-medium hover:text-black hover:rotate-180 transition-all duration-300 mr-2 p-1 rounded-full hover:bg-gray-100"
               onClick={() => {
-                resetFilters();
-                setSearchTerm("");
+                resetFilters()
               }}
               title="Deshacer todos los filtros"
             >
@@ -90,17 +79,18 @@ function Home() {
             <Filter
               year={year}
               setYear={setYear}
+              allowAllYears
               month={month}
               setMonth={setMonth}
-              filter={filter}
-              setFilter={setFilter}
+              estado={estado}
+              setEstado={setEstado}
             />
           </div>
         </div>
 
         {/* Tabla */}
         <div className="mb-2">
-          <TripsTable filteredTrips={filteredTrips} />
+          <TripsTable filteredTrips={trips?.data} />
         </div>
 
         {/* Paginación */}

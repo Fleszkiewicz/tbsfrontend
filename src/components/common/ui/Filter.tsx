@@ -66,8 +66,9 @@ const CustomSelect = ({ label, value, options, onChange }: CustomSelectProps) =>
 };
 
 type Props = {
-  filter?: string;
-  setFilter?: (filter: string) => void;
+  estado?: string | null;
+  setEstado?: (estado: string | null) => void;
+  allowAllYears?: boolean;
   year?: number | null;
   setYear?: (year: number | null) => void;
   month?: number | null;
@@ -79,11 +80,12 @@ type Props = {
 };
 
 export const Filter = ({
-  filter,
+  estado,
   year,
   month,
   currency,
-  setFilter,
+  setEstado,
+  allowAllYears,
   setYear,
   setMonth,
   setCurrency,
@@ -96,8 +98,9 @@ export const Filter = ({
       {setYear && (
         <CustomSelect
           label="Año"
-          value={year ?? 2026}
+          value={year ?? (allowAllYears ? null : 2026)}
           options={[
+            ...(allowAllYears ? [{ label: "Año", value: null }] : []),
             { label: "2025", value: 2025 },
             { label: "2026", value: 2026 },
           ]}
@@ -149,18 +152,18 @@ export const Filter = ({
         />
       )}
 
-      {/* Filtro Tipo */}
-      {setFilter && (
+      {/* Filtro Estado */}
+      {setEstado && (
         <CustomSelect
-          label="Recientes"
-          value={filter ?? "Recientes"}
+          label="Estado"
+          value={estado ?? null}
           options={[
-            { label: "Recientes", value: "desc" },
-            { label: "Antiguos", value: "asc" },
+            { label: "Estado", value: null },
             { label: "Pendiente", value: "pendiente" },
             { label: "Finalizado", value: "finalizado" },
+            { label: "Cancelado", value: "cancelado" },
           ]}
-          onChange={setFilter}
+          onChange={setEstado}
         />
       )}
     </div>

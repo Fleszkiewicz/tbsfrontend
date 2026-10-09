@@ -6,9 +6,11 @@ import { expensesStore } from "../store/expensesStore";
 import { useExpenses, useDeleteExpense } from "../hooks/useExpenses";
 import { IoSearch, IoAdd, IoReloadOutline } from "react-icons/io5";
 import { ExpenseCreateModal } from "../components/common/modals/ExpenseCreateModal";
+import { Pagination } from "../components/common/ui/Pagination";
 
 function Expenses() {
-    const { year, setYear, month, setMonth, currency, setCurrency, resetFilters, sucursal, setSucursal } =
+
+    const { year, setYear, month, setMonth, currency, setCurrency, resetFilters, sucursal, setSucursal, page, setPage } =
         expensesStore();
     const [searchTerm, setSearchTerm] = useState<string>("");
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
@@ -92,6 +94,8 @@ function Expenses() {
                         <ExpensesTable expenses={filteredExpenses} onDelete={deleteExpense} />
                     )}
                 </div>
+                {/* Paginación */}
+                <Pagination page={page} setPage={setPage} />
             </div>
 
             <ExpenseCreateModal
