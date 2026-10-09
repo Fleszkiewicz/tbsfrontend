@@ -3,7 +3,7 @@ import { IoAttach, IoCloudUploadOutline } from "react-icons/io5";
 import { LuFileText, LuDownload, LuTrash2 } from "react-icons/lu";
 import { FileUploadModal } from "../modals/FileUploadModal";
 import { toast } from "sonner";
-import type { TripFile } from "../../types/types";
+import type { TripFile } from "../../../types/types";
 
 type FilesCardProps = {
   files: TripFile[];

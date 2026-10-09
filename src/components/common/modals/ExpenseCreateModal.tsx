@@ -1,6 +1,9 @@
 import { useState, useRef, useEffect } from "react";
 import { IoClose, IoChevronDown, IoCheckmark } from "react-icons/io5";
 import { CustomDatePicker } from "../ui/CustomDatePicker";
+import { CustomSelect } from "../ui/CustomSelect";
+import { useCreateExpense } from "../../../hooks/useExpenses";
+import { toast } from "sonner";
 import Swal from "sweetalert2";
 
 type Props = {
@@ -8,17 +11,29 @@ type Props = {
   onClose: () => void;
 };
 
+type SucursalOption = "baradero" | "hurlingham" | "ambas";
+
+const getToday = () => {
+  const now = new Date();
+  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
+};
+
+const formatNumber = (digits: string) =>
+  digits ? new Intl.NumberFormat("es-AR").format(Number(digits)) : "";
+
+const inputCls =
+  "w-full bg-[#f5f5f5] rounded-xl px-3 md:px-4 py-2 md:py-2.5 text-[13px] md:text-[14px] font-medium placeholder:text-gray-500 text-[#1D1D1F] focus:outline-none focus:ring-1 focus:ring-gray-300 transition-all";
+
 export const ExpenseCreateModal = ({ isOpen, onClose }: Props) => {
   const [motivo, setMotivo] = useState("");
   const [monto, setMonto] = useState("");
   const [cotizacion, setCotizacion] = useState("");
-  const [moneda, setMoneda] = useState("ARS");
-  const [fecha, setFecha] = useState(() => {
-    const today = new Date();
-    return today.toISOString().split("T")[0];
-  });
+  const [moneda, setMoneda] = useState<"ARS" | "USD">("ARS");
+  const [fecha, setFecha] = useState(getToday());
+  const [sucursal, setSucursal] = useState<SucursalOption | "">("");
   const [isSelectOpen, setIsSelectOpen] = useState(false);
   const selectRef = useRef<HTMLDivElement>(null);
+  const { mutate: createExpense, isPending } = useCreateExpense();
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -32,9 +47,48 @@ export const ExpenseCreateModal = ({ isOpen, onClose }: Props) => {
 
   if (!isOpen) return null;
 
+  const resetForm = () => {
+    setMotivo("");
+    setMonto("");
+    setCotizacion("");
+    setMoneda("ARS");
+    setFecha(getToday());
+    setSucursal("");
+  };
+
+  const handleSubmit = () => {
+    const montoNum = Number(monto);
+    const cotizacionNum = Number(cotizacion);
+
+    if (!motivo.trim()) return toast.error("El motivo es obligatorio");
+    if (!montoNum || montoNum <= 0) return toast.error("El monto debe ser mayor a 0");
+    if (moneda === "USD" && (!cotizacionNum || cotizacionNum <= 0)) {
+      return toast.error("La cotización es obligatoria para gastos en USD");
+    }
+    if (!sucursal) return toast.error("Seleccioná la sucursal");
+
+    createExpense(
+      {
+        motivo: motivo.trim(),
+        fecha,
+        moneda: moneda === "USD" ? 2 : 1,
+        cotizacion: moneda === "USD" ? cotizacionNum : null,
+        monto: montoNum,
+        sucursal,
+      },
+      {
+        onSuccess: () => {
+          resetForm();
+          onClose();
+        },
+      },
+    );
+  };
+
   const handleSafeClose = () => {
-    const hasChanges = motivo !== "" || monto !== "" || cotizacion !== "";
-    
+    const hasChanges =
+      motivo !== "" || monto !== "" || cotizacion !== "" || sucursal !== "";
+
     if (hasChanges) {
       Swal.fire({
         title: "¿Cerrar formulario?",
@@ -53,10 +107,11 @@ export const ExpenseCreateModal = ({ isOpen, onClose }: Props) => {
           htmlContainer: "text-[13px] text-gray-500 font-medium mt-1 mb-6 mx-0",
           actions: "flex w-full gap-2 px-3 m-0",
           confirmButton: "flex-1 bg-[#FF3B30] hover:bg-[#E3342B] text-white font-semibold py-2.5 rounded-xl transition-colors text-[13px] m-0",
-          cancelButton: "flex-1 bg-[#e8e8e8] hover:bg-[#dcdcdc] text-black font-semibold py-2.5 rounded-xl transition-colors text-[13px] m-0"
-        }
+          cancelButton: "flex-1 bg-[#e8e8e8] hover:bg-[#dcdcdc] text-black font-semibold py-2.5 rounded-xl transition-colors text-[13px] m-0",
+        },
       }).then((result) => {
         if (result.isConfirmed) {
+          resetForm();
           onClose();
         }
       });
@@ -84,26 +139,24 @@ export const ExpenseCreateModal = ({ isOpen, onClose }: Props) => {
             <IoClose className="w-5 h-5" />
           </button>
         </div>
-        <div className="border-t border-gray-100 p-5 md:p-6 pt-4 md:pt-5 -mb-5">
-        </div>
+        <div className="border-t border-gray-100 p-5 md:p-6 pt-4 md:pt-5 -mb-5"></div>
 
         {/* Form Area */}
         <div className="flex flex-col gap-3 md:gap-4 px-5 md:px-6 pb-5 md:pb-6">
-          {/* Descripción */}
+          {/* Motivo */}
           <div className="flex flex-col gap-1.5">
-            <label className="text-[12px] md:text-[13px] font-medium text-gray-500">
-              Motivo
-            </label>
+            <label className="text-[12px] md:text-[13px] font-medium text-gray-500">Motivo</label>
             <input
               type="text"
               value={motivo}
               onChange={(e) => setMotivo(e.target.value)}
+              maxLength={100}
               placeholder="Ej: Alquiler oficina"
-              className="w-full bg-[#f5f5f5] rounded-xl px-3 md:px-4 py-2 md:py-2.5 text-[13px] md:text-[14px] font-medium placeholder:text-gray-500 text-[#1D1D1F] focus:outline-none focus:ring-1 focus:ring-gray-300 transition-all"
+              className={inputCls}
             />
           </div>
 
-          {/* Dos columnas: Moneda y Cotización */}
+          {/* Moneda y Cotización */}
           <div className="flex gap-3 md:gap-4">
             <div className="flex flex-col gap-1.5 w-[90px] md:w-[110px]">
               <label className="text-[12px] md:text-[13px] font-medium text-gray-500">Moneda</label>
@@ -118,7 +171,7 @@ export const ExpenseCreateModal = ({ isOpen, onClose }: Props) => {
 
                 {isSelectOpen && (
                   <div className="absolute top-[calc(100%+8px)] left-0 w-full min-w-[120px] bg-white rounded-2xl shadow-[0_4px_20px_rgba(0,0,0,0.15)] p-1.5 z-50 animate-in fade-in zoom-in-95 duration-150 border border-gray-100">
-                    {["ARS", "USD"].map((opt) => (
+                    {(["ARS", "USD"] as const).map((opt) => (
                       <div
                         key={opt}
                         onClick={() => {
@@ -141,10 +194,10 @@ export const ExpenseCreateModal = ({ isOpen, onClose }: Props) => {
                 <label className="text-[12px] md:text-[13px] font-medium text-gray-500">Cotización</label>
                 <input
                   type="text"
-                  value={cotizacion}
-                  onChange={(e) => setCotizacion(e.target.value)}
-                  placeholder="0.00"
-                  className="w-full bg-[#f5f5f5] rounded-xl px-3 md:px-4 py-2 md:py-2.5 text-[13px] md:text-[14px] font-medium placeholder:text-gray-500 text-[#1D1D1F] focus:outline-none focus:ring-1 focus:ring-gray-300 transition-all"
+                  value={formatNumber(cotizacion)}
+                  onChange={(e) => setCotizacion(e.target.value.replace(/\D/g, ""))}
+                  placeholder="0"
+                  className={inputCls}
                 />
               </div>
             )}
@@ -155,31 +208,45 @@ export const ExpenseCreateModal = ({ isOpen, onClose }: Props) => {
             <label className="text-[12px] md:text-[13px] font-medium text-gray-500">Monto</label>
             <input
               type="text"
-              value={monto}
-              onChange={(e) => setMonto(e.target.value)}
-              placeholder="0.00"
-              className="w-full bg-[#f5f5f5] rounded-xl px-3 md:px-4 py-2 md:py-2.5 text-[13px] md:text-[14px] font-medium placeholder:text-gray-500 text-[#1D1D1F] focus:outline-none focus:ring-1 focus:ring-gray-300 transition-all"
+              value={formatNumber(monto)}
+              onChange={(e) => setMonto(e.target.value.replace(/\D/g, ""))}
+              placeholder="0"
+              className={inputCls}
             />
           </div>
 
+          {/* Fecha y Sucursal */}
+          <div className="flex gap-3 md:gap-4">
+            <div className="flex flex-col gap-1.5 flex-1">
+              <label className="text-[12px] md:text-[13px] font-medium text-gray-500">Fecha</label>
+              <CustomDatePicker value={fecha} onChange={setFecha} />
+            </div>
 
-          {/* Fecha */}
-          <div className="flex flex-col gap-1.5">
-            <label className="text-[12px] md:text-[13px] font-medium text-gray-500">Fecha</label>
-            <CustomDatePicker
-              value={fecha}
-              onChange={setFecha}
-            />
+            <div className="flex flex-col gap-1.5 flex-1">
+              <label className="text-[12px] md:text-[13px] font-medium text-gray-500">Sucursal</label>
+              <CustomSelect
+                value={sucursal}
+                onChange={(val) => setSucursal(val as SucursalOption)}
+                placeholder="Seleccionar"
+                options={[
+                  { label: "Baradero", value: "baradero" },
+                  { label: "Hurlingham", value: "hurlingham" },
+                  { label: "Ambas", value: "ambas" },
+                ]}
+              />
+            </div>
           </div>
         </div>
 
-        {/* Footer con línea borde de lado a lado */}
+        {/* Footer */}
         <div className="border-t border-gray-100 p-5 md:p-6 pt-4 md:pt-5">
           <button
             type="button"
-            className="w-full bg-black hover:bg-gray-900 text-white font-semibold text-[13px] md:text-[14px] rounded-full py-2.5 md:py-3 transition-colors active:scale-[0.98]"
+            onClick={handleSubmit}
+            disabled={isPending}
+            className="w-full bg-black hover:bg-gray-900 text-white font-semibold text-[13px] md:text-[14px] rounded-full py-2.5 md:py-3 transition-colors active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            Guardar
+            {isPending ? "Guardando..." : "Guardar"}
           </button>
         </div>
       </div>

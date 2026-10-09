@@ -5,8 +5,8 @@ import { IoCloseOutline, IoLocationOutline } from "react-icons/io5";
 import { IoIosAdd } from "react-icons/io";
 import { CustomDatePicker } from "../ui/CustomDatePicker";
 import { CustomSelect } from "../ui/CustomSelect";
-import { useServices } from "../../hooks/useServices";
-import type { DestinoEntry, DestinoServiceDetail } from "../../types/types";
+import { useServices } from "../../../hooks/useServices";
+import type { DestinoEntry, DestinoServiceDetail } from "../../../types/types";
 
 const labelCls =
   "block text-[12px] text-gray-400 font-medium mb-1.5 select-none";

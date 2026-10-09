@@ -74,6 +74,8 @@ type Props = {
   setMonth?: (month: number | null) => void;
   currency?: "ARS" | "USD" | null;
   setCurrency?: (currency: "ARS" | "USD" | null) => void;
+  sucursal?: "baradero" | "hurlingham" | null;
+  setSucursal?: (sucursal: "baradero" | "hurlingham" | null) => void;
 };
 
 export const Filter = ({
@@ -85,6 +87,8 @@ export const Filter = ({
   setYear,
   setMonth,
   setCurrency,
+  sucursal,
+  setSucursal,
 }: Props) => {
   return (
     <div className="flex flex-wrap items-center gap-2 md:gap-4">
@@ -128,6 +132,20 @@ export const Filter = ({
             { label: "USD", value: "USD" },
           ]}
           onChange={setCurrency}
+        />
+      )}
+
+      {/* Filtro Sucursal */}
+      {setSucursal && (
+        <CustomSelect
+          label="Sucursal"
+          value={sucursal ?? null}
+          options={[
+            { label: "Sucursal", value: null, mobileHidden: true },
+            { label: "Baradero", value: "baradero" },
+            { label: "Hurlingham", value: "hurlingham" },
+          ]}
+          onChange={setSucursal}
         />
       )}
 

@@ -1,5 +1,5 @@
-import { Table } from "../../layout/Table";
-import type { TripFile } from "../../types/types";
+import { Table } from "../../../layout/Table";
+import type { TripFile } from "../../../types/types";
 import { LuFileText, LuDownload, LuTrash2 } from "react-icons/lu";
 import { toast } from "sonner";
 import { useState } from "react";
@@ -91,10 +91,10 @@ export const ArchiveTable = ({ files, onUpload, onDelete }: ArchiveTableProps) =
           </tr>
         )}
       />
-      <FilePreviewModal 
-        isOpen={!!previewFile} 
-        onClose={() => setPreviewFile(null)} 
-        file={previewFile} 
+      <FilePreviewModal
+        isOpen={!!previewFile}
+        onClose={() => setPreviewFile(null)}
+        file={previewFile}
       />
     </>
   );

@@ -1,9 +1,9 @@
-import { useTrip, useDeleteTrip } from "../../hooks/useTrips";
-import { modalStore } from "../../store/modalStore";
-import { tripsStore } from "../../store/tripsStore";
+import { useTrip, useDeleteTrip } from "../../../hooks/useTrips";
+import { modalStore } from "../../../store/modalStore";
+import { tripsStore } from "../../../store/tripsStore";
 import { Spinner } from "../ui/widget/Spinner";
-import { formattedAmount } from "../../utils/utils";
-import { renderEstado } from "../../utils/utilsTsx";
+import { formattedAmount } from "../../../utils/utils";
+import { renderEstado } from "../../../utils/utilsTsx";
 import { PiXBold } from "react-icons/pi";
 import Swal from "sweetalert2";
 
@@ -131,7 +131,7 @@ export const TripModal = () => {
                     <span className="font-bold min-w-[100px]">Moneda:</span>
                     <p className="text-gray-600 font-medium uppercase">{trip?.moneda}</p>
                   </div>
-                  
+
                   {/* ARS VALUES */}
                   {(trip?.moneda === "ars" || trip?.moneda === "mixto") && (
                     <div className="mt-2 border-l-2 border-blue-500 pl-3">

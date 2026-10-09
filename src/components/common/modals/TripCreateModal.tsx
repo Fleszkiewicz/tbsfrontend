@@ -1,12 +1,12 @@
-import { useServices } from "../../hooks/useServices";
+import { useServices } from "../../../hooks/useServices";
 import { toast } from "sonner";
-import { useCreateTrip } from "../../hooks/useTrips";
-import { modalStore } from "../../store/modalStore";
-import type { CreateTripRequest } from "../../types/types";
+import { useCreateTrip } from "../../../hooks/useTrips";
+import { modalStore } from "../../../store/modalStore";
+import type { CreateTripRequest } from "../../../types/types";
 import { BtnCloseModal } from "../ui/BtnCloseModal";
 import { useForm } from "@tanstack/react-form";
 import { useState, useEffect } from "react";
-import { isIsoDate, toDateInput } from "../../utils/utils";
+import { isIsoDate, toDateInput } from "../../../utils/utils";
 import { CustomDatePicker } from "../ui/CustomDatePicker";
 import { CustomSelect } from "../ui/CustomSelect";
 
@@ -294,97 +294,97 @@ export const TripCreateModal = () => {
                         ?.find((service) => service.id === s.id)
                         ?.moneda?.toLowerCase() === "usd",
                   )) && (
-                <div className="w-full">
-                  <form.Field
-                    name="cotizacion"
-                    validators={{
-                      onChange: ({ value, fieldApi }) => {
-                        const moneda = fieldApi.form.getFieldValue("moneda");
-                        const hasUSDService = fieldApi.form
-                          .getFieldValue("servicios")
-                          .some(
-                            (s) =>
-                              services?.data
-                                ?.find((service) => service.id === s.id)
-                                ?.moneda?.toLowerCase() === "usd",
-                          );
+                  <div className="w-full">
+                    <form.Field
+                      name="cotizacion"
+                      validators={{
+                        onChange: ({ value, fieldApi }) => {
+                          const moneda = fieldApi.form.getFieldValue("moneda");
+                          const hasUSDService = fieldApi.form
+                            .getFieldValue("servicios")
+                            .some(
+                              (s) =>
+                                services?.data
+                                  ?.find((service) => service.id === s.id)
+                                  ?.moneda?.toLowerCase() === "usd",
+                            );
 
-                        if (
-                          (moneda === 2 || moneda === 3 || hasUSDService) &&
-                          (!value || Number(value) <= 0)
-                        ) {
-                          return "La cotización debe ser mayor a 0";
-                        }
-                        return undefined;
-                      },
-                      onSubmit: ({ value, fieldApi }) => {
-                        const moneda = fieldApi.form.getFieldValue("moneda");
-                        const hasUSDService = fieldApi.form
-                          .getFieldValue("servicios")
-                          .some(
-                            (s) =>
-                              services?.data
-                                ?.find((service) => service.id === s.id)
-                                ?.moneda?.toLowerCase() === "usd",
-                          );
+                          if (
+                            (moneda === 2 || moneda === 3 || hasUSDService) &&
+                            (!value || Number(value) <= 0)
+                          ) {
+                            return "La cotización debe ser mayor a 0";
+                          }
+                          return undefined;
+                        },
+                        onSubmit: ({ value, fieldApi }) => {
+                          const moneda = fieldApi.form.getFieldValue("moneda");
+                          const hasUSDService = fieldApi.form
+                            .getFieldValue("servicios")
+                            .some(
+                              (s) =>
+                                services?.data
+                                  ?.find((service) => service.id === s.id)
+                                  ?.moneda?.toLowerCase() === "usd",
+                            );
 
-                        if (
-                          (moneda === 2 || moneda === 3 || hasUSDService) &&
-                          (!value || Number(value) <= 0)
-                        ) {
-                          return "La cotización es obligatoria y debe ser mayor a 0";
-                        }
-                      },
-                    }}
-                  >
-                    {(field) => (
-                      <div className="flex flex-col">
-                        <label className="block font-semibold mb-1 whitespace-nowrap">
-                          {selectedMoneda === 2 || selectedMoneda === 3
-                            ? "Cotización USD:"
-                            : "Cotización Servicios USD:"}
-                        </label>
-                        <input
-                          type="text"
-                          value={
-                            typeof field.state.value === "number"
-                              ? new Intl.NumberFormat("es-AR", {
+                          if (
+                            (moneda === 2 || moneda === 3 || hasUSDService) &&
+                            (!value || Number(value) <= 0)
+                          ) {
+                            return "La cotización es obligatoria y debe ser mayor a 0";
+                          }
+                        },
+                      }}
+                    >
+                      {(field) => (
+                        <div className="flex flex-col">
+                          <label className="block font-semibold mb-1 whitespace-nowrap">
+                            {selectedMoneda === 2 || selectedMoneda === 3
+                              ? "Cotización USD:"
+                              : "Cotización Servicios USD:"}
+                          </label>
+                          <input
+                            type="text"
+                            value={
+                              typeof field.state.value === "number"
+                                ? new Intl.NumberFormat("es-AR", {
                                   minimumFractionDigits: 0,
                                   maximumFractionDigits: 0,
                                 }).format(field.state.value)
-                              : ""
-                          }
-                          onChange={(e) => {
-                            const soloNumeros = e.target.value.replace(
-                              /\D/g,
-                              "",
-                            );
-                            field.handleChange(Number(soloNumeros));
-                          }}
-                          className="border p-2 rounded w-full"
-                          placeholder="$$$"
-                        />
-                        {field.state.meta.errors.length > 0 && (
-                          <em className="text-red-600 text-sm">
-                            {field.state.meta.errors.join(", ")}
-                          </em>
-                        )}
-                      </div>
-                    )}
-                  </form.Field>
-                </div>
-              )}
+                                : ""
+                            }
+                            onChange={(e) => {
+                              const soloNumeros = e.target.value.replace(
+                                /\D/g,
+                                "",
+                              );
+                              field.handleChange(Number(soloNumeros));
+                            }}
+                            className="border p-2 rounded w-full"
+                            placeholder="$$$"
+                          />
+                          {field.state.meta.errors.length > 0 && (
+                            <em className="text-red-600 text-sm">
+                              {field.state.meta.errors.join(", ")}
+                            </em>
+                          )}
+                        </div>
+                      )}
+                    </form.Field>
+                  </div>
+                )}
             </div>
 
-              <form.Field
-                name="fecha"
-                validators={{
-                  onSubmit: ({ value }) => {
-                    if (!value) return "La fecha es obligatoria";
-                    if (!isIsoDate(value)) return "Formato válido: yyyy-mm-dd";
-                  },
-                }}
-              >
+            <form.Field
+              name="fecha"
+              validators={{
+                onSubmit: ({ value }) => {
+                  if (!value) return "La fecha es obligatoria";
+                  if (!isIsoDate(value)) return "Formato válido: yyyy-mm-dd";
+                },
+              }}
+            >
               {(field) => (
                 <div className="flex flex-col">
                   <label className="block font-semibold mb-1">
@@ -402,15 +402,15 @@ export const TripCreateModal = () => {
                 </div>
               )}
             </form.Field>
-              <form.Field
-                name="fecha_ida"
-                validators={{
-                  onSubmit: ({ value }) => {
-                    if (!value) return "La fecha de ida es obligatoria";
-                    if (!isIsoDate(value)) return "Formato válido: yyyy-mm-dd";
-                  },
-                }}
-              >
+            <form.Field
+              name="fecha_ida"
+              validators={{
+                onSubmit: ({ value }) => {
+                  if (!value) return "La fecha de ida es obligatoria";
+                  if (!isIsoDate(value)) return "Formato válido: yyyy-mm-dd";
+                },
+              }}
+            >
               {(field) => (
                 <div className="flex flex-col">
                   <label className="block font-semibold mb-1">
@@ -429,30 +429,30 @@ export const TripCreateModal = () => {
               )}
             </form.Field>
 
-              <form.Field
-                name="fecha_vuelta"
-                validators={{
-                  onSubmit: ({ value, fieldApi }) => {
-                    if (!value) return "La fecha de vuelta es obligatoria";
-                    if (!isIsoDate(value)) return "Formato válido: yyyy-mm-dd";
-                    const fechaVuelta = toDateInput(value);
-                    const fechaIda = fieldApi.form.getFieldValue("fecha_ida");
-                    const fechaIdaNormalizada = toDateInput(fechaIda);
-                    if (fechaIdaNormalizada && fechaVuelta < fechaIdaNormalizada) {
-                      return "La vuelta no puede ser antes que la ida";
-                    }
-                  },
-                }}
-              >
+            <form.Field
+              name="fecha_vuelta"
+              validators={{
+                onSubmit: ({ value, fieldApi }) => {
+                  if (!value) return "La fecha de vuelta es obligatoria";
+                  if (!isIsoDate(value)) return "Formato válido: yyyy-mm-dd";
+                  const fechaVuelta = toDateInput(value);
+                  const fechaIda = fieldApi.form.getFieldValue("fecha_ida");
+                  const fechaIdaNormalizada = toDateInput(fechaIda);
+                  if (fechaIdaNormalizada && fechaVuelta < fechaIdaNormalizada) {
+                    return "La vuelta no puede ser antes que la ida";
+                  }
+                },
+              }}
+            >
               {(field) => (
                 <div className="flex flex-col">
                   <label className="block font-semibold mb-1">
                     Fecha de vuelta:
                   </label>
-                    <CustomDatePicker
-                      value={field.state.value || ""}
-                      onChange={(val) => field.handleChange(val)}
-                    />
+                  <CustomDatePicker
+                    value={field.state.value || ""}
+                    onChange={(val) => field.handleChange(val)}
+                  />
                   {field.state.meta.errors.length > 0 && (
                     <em className="text-red-600 text-sm">
                       {field.state.meta.errors.join(", ")}

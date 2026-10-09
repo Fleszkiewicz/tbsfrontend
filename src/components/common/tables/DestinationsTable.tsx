@@ -1,8 +1,8 @@
-import { Table } from "../../layout/Table";
+import { Table } from "../../../layout/Table";
 import { IoAddOutline } from "react-icons/io5";
 import { LuTrash2 } from "react-icons/lu";
-import type { DestinoEntry } from "../../types/types";
-import { renderEstado } from "../../utils/utilsTsx";
+import type { DestinoEntry } from "../../../types/types";
+import { renderEstado } from "../../../utils/utilsTsx";
 
 type DestinationsTableProps = {
   destinos: DestinoEntry[];

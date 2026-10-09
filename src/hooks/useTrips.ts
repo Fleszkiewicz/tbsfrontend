@@ -10,6 +10,7 @@ import {
 import { toast } from "sonner";
 import type { UpdateTripRequest } from "../types/types";
 import { modalStore } from "../store/modalStore";
+import { getErrorMessage } from "../utils/errors";
 
 export const useTrips = () => {
   const { filter, year, month, page } = tripsStore();
@@ -104,4 +105,29 @@ export const useUpdateTrip = () => {
   });
 
   return { updateTripMutate };
+};
+
+// Para la pantalla Trip (página completa). No usa el estado de los modales viejos.
+export const useSaveTrip = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({
+      tripId,
+      dataUpdated,
+    }: {
+      tripId: string;
+      dataUpdated: UpdateTripRequest;
+    }) => updateTrip(tripId, dataUpdated),
+    onSuccess: (_, variables) => {
+      toast.success("Reserva actualizada exitosamente");
+      queryClient.invalidateQueries({ queryKey: ["trip", variables.tripId] });
+      queryClient.invalidateQueries({ queryKey: ["trips"] });
+      // Las finanzas dependen de los valores de la reserva
+      queryClient.invalidateQueries({ queryKey: ["finance"] });
+    },
+    onError: (error) => {
+      toast.error(getErrorMessage(error, "Error al actualizar la reserva"));
+    },
+  });
 };

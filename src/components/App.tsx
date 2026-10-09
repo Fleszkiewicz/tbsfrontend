@@ -5,22 +5,22 @@ import {
   Route,
   Navigate,
 } from "react-router-dom";
-import { ProtectedLayout } from "./config/ProtectedLayout.tsx";
-import { AuthProvider } from "./provider/AuthProvider.tsx";
-import { ProtectedRoutes } from "./config/ProtectedRoutes.tsx";
+import { ProtectedLayout } from "../config/ProtectedLayout.tsx";
+import { AuthProvider } from "../provider/AuthProvider.tsx";
+import { ProtectedRoutes } from "../config/ProtectedRoutes.tsx";
 import { Toaster } from "sonner";
 import { Loader } from "./common/ui/Loader.tsx";
 
-import Login from "./pages/Login.tsx";
-import { AuthSuccess } from "./pages/AuthSuccess.tsx";
-import { Failure } from "./pages/Failure.tsx";
-import CreateTrip from "./pages/CreateTrip.tsx";
+import Login from "../pages/Login.tsx";
+import { AuthSuccess } from "../pages/AuthSuccess.tsx";
+import { Failure } from "../pages/Failure.tsx";
+import CreateTrip from "../pages/CreateTrip.tsx";
 
-const Annual = lazy(() => import("./pages/Annual.tsx"));
-const Home = lazy(() => import("./pages/Home.tsx"));
-const Expenses = lazy(() => import("./pages/Expenses.tsx"));
-const Trip = lazy(() => import("./pages/Trip.tsx"));
-const Dashboard = lazy(() => import("./pages/Dashboard.tsx"));
+const Annual = lazy(() => import("../pages/Annual.tsx"));
+const Home = lazy(() => import("../pages/Home.tsx"));
+const Expenses = lazy(() => import("../pages/Expenses.tsx"));
+const Trip = lazy(() => import("../pages/Trip.tsx"));
+const Dashboard = lazy(() => import("../pages/Dashboard.tsx"));
 
 function App() {
   return (

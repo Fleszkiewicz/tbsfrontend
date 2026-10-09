@@ -3,7 +3,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { decodeToken } from "../utils/utils";
 import { useUser } from "../hooks/useUser";
 import { useToken } from "../hooks/useToken";
-import { Loader } from "../common/ui/Loader";
+import { Loader } from "../components/common/ui/Loader";
 
 export const AuthSuccess = () => {
   const { setUser } = useUser();

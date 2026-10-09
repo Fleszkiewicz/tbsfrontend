@@ -171,3 +171,25 @@ export type DestinoEntry = {
   fecha_vuelta: string;
   servicios: DestinoServiceDetail[];
 };
+
+export interface Expense {
+  id: number;
+  motivo: string;
+  fecha: string; // "YYYY-MM-DD"
+  moneda: string; // "ars" | "usd" (viene de la tabla moneda)
+  cotizacion: number | null;
+  monto: number;
+}
+
+export type Branch = "baradero" | "hurlingham";
+
+export type CreateExpenseRequest = {
+  motivo: string;
+  fecha: string;
+  moneda: 1 | 2; // 1 = ARS, 2 = USD
+  cotizacion: number | null;
+  monto: number;
+  sucursal: Branch | "ambas";
+};
+
+export type ExpensesApiResponse = ApiResponse<Expense>;

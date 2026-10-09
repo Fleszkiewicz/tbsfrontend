@@ -3,12 +3,12 @@ import { useNavigate } from "react-router-dom";
 import { useTrips } from "../hooks/useTrips";
 import { modalStore } from "../store/modalStore";
 import { tripsStore } from "../store/tripsStore";
-import { Filter } from "../common/ui/Filter";
-import { Spinner } from "../common/ui/widget/Spinner";
+import { Filter } from "../components/common/ui/Filter";
+import { Spinner } from "../components/common/ui/widget/Spinner";
 import { Modal } from "../layout/Modal";
-import { Pagination } from "../common/ui/Pagination";
-import { TripsTable } from "../common/tables/TripsTable";
-import { TripEditModal } from "../common/modals/TripEditModal";
+import { Pagination } from "../components/common/ui/Pagination";
+import { TripsTable } from "../components/common/tables/TripsTable";
+import { TripEditModal } from "../components/common/modals/TripEditModal";
 import { IoAdd, IoSearch, IoReloadOutline } from "react-icons/io5";
 
 

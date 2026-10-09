@@ -1,33 +1,30 @@
 import { useState } from "react";
-import { Filter } from "../common/ui/Filter";
-import { Pagination } from "../common/ui/Pagination";
-import { ExpensesTable } from "../common/tables/ExpensesTable";
-import type { Expense } from "../common/tables/ExpensesTable";
+import { Filter } from "../components/common/ui/Filter";
+import { Spinner } from "../components/common/ui/widget/Spinner";
+import { ExpensesTable } from "../components/common/tables/ExpensesTable";
 import { expensesStore } from "../store/expensesStore";
+import { useExpenses, useDeleteExpense } from "../hooks/useExpenses";
 import { IoSearch, IoAdd, IoReloadOutline } from "react-icons/io5";
-import { ExpenseCreateModal } from "../common/modals/ExpenseCreateModal";
-
-const MOCK_EXPENSES: Expense[] = [
-    { id: 1, motivo: "Alquiler Oficina", moneda: "ARS", cotizacion: null, costo: 150000 },
-    { id: 2, motivo: "Servicio Cloud", moneda: "USD", cotizacion: 1100, costo: 50 },
-    { id: 3, motivo: "Publicidad Meta", moneda: "USD", cotizacion: 1100, costo: 200 },
-    { id: 4, motivo: "Insumos Limpieza", moneda: "ARS", cotizacion: null, costo: 12000 },
-];
+import { ExpenseCreateModal } from "../components/common/modals/ExpenseCreateModal";
 
 function Expenses() {
-    const { year, setYear, month, setMonth, currency, setCurrency, page, setPage, resetFilters } = expensesStore();
+    const { year, setYear, month, setMonth, currency, setCurrency, resetFilters, sucursal, setSucursal } =
+        expensesStore();
     const [searchTerm, setSearchTerm] = useState<string>("");
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+
+    const { data: expensesResponse, isLoading, isError } = useExpenses();
+    const { mutate: deleteExpense } = useDeleteExpense();
 
     const searchHandleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setSearchTerm(e.target.value);
     };
 
-    const filteredExpenses = MOCK_EXPENSES.filter((exp) => {
-        const matchesSearch = exp.motivo.toLowerCase().includes(searchTerm.toLowerCase());
-        const matchesCurrency = currency ? exp.moneda === currency : true;
-        return matchesSearch && matchesCurrency;
-    });
+    // Año, mes y moneda los filtra el backend. La búsqueda por motivo,
+    // al ser una lista corta, se hace acá.
+    const filteredExpenses = (expensesResponse?.data ?? []).filter((exp) =>
+        exp.motivo.toLowerCase().includes(searchTerm.toLowerCase()),
+    );
 
     return (
         <>
@@ -48,14 +45,12 @@ function Expenses() {
                         <IoSearch className="w-4 h-4 md:w-[18px] md:h-[18px] absolute left-3 md:left-4 top-1/2 transform -translate-y-1/2 text-gray-500" />
                         <input
                             type="text"
-                            placeholder="Buscar por legajo o nombre"
+                            placeholder="Buscar por motivo"
                             value={searchTerm}
                             onChange={searchHandleChange}
                             className="w-full pl-9 md:pl-[38px] pr-3 md:pr-4 py-1.5 md:py-2.5 bg-[#e8e8e8] rounded-full border border-transparent focus:ring-1 focus:ring-gray-400 focus:outline-none transition-all text-[12px] md:text-[14px] font-medium text-[#1D1D1F] placeholder:text-gray-500"
                         />
                     </div>
-
-
 
                     <div className="flex-grow"></div>
 
@@ -77,23 +72,31 @@ function Expenses() {
                             setMonth={setMonth}
                             currency={currency}
                             setCurrency={setCurrency}
+                            sucursal={sucursal}
+                            setSucursal={setSucursal}
                         />
                     </div>
                 </div>
 
                 {/* Tabla */}
                 <div className="mb-2">
-                    <ExpensesTable expenses={filteredExpenses} />
-                </div>
-                {/* Paginación */}
-                <div className="flex justify-start mt-4 select-none">
-                    <Pagination page={page} setPage={setPage} />
+                    {isLoading ? (
+                        <div className="flex justify-center p-20">
+                            <Spinner text="Cargando gastos..." />
+                        </div>
+                    ) : isError ? (
+                        <div className="p-20 text-center text-gray-400 font-medium">
+                            No se pudieron cargar los gastos.
+                        </div>
+                    ) : (
+                        <ExpensesTable expenses={filteredExpenses} onDelete={deleteExpense} />
+                    )}
                 </div>
             </div>
 
-            <ExpenseCreateModal 
-                isOpen={isCreateModalOpen} 
-                onClose={() => setIsCreateModalOpen(false)} 
+            <ExpenseCreateModal
+                isOpen={isCreateModalOpen}
+                onClose={() => setIsCreateModalOpen(false)}
             />
         </>
     );
