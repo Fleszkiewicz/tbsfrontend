@@ -142,8 +142,6 @@ export type UpdateTripRequest = {
   fecha_ida?: string;
   fecha_vuelta?: string;
   fecha?: string;
-  accuracy?: string;
-  fecha?: string;
   cotizacion?: number | null;
   valor_total_usd?: number;
   servicios: UpdateServiceData[];

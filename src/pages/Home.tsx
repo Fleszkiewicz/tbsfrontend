@@ -19,7 +19,7 @@ function Home() {
     resetFilters, search, setSearch,
   } = tripsStore();
 
-  const { isOpen, isEdit } = modalStore();
+  const { isEdit } = modalStore();
   const { data: trips, isLoading } = useTrips();
 
   const searchHandleChange = (e: React.ChangeEvent<HTMLInputElement>) => {

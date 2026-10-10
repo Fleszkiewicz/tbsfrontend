@@ -10,9 +10,7 @@ import {
   IoAddOutline,
   IoAttach,
   IoCashOutline,
-  IoCheckmarkCircle,
   IoCheckmark,
-  IoTimeOutline,
 } from "react-icons/io5";
 import { LuTrash2 } from "react-icons/lu";
 
@@ -23,7 +21,6 @@ import { useTrip, useSaveTrip } from "../hooks/useTrips";
 import { CustomDatePicker } from "../components/common/ui/CustomDatePicker";
 import { CustomSelect } from "../components/common/ui/CustomSelect";
 import { Spinner } from "../components/common/ui/widget/Spinner";
-import { Table } from "../layout/Table";
 import { DestinationModal } from "../components/common/modals/DestinationModal";
 import { DestinationEditModal } from "../components/common/modals/DestinationEditModal";
 import { DestinationsTable } from "../components/common/tables/DestinationsTable";
@@ -35,8 +32,6 @@ import type { DestinoEntry, TripFile, UpdateTripRequest } from "../types/types";
 // ─── Shared style tokens ──────────────────────────────────────────────────────
 const inputCls =
   "w-full bg-[#f0f0f0] rounded-xl px-3 md:px-4 py-2 md:py-2.5 text-[13px] md:text-[14px] font-medium text-[#1D1D1F] outline-none focus:ring-2 focus:ring-black/10 transition-all placeholder:text-gray-400 border-none";
-const selectCls =
-  "w-full bg-[#f0f0f0] rounded-xl px-3 md:px-4 py-2 md:py-2.5 text-[13px] md:text-[14px] font-medium text-[#1D1D1F] outline-none focus:ring-2 focus:ring-black/10 transition-all appearance-none cursor-pointer border-none";
 const labelCls =
   "block text-[11px] md:text-[12px] text-gray-400 font-medium mb-1 md:mb-1.5 select-none";
 
