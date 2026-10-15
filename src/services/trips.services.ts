@@ -89,3 +89,15 @@ export async function deleteTrip(id: string) {
         throw error;
     }
 }
+
+
+
+export async function cancelTrip(id: string, motivo: string) {
+    const { data } = await api.post(`${API_ENDPOINT}/${id}/cancel`, { motivo });
+    return data;
+}
+
+export async function revertTripCancellation(id: string) {
+    const { data } = await api.post(`${API_ENDPOINT}/${id}/revert-cancel`);
+    return data;
+}

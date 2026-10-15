@@ -295,7 +295,7 @@ export const TripEditModal = () => {
                 <label className="block font-semibold mb-1 select-none">
                   Estado
                 </label>
-                <p>{trip?.estado && renderEstado(trip.estado, trip.fecha_ida, trip.fecha_vuelta)}</p>
+                <p>{trip?.estado && renderEstado(trip.estado)}</p>
               </div>
             </div>
 

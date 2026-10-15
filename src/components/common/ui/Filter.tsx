@@ -158,8 +158,10 @@ export const Filter = ({
           label="Estado"
           value={estado ?? null}
           options={[
-            { label: "Estado", value: null },
+            { label: "Estado", value: "desc" },
             { label: "Pendiente", value: "pendiente" },
+            { label: "En espera", value: "en_espera" },
+            { label: "En curso", value: "en_curso" },
             { label: "Finalizado", value: "finalizado" },
             { label: "Cancelado", value: "cancelado" },
           ]}

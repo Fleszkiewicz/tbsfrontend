@@ -11,6 +11,10 @@ interface Service {
 export interface Trip {
   id: string;
   estado: string;
+  cancelado?: 0 | 1;
+  motivo_cancelacion?: string | null;
+  fecha_cancelacion?: string | null;
+  es_legado?: 0 | 1;
   fecha: string;
   fecha_ida: string;
   fecha_vuelta: string;

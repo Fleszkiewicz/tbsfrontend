@@ -12,11 +12,13 @@ import {
   getTrip,
   getTrips,
   updateTrip,
+  cancelTrip,
+  revertTripCancellation,
 } from "../services/trips.services";
 import { toast } from "sonner";
 import type { UpdateTripRequest } from "../types/types";
 import { modalStore } from "../store/modalStore";
-import { getErrorMessage } from "../utils/errors";
+
 
 export const useTrips = () => {
   const { estado, year, month, page, search } = tripsStore();
@@ -112,6 +114,44 @@ export const useSaveTrip = () => {
     },
     onError: (error) => {
       toast.error(getErrorMessage(error, "Error al actualizar la reserva"));
+    },
+  });
+};
+
+const getErrorMessage = (error: any, fallback: string) =>
+  error?.response?.data?.error || fallback;
+
+export const useCancelTrip = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ tripId, motivo }: { tripId: string; motivo: string }) =>
+      cancelTrip(tripId, motivo),
+    onSuccess: (_, variables) => {
+      toast.success("Reserva cancelada");
+      queryClient.invalidateQueries({ queryKey: ["trip", variables.tripId] });
+      queryClient.invalidateQueries({ queryKey: ["trips"] });
+      queryClient.invalidateQueries({ queryKey: ["finance"] });
+    },
+    onError: (error) => {
+      toast.error(getErrorMessage(error, "No se pudo cancelar la reserva"));
+    },
+  });
+};
+
+export const useRevertCancelTrip = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (tripId: string) => revertTripCancellation(tripId),
+    onSuccess: (_, tripId) => {
+      toast.success("Cancelación anulada");
+      queryClient.invalidateQueries({ queryKey: ["trip", tripId] });
+      queryClient.invalidateQueries({ queryKey: ["trips"] });
+      queryClient.invalidateQueries({ queryKey: ["finance"] });
+    },
+    onError: (error) => {
+      toast.error(getErrorMessage(error, "No se pudo anular la cancelación"));
     },
   });
 };

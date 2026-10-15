@@ -45,17 +45,7 @@ export function TripsTable({
                             {new Date(trip.fecha).toLocaleDateString("es-AR")}
                         </td>
                         <td className="py-3 px-2 md:px-4 text-center">
-                            {renderEstado(
-                                (() => {
-                                    try {
-                                        const saved = localStorage.getItem(`tbs_canceled_${trip.id}`);
-                                        if (saved && JSON.parse(saved).isCanceled) return "cancelado";
-                                    } catch { }
-                                    return trip.estado;
-                                })(),
-                                trip.fecha_ida,
-                                trip.fecha_vuelta
-                            )}
+                            {renderEstado(trip.estado)}
                         </td>
                         <td className="py-3 px-1 md:px-3 text-center">
                             <div className="flex justify-center gap-">

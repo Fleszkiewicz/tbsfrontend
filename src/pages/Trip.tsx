@@ -4,20 +4,23 @@ import { useForm } from "@tanstack/react-form";
 import { toast } from "sonner";
 import {
   IoArrowBack,
-  IoAirplaneOutline,
   IoLocationOutline,
   IoPeopleOutline,
   IoAddOutline,
   IoAttach,
   IoCashOutline,
   IoCheckmark,
+  IoBanOutline,
+  IoTicketOutline,
+  IoPauseOutline,
+  IoPlayOutline,
 } from "react-icons/io5";
 import { LuTrash2 } from "react-icons/lu";
 
 import { formattedAmount, toDateInput } from "../utils/utils";
 import { renderEstado } from "../utils/utilsTsx";
 import { useServices } from "../hooks/useServices";
-import { useTrip, useSaveTrip } from "../hooks/useTrips";
+import { useTrip, useSaveTrip, useCancelTrip, useRevertCancelTrip } from "../hooks/useTrips";
 import { CustomDatePicker } from "../components/common/ui/CustomDatePicker";
 import { CustomSelect } from "../components/common/ui/CustomSelect";
 import { Spinner } from "../components/common/ui/widget/Spinner";
@@ -174,29 +177,6 @@ function Trip() {
     });
   };
 
-  // ── Local state: cancelación de legajo (visual) ──
-  const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
-  const [cancelStatus, setCancelStatus] = useState<{ isCanceled: boolean; motivo?: string }>(() => {
-    if (!id) return { isCanceled: false };
-    try {
-      const saved = localStorage.getItem(`tbs_canceled_${id}`);
-      return saved ? JSON.parse(saved) : { isCanceled: false };
-    } catch {
-      return { isCanceled: false };
-    }
-  });
-
-  const handleConfirmCancel = (motivo: string) => {
-    const updated = { isCanceled: true, motivo };
-    setCancelStatus(updated);
-    if (id) {
-      try {
-        localStorage.setItem(`tbs_canceled_${id}`, JSON.stringify(updated));
-      } catch { }
-    }
-    toast.success(`Legajo ${id} marcado como cancelado (${motivo})`);
-  };
-
   const getExpirationBadge = (dateStr: string | undefined) => {
     if (!dateStr) return null;
     const expDate = new Date(dateStr + "T00:00:00");
@@ -286,6 +266,13 @@ function Trip() {
     }
   }, [tripData, form]);
 
+
+  // ── Cancelación de legajo ──
+  const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
+  const { mutate: cancelTrip, isPending: isCancelling } = useCancelTrip();
+  const { mutate: revertCancel, isPending: isReverting } = useRevertCancelTrip();
+  const isCanceled = tripData?.cancelado === 1;
+
   if (isLoading) {
     return (
       <div className="flex justify-center items-center h-[calc(100vh-100px)]">
@@ -323,13 +310,7 @@ function Trip() {
             <h1 className="text-[29px] md:text-[32px] lg:text-[35px] font-bold text-[#1D1D1F] tracking-tight select-none cursor-default">
               Legajo {id}
             </h1>
-            <div>
-              {renderEstado(
-                cancelStatus.isCanceled ? "cancelado" : tripData?.estado || "pendiente",
-                tripData?.fecha_ida,
-                tripData?.fecha_vuelta
-              )}
-            </div>
+            {tripData?.estado && renderEstado(tripData.estado)}
           </div>
         </div>
 
@@ -337,10 +318,18 @@ function Trip() {
           <button
             type="button"
             onClick={() => setIsCancelModalOpen(true)}
-            className="w-10 h-10 rounded-full bg-[#f0f0f0] text-gray-600 hover:text-black hover:bg-gray-200/70 border border-gray-200/80 flex items-center justify-center transition-all active:scale-[0.96] shadow-xs select-none"
-            title="Cancelar legajo"
+            disabled={isCancelling || isReverting}
+            className="h-10 px-4 rounded-full bg-gray-200/70 text-gray-600 hover:text-black hover:bg-gray-300/50 flex items-center gap-2 text-[12px]  md:text-[14px] font-normal transition-all active:scale-[0.96] select-none disabled:opacity-50"
           >
-            <LuTrash2 size={17} />
+            {isCanceled ? (
+              <>
+                Anular cancelación
+              </>
+            ) : (
+              <>
+                Cancelar
+              </>
+            )}
           </button>
 
           <button
@@ -365,7 +354,7 @@ function Trip() {
         <SectionCard
           icon={
             <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center">
-              <IoAirplaneOutline size={18} className="text-black" />
+              <IoTicketOutline size={18} className="text-black" />
             </div>
           }
           title="Información de viaje"
@@ -1100,8 +1089,19 @@ function Trip() {
         isOpen={isCancelModalOpen}
         onClose={() => setIsCancelModalOpen(false)}
         tripId={id}
-        currentMotivo={cancelStatus.motivo}
-        onConfirm={handleConfirmCancel}
+        isCanceled={isCanceled}
+        currentMotivo={tripData?.motivo_cancelacion ?? undefined}
+        currentFecha={tripData?.fecha_cancelacion ?? undefined}
+        isLoading={isCancelling || isReverting}
+        onConfirm={(motivo) => {
+          cancelTrip(
+            { tripId: id!, motivo },
+            { onSuccess: () => setIsCancelModalOpen(false) },
+          );
+        }}
+        onRevert={() => {
+          revertCancel(id!, { onSuccess: () => setIsCancelModalOpen(false) });
+        }}
       />
     </div>
   );
