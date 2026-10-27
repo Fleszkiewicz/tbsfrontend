@@ -13,7 +13,7 @@ function Annual() {
     <>
 
       <div className="max-w-[1000px] mx-auto mt-24 md:mt-28 mb-4 px-4">
-        <h1 className="lg:text-[35px] text-[29px] font-semibold text-black select-none cursor-default mb-4 md:mb-8 ">
+        <h1 className="lg:text-[35px] text-[29px] font-bold text-black select-none cursor-default mb-4 md:mb-8 ">
           Resumen de Finanzas
         </h1>
 

@@ -53,9 +53,8 @@ export async function createTrip(
     tripData: CreateTripRequest
 ): Promise<string | null> {
     try {
-        const { data } = await api.post<CreateTripResponse>(API_ENDPOINT, tripData);
-
-        return data.trip;
+        const { data } = await api.post<{ data: { id: string } }>(API_ENDPOINT, tripData);
+        return data.data.id;
     } catch (error) {
         console.error("Error al crear el viaje", error);
         throw error;
@@ -67,11 +66,8 @@ export async function updateTrip(
     dataUpdated: UpdateTripRequest
 ) {
     try {
-        const { data } = await api.patch<UpdateDeleteTripResponse>(
-            `${API_ENDPOINT}/${tripId}`,
-            dataUpdated
-        );
-        return data.trip;
+        const { data } = await api.patch<{ data: { id: string } }>(`${API_ENDPOINT}/${tripId}`, dataUpdated);
+        return data.data.id;
     } catch (error) {
 
         throw error;

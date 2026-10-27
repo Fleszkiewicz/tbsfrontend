@@ -11,7 +11,6 @@ import { TripEditModal } from "../components/common/modals/TripEditModal";
 import { IoAdd, IoSearch, IoReloadOutline } from "react-icons/io5";
 
 
-
 function Home() {
   const navigate = useNavigate();
   const {
@@ -23,8 +22,11 @@ function Home() {
   const { data: trips, isLoading } = useTrips();
 
   const searchHandleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearch(e.target.value);
+    const term = e.target.value.toLowerCase();
+    setSearch(term);
   };
+
+
 
   if (isLoading)
     return (
@@ -36,8 +38,8 @@ function Home() {
   return (
     <>
       <div className="max-w-[1200px] mx-auto mt-24 md:mt-28 mb-4 px-4">
-        <h1 className="lg:text-[35px] text-[29px] font-semibold text-black select-none cursor-default mb-4 md:mb-8">
-          Historial de Reservas
+        <h1 className="lg:text-[35px] text-[29px] font-bold text-black select-none cursor-default mb-4 md:mb-8">
+          Historial de Expedientes
         </h1>
 
         <div className="flex items-center gap-4 mb-4 md:mb-8 select-none flex-wrap">
@@ -48,7 +50,7 @@ function Home() {
             <IoAdd className="w-5 h-5 md:w-[26px] md:h-[26px]" />
           </button>
 
-          <div className="relative w-[220px] md:w-[280px] group flex-shrink-0">
+          <div className="relative w-[220px] md:w-[360px] group flex-shrink-0">
             <IoSearch className="w-4 h-4 md:w-[18px] md:h-[18px] absolute left-3 md:left-4 top-1/2 transform -translate-y-1/2 text-gray-500" />
             <input
               type="text"

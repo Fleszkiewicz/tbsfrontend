@@ -131,7 +131,7 @@ export const ExpenseCreateModal = ({ isOpen, onClose }: Props) => {
       >
         {/* Header */}
         <div className="flex justify-between items-center p-5 md:p-6 pb-3 md:pb-4">
-          <h2 className="text-[20px] md:text-[24px] font-semibold text-[#1D1D1F]">Añadir Gasto</h2>
+          <h2 className="text-[20px] md:text-[24px] font-semibold text-[#1D1D1F]">Nueva Expensa</h2>
           <button
             onClick={handleSafeClose}
             className="text-gray-500 hover:text-black transition-colors"

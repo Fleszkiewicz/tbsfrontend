@@ -3,7 +3,7 @@ import { logOut } from "../services/auth.services";
 import { useNavigate, NavLink } from "react-router-dom";
 import { useUser } from "../hooks/useUser";
 import Swal from "sweetalert2";
-import { IoHomeOutline, IoReceiptOutline, IoPieChartOutline, IoChevronDown } from "react-icons/io5";
+import { IoFileTrayFullOutline, IoReceiptOutline, IoPieChartOutline, IoChevronDown } from "react-icons/io5";
 import { FiDollarSign, FiUser } from "react-icons/fi";
 import { LuLogOut } from "react-icons/lu";
 
@@ -83,8 +83,8 @@ function Navbar() {
         {/* Centro: Navegación */}
         <nav className="flex items-center gap-1 md:gap-2">
           <NavLink to="/home" className={navLinkClass}>
-            <IoHomeOutline size={20} />
-            <span className="hidden md:inline">Home</span>
+            <IoFileTrayFullOutline size={20} />
+            <span className="hidden md:inline">Expedientes</span>
           </NavLink>
           <NavLink to="/finance" className={navLinkClass}>
             <FiDollarSign size={20} />

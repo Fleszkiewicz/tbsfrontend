@@ -32,13 +32,13 @@ export const useTrips = () => {
   });
 };
 
-export const useTrip = (id: string) => {
-  return useQuery({
+export const useTrip = (id: string) =>
+  useQuery({
     queryKey: ["trip", id],
     queryFn: () => getTrip(id),
     enabled: !!id,
+    refetchOnWindowFocus: false, // evita pisar lo que el usuario está editando
   });
-};
 
 export const useCreateTrip = () => {
   const queryClient = useQueryClient();
@@ -93,27 +93,18 @@ export const useUpdateTrip = () => {
   return { updateTripMutate };
 };
 
-// Para la pantalla Trip (página completa). No usa el estado de los modales viejos.
 export const useSaveTrip = () => {
   const queryClient = useQueryClient();
-
   return useMutation({
-    mutationFn: ({
-      tripId,
-      dataUpdated,
-    }: {
-      tripId: string;
-      dataUpdated: UpdateTripRequest;
-    }) => updateTrip(tripId, dataUpdated),
-    onSuccess: (_, variables) => {
-      toast.success("Reserva actualizada exitosamente");
-      queryClient.invalidateQueries({ queryKey: ["trip", variables.tripId] });
+    mutationFn: ({ tripId, dataUpdated }: { tripId: string; dataUpdated: UpdateTripRequest }) =>
+      updateTrip(tripId, dataUpdated),
+    onSuccess: (_, { tripId }) => {
+      toast.success("Cambios guardados");
+      queryClient.invalidateQueries({ queryKey: ["trip", tripId] });
       queryClient.invalidateQueries({ queryKey: ["trips"] });
-      // Las finanzas dependen de los valores de la reserva
-      queryClient.invalidateQueries({ queryKey: ["finance"] });
     },
-    onError: (error) => {
-      toast.error(getErrorMessage(error, "Error al actualizar la reserva"));
+    onError: (error: any) => {
+      toast.error(error?.response?.data?.error || "Error al guardar los cambios");
     },
   });
 };
@@ -155,3 +146,4 @@ export const useRevertCancelTrip = () => {
     },
   });
 };
+

@@ -4,7 +4,7 @@ const Dashboard = () => {
   return (
     <div className="max-w-[900px] mx-auto px-4 pt-24 md:pt-28 pb-16 animate-in fade-in duration-300">
       <div className="mb-8">
-        <h1 className="text-[29px] md:text-[32px] lg:text-[35px] font-semibold text-[#1D1D1F] tracking-tight select-none cursor-default">
+        <h1 className="text-[29px] md:text-[32px] lg:text-[35px] font-bold text-[#1D1D1F] tracking-tight select-none cursor-default">
           Estadísticas
         </h1>
         <p className="text-gray-500 mt-2 text-[13px] md:text-[15px]">

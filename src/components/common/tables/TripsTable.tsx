@@ -9,7 +9,7 @@ import { LuTrash2 } from "react-icons/lu";
 
 const headers = [
     { label: "Legajo", key: "id" },
-    { label: "Apellido", key: "apellido" },
+    { label: "Nombre y apellido", key: "nombreYApellido" },
     { label: "Fecha creación", key: "fecha", className: "hidden md:table-cell" },
     { label: "Estado", key: "estado" },
     { label: "Acciones", key: "acciones" },

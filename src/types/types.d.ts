@@ -23,6 +23,7 @@ export interface Trip {
   apellido: string;
   valor_total: number;
   valor_total_usd: number;
+  sucursal_id: number | null;
   ganancia: number;
   ganancia_usd: number;
   costo: number;
@@ -127,9 +128,12 @@ export type CreateTripRequest = {
     cotizacion: number | null;
     observacion?: string | null;
   }[];
+  nombre?: string;
   apellido: string;
   valor_total: number;
   valor_total_usd?: number;
+  pago?: string;
+  sucursal_id: number;
   cotizacion?: number | null;
   destino: "internacional" | "nacional" | "";
   fecha: string;
@@ -139,16 +143,16 @@ export type CreateTripRequest = {
 };
 
 export type UpdateTripRequest = {
-  valor_total?: number;
-  destino?: "internacional" | "nacional";
   apellido?: string;
+  destino?: "internacional" | "nacional";
   moneda?: number;
+  fecha?: string;
   fecha_ida?: string;
   fecha_vuelta?: string;
-  fecha?: string;
-  cotizacion?: number | null;
+  valor_total?: number;
   valor_total_usd?: number;
-  servicios: UpdateServiceData[];
+  cotizacion?: number | null;
+  servicios?: UpdateServiceData[];
 };
 
 export type User = {
