@@ -28,7 +28,7 @@ import { ArchiveTable } from "../components/common/tables/ArchiveTable";
 import { FileUploadModal } from "../components/common/modals/FileUploadModal";
 import { CancelTripModal } from "../components/common/modals/CancelTripModal";
 import type { DestinoEntry, TripFile, UpdateTripRequest } from "../types/types";
-import { SUCURSALES } from "../utils/constants";
+import { SUCURSALES, PAGOS } from "../utils/constants";
 import { isEmpty, hasMissingTripFields, getTripDateError } from "../utils/tripValidation";
 import { FieldLabel } from "../components/common/ui/FieldLabel";
 
@@ -216,6 +216,8 @@ function Trip() {
       fecha_vuelta: "",
       destino: "",
       apellido: "",
+      nombre: "",
+      pago: "",
       moneda: 0,
       valor_total: null,
       valor_total_usd: null,
@@ -226,11 +228,13 @@ function Trip() {
       if (!id) return;
 
       const dataUpdated: UpdateTripRequest = {
+        nombre: value.nombre || undefined,
         apellido: value.apellido,
         destino: value.destino,
         fecha: toDateInput(value.fecha),
         fecha_ida: toDateInput(value.fecha_ida),
         fecha_vuelta: toDateInput(value.fecha_vuelta),
+        pago: value.pago || undefined,
         moneda: value.moneda,
         valor_total: value.moneda === 2 ? 0 : value.valor_total,
         valor_total_usd: value.moneda === 1 ? 0 : value.valor_total_usd,
@@ -242,7 +246,7 @@ function Trip() {
         await saveTrip({ tripId: id!, dataUpdated });
         toast.success("Expediente guardado correctamente");
       } catch (error: any) {
-        const errorMsg = error?.response?.data?.message || error?.message || "Error al actualizar el viaje";
+        const errorMsg = error?.response?.data?.error || error?.message || "Error al actualizar el viaje";
         toast.error(errorMsg);
       }
     },
@@ -256,6 +260,8 @@ function Trip() {
       form.setFieldValue("fecha_vuelta", tripData.fecha_vuelta ? tripData.fecha_vuelta.split("T")[0] : "");
       form.setFieldValue("destino", tripData.destino?.toLowerCase() || "");
       form.setFieldValue("apellido", tripData.apellido || "");
+      form.setFieldValue("nombre", tripData.nombre ?? "");
+      form.setFieldValue("pago", tripData.pago ?? "");
       form.setFieldValue("sucursal_id", tripData.sucursal_id ?? 0);
 
       const monedaMap: Record<string, number> = { ars: 1, usd: 2, mixto: 3 };
@@ -263,9 +269,9 @@ function Trip() {
       form.setFieldValue("moneda", numMoneda);
       setSelectedMoneda(numMoneda);
 
-      form.setFieldValue("valor_total", tripData.valor_total || null);
-      form.setFieldValue("valor_total_usd", tripData.valor_total_usd || null);
-      form.setFieldValue("cotizacion", tripData.cotizacion || null);
+      form.setFieldValue("valor_total", Number(tripData.valor_total) || null);
+      form.setFieldValue("valor_total_usd", Number(tripData.valor_total_usd) || null);
+      form.setFieldValue("cotizacion", Number(tripData.cotizacion) || null);
     }
   }, [tripData, form]);
 
@@ -467,19 +473,18 @@ function Trip() {
             </form.Field>
 
             {/* Pago */}
-            <div className="flex flex-col col-span-1 md:col-span-2">
-              <label className={labelCls}>Pago</label>
-              <CustomSelect
-                value=""
-                onChange={() => { }}
-                options={[
-                  { label: "Seleccionar", value: "" },
-                  { label: "Contado", value: "Contado" },
-                  { label: "Cuotas", value: "Cuotas" },
-                  { label: "Financiacion", value: "Financiacion" },
-                ]}
-              />
-            </div>
+            <form.Field name="pago">
+              {(field) => (
+                <div className="flex flex-col col-span-1 md:col-span-2">
+                  <label className={labelCls}>Pago</label>
+                  <CustomSelect
+                    value={field.state.value ?? ""}
+                    onChange={(val) => field.handleChange(String(val))}
+                    options={PAGOS}
+                  />
+                </div>
+              )}
+            </form.Field>
 
             {/* Detalle económico */}
             <form.Field name="moneda">
@@ -747,10 +752,20 @@ function Trip() {
                 Pasajero 1  -  Titular de la reserva
               </p>
               <div className="grid grid-cols-2 md:grid-cols-6 gap-4">
-                <div className="flex flex-col col-span-1 md:col-span-2">
-                  <label className={labelCls}>Nombre</label>
-                  <input type="text" placeholder="Nombre" className={inputCls} />
-                </div>
+                <form.Field name="nombre">
+                  {(field) => (
+                    <div className="flex flex-col col-span-1 md:col-span-2">
+                      <label className={labelCls}>Nombre</label>
+                      <input
+                        type="text"
+                        placeholder="Nombre"
+                        value={field.state.value || ""}
+                        onChange={(e) => field.handleChange(e.target.value)}
+                        className={inputCls}
+                      />
+                    </div>
+                  )}
+                </form.Field>
 
                 <form.Field name="apellido">
                   {(field) => (

@@ -21,6 +21,8 @@ export interface Trip {
   moneda: string;
   destino: "nacional" | "internacional";
   apellido: string;
+  nombre?: string | null;
+  pago?: string | null;
   valor_total: number;
   valor_total_usd: number;
   sucursal_id: number | null;
@@ -144,6 +146,8 @@ export type CreateTripRequest = {
 
 export type UpdateTripRequest = {
   apellido?: string;
+  nombre?: string;
+  pago?: string;
   destino?: "internacional" | "nacional";
   moneda?: number;
   fecha?: string;

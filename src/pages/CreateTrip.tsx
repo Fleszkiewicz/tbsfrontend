@@ -23,7 +23,7 @@ import { DestinationsTable } from "../components/common/tables/DestinationsTable
 import { ArchiveTable } from "../components/common/tables/ArchiveTable";
 import { FileUploadModal } from "../components/common/modals/FileUploadModal";
 import type { CreateTripRequest, DestinoEntry, TripFile } from "../types/types";
-import { SUCURSALES } from "../utils/constants";
+import { SUCURSALES, PAGOS } from "../utils/constants";
 import { isEmpty, hasMissingTripFields, getTripDateError } from "../utils/tripValidation";
 import { FieldLabel } from "../components/common/ui/FieldLabel";
 
@@ -36,12 +36,7 @@ const labelCls =
 // ─── Helpers y Constantes ─────────────────────────────────────────────────────
 
 
-const METODOS_PAGO = [
-  { label: "Seleccionar", value: "" },
-  { label: "Contado", value: "Contado" },
-  { label: "Cuotas", value: "Cuotas" },
-  { label: "Financiacion", value: "Financiacion" },
-];
+
 
 
 
@@ -428,7 +423,7 @@ function CreateTrip() {
                   <CustomSelect
                     value={field.state.value ?? null}
                     onChange={(val) => field.handleChange(String(val))}
-                    options={METODOS_PAGO}
+                    options={PAGOS}
                   />
                 </div>
               )}

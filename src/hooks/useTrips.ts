@@ -61,8 +61,11 @@ export const useDeleteTrip = () => {
   return useMutation({
     mutationFn: deleteTrip,
     onSuccess: () => {
-      toast.success("Reserva elmininada correctamente");
+      toast.success("Reserva eliminada correctamente");
       queryClient.invalidateQueries({ queryKey: ["trips"] });
+    },
+    onError: (error: any) => {
+      toast.error(error?.response?.data?.error || "No se pudo eliminar la reserva");
     },
   });
 };
