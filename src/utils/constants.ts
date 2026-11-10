@@ -11,3 +11,11 @@ export const PAGOS = [
     { label: "Cuotas", value: "cuotas" },
     { label: "Financiación", value: "financiacion" },
 ];
+
+export const CATEGORIAS_EDAD = [
+    { label: "Seleccionar", value: "" },
+    { label: "Infante (0-2)", value: "infante" },
+    { label: "Menor (2-11)", value: "menor" },
+    { label: "Adulto (+12)", value: "adulto" },
+    { label: "Adulto mayor (+65)", value: "mayor" },
+];

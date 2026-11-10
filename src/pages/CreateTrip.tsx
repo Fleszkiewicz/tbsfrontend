@@ -7,11 +7,8 @@ import {
   IoAirplaneOutline,
   IoLocationOutline,
   IoPeopleOutline,
-  IoAddOutline,
   IoAttach
 } from "react-icons/io5";
-import { LuTrash2 } from "react-icons/lu";
-
 import { toDateInput } from "../utils/utils";
 import { useServices } from "../hooks/useServices";
 import { useCreateTrip } from "../hooks/useTrips";
@@ -26,6 +23,11 @@ import type { CreateTripRequest, DestinoEntry, TripFile } from "../types/types";
 import { SUCURSALES, PAGOS } from "../utils/constants";
 import { isEmpty, hasMissingTripFields, getTripDateError } from "../utils/tripValidation";
 import { FieldLabel } from "../components/common/ui/FieldLabel";
+import { PasajerosSection } from "../components/common/ui/PasajerosSection";
+import { emptyPasajero, toPayload, getPasajerosError, findDniConflict } from "../utils/pasajeros";
+import type { PasajeroForm } from "../types/types";
+import { FiPaperclip } from "react-icons/fi";
+
 
 // ─── Shared style tokens ──────────────────────────────────────────────────────
 const inputCls =
@@ -33,24 +35,13 @@ const inputCls =
 const labelCls =
   "block text-[11px] md:text-[12px] text-gray-400 font-medium mb-1 md:mb-1.5 select-none";
 
-// ─── Helpers y Constantes ─────────────────────────────────────────────────────
 
 
 
 
 
 
-const hasMissing = (v: CreateTripRequest) => {
-  const needsArs = v.moneda === 1 || v.moneda === 3;
-  const needsUsd = v.moneda === 2 || v.moneda === 3;
-  return (
-    isEmpty(v.fecha) || isEmpty(v.fecha_ida) || isEmpty(v.fecha_vuelta) ||
-    isEmpty(v.destino) || isEmpty(v.sucursal_id) || isEmpty(v.pago) ||
-    isEmpty(v.moneda) || isEmpty(v.nombre) || isEmpty(v.apellido) ||
-    (needsArs && isEmpty(v.valor_total)) ||
-    (needsUsd && (isEmpty(v.valor_total_usd) || isEmpty(v.cotizacion)))
-  );
-};
+
 
 
 
@@ -120,60 +111,7 @@ function CreateTrip() {
     toast.success("Destino eliminado.");
   };
 
-  // ── Local state: pasajeros adicionales ──
-  const [extraPasajeros, setExtraPasajeros] = useState<number[]>([]);
-  const addPasajero = () => {
-    setExtraPasajeros((p) => [...p, Date.now()]);
-    toast.success("Pasajero añadido.");
-  };
-  const removePasajero = (id: number) => {
-    setExtraPasajeros((p) => p.filter((x) => x !== id));
-    setPassengerDates((prev) => {
-      const copy = { ...prev };
-      delete copy[id.toString()];
-      return copy;
-    });
-    toast.success("Pasajero eliminado.");
-  };
-
-  const [passengerDates, setPassengerDates] = useState<Record<string, { dni: string; pasaporte: string }>>({});
-  const handleDateChange = (id: string, field: "dni" | "pasaporte", value: string) => {
-    setPassengerDates((prev) => ({
-      ...prev,
-      [id]: {
-        ...(prev[id] || { dni: "", pasaporte: "" }),
-        [field]: value,
-      },
-    }));
-  };
-
-  const getExpirationBadge = (dateStr: string | undefined) => {
-    if (!dateStr) return null;
-    const expDate = new Date(dateStr + "T00:00:00");
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-
-    if (expDate < today) {
-      return (
-        <span className="ml-2 text-[10px] font-bold text-red-600 bg-red-100 px-2 py-0.5 rounded-full uppercase tracking-wider">
-          Vencido
-        </span>
-      );
-    }
-
-    const twoMonthsFromNow = new Date(today);
-    twoMonthsFromNow.setMonth(today.getMonth() + 2);
-
-    if (expDate <= twoMonthsFromNow) {
-      return (
-        <span className="ml-2 text-[10px] font-bold text-yellow-600 bg-yellow-100 px-2 py-0.5 rounded-full uppercase tracking-wider">
-          Por expirar
-        </span>
-      );
-    }
-
-    return null;
-  };
+  const [pasajeros, setPasajeros] = useState<PasajeroForm[]>(() => [emptyPasajero(true)]);
 
   const now = new Date();
   const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
@@ -186,14 +124,12 @@ function CreateTrip() {
       sucursal_id: 0,
       pago: "",
       destino: "",
-      nombre: "",
-      apellido: "",
       fecha: today,
       fecha_ida: "",
       fecha_vuelta: "",
       servicios: [],
       cotizacion: null,
-    } as CreateTripRequest,
+    } as Omit<CreateTripRequest, "pasajeros">,
     onSubmit: async ({ value, formApi }) => {
       const trip: CreateTripRequest = {
         fecha_ida: toDateInput(value.fecha_ida),
@@ -203,8 +139,7 @@ function CreateTrip() {
         destino: value.destino,
         sucursal_id: value.sucursal_id,
         pago: value.pago,
-        nombre: value.nombre,
-        apellido: value.apellido,
+        pasajeros: toPayload(pasajeros),
         valor_total: value.moneda === 2 ? 0 : value.valor_total,
         valor_total_usd:
           value.moneda === 2 || value.moneda === 3
@@ -238,17 +173,23 @@ function CreateTrip() {
   });
 
   // ✅ ÚNICO handleSave (con validación de campos requeridos y fechas)
-  const handleSave = () => {
+  const handleSave = async () => {
     const values = form.state.values;
-    if (hasMissingTripFields(values, true)) {
+    const pasajerosError = getPasajerosError(pasajeros, true);
+    if (hasMissingTripFields(values, true) || pasajerosError) {
       setShowErrors(true);
-      toast.error("Debe rellenar los campos obligatorios para guardar el expediente");
+      toast.error(pasajerosError ?? "Debe rellenar los campos obligatorios para guardar el expediente");
       return;
     }
     const err = getTripDateError(values);
     setDateError(err);
     if (err) {
       toast.error(err);
+      return;
+    }
+    const conflicto = await findDniConflict(pasajeros);
+    if (conflicto) {
+      toast.error(conflicto);
       return;
     }
     form.handleSubmit();
@@ -590,199 +531,14 @@ function CreateTrip() {
           }
           title="Información de pasajeros"
         >
-          <div className="flex flex-col gap-4">
-            {/* Pasajero 1 - Titular */}
-            <div className="border border-gray-200 rounded-2xl p-5">
-              <p className="text-[14px] font-semibold text-[#1D1D1F] mb-4 select-none">
-                Pasajero 1  -  Titular de la reserva
-              </p>
-              <div className="grid grid-cols-2 md:grid-cols-6 gap-4">
-                {/* Nombre conectado al form */}
-                <form.Field name="nombre">
-                  {(field) => (
-                    <div className="flex flex-col col-span-1 md:col-span-2">
-                      <FieldLabel text="Nombre" invalid={showErrors && isEmpty(field.state.value)} />
-                      <input
-                        type="text"
-                        placeholder="Nombre"
-                        value={field.state.value || ""}
-                        onChange={(e) => field.handleChange(e.target.value)}
-                        className={inputCls}
-                      />
-                    </div>
-                  )}
-                </form.Field>
-
-                {/* Apellido conectado al form */}
-                <form.Field name="apellido">
-                  {(field) => (
-                    <div className="flex flex-col col-span-1 md:col-span-2">
-                      <FieldLabel text="Apellido" invalid={showErrors && isEmpty(field.state.value)} />
-                      <input
-                        type="text"
-                        placeholder="Apellido"
-                        value={field.state.value || ""}
-                        onChange={(e) => field.handleChange(e.target.value)}
-                        className={inputCls}
-                      />
-                    </div>
-                  )}
-                </form.Field>
-
-                <div className="flex flex-col col-span-1 md:col-span-2">
-                  <label className={labelCls}>Edad</label>
-                  <CustomSelect
-                    value=""
-                    onChange={() => { }}
-                    options={[
-                      { label: "Seleccionar", value: "" },
-                      { label: "Infante (0-2)", value: "infante" },
-                      { label: "Menor (2-11)", value: "menor" },
-                      { label: "Adulto (+12)", value: "adulto" },
-                      { label: "Adulto mayor (+65)", value: "mayor" },
-                    ]}
-                  />
-                </div>
-
-                {/* DNI & Fechas UI */}
-                <div className="flex flex-col col-span-1 md:col-span-3">
-                  <label className={labelCls}>DNI</label>
-                  <input type="text" placeholder="00.000.000" className={inputCls} />
-                </div>
-                <div className="flex flex-col col-span-1 md:col-span-3">
-                  <label className={labelCls}>
-                    Vencimiento DNI
-                    {getExpirationBadge(passengerDates["p1"]?.dni)}
-                  </label>
-                  <CustomDatePicker
-                    value={passengerDates["p1"]?.dni || ""}
-                    onChange={(val) => handleDateChange("p1", "dni", val)}
-                  />
-                </div>
-
-                {/* Pasaporte UI */}
-                <div className="flex flex-col col-span-1 md:col-span-3">
-                  <label className={labelCls}>Pasaporte</label>
-                  <input type="text" placeholder="AAA000000" className={inputCls} />
-                </div>
-                <div className="flex flex-col col-span-1 md:col-span-3">
-                  <label className={labelCls}>
-                    Vencimiento Pasaporte
-                    {getExpirationBadge(passengerDates["p1"]?.pasaporte)}
-                  </label>
-                  <CustomDatePicker
-                    value={passengerDates["p1"]?.pasaporte || ""}
-                    onChange={(val) => handleDateChange("p1", "pasaporte", val)}
-                  />
-                </div>
-
-                {/* Email & Contacto UI */}
-                <div className="flex flex-col col-span-1 md:col-span-3">
-                  <label className={labelCls}>Email</label>
-                  <input type="email" placeholder="correo@email.com" className={inputCls} />
-                </div>
-                <div className="flex flex-col col-span-1 md:col-span-3">
-                  <label className={labelCls}>Contacto</label>
-                  <input type="text" placeholder="+54 11 0000-0000" className={inputCls} />
-                </div>
-              </div>
-            </div>
-
-            {/* Pasajeros adicionales (UI) */}
-            {extraPasajeros.map((id, idx) => (
-              <div key={id} className="border border-gray-200 rounded-2xl p-5">
-                <div className="flex items-center justify-between mb-4">
-                  <p className="text-[14px] font-semibold text-[#1D1D1F] select-none">
-                    Pasajero {idx + 2}
-                  </p>
-                  <button
-                    type="button"
-                    onClick={() => removePasajero(id)}
-                    className="text-gray-400 hover:text-red-500 transition-colors"
-                    title="Eliminar pasajero"
-                  >
-                    <LuTrash2 size={16} />
-                  </button>
-                </div>
-                <div className="grid grid-cols-2 md:grid-cols-6 gap-4">
-                  <div className="flex flex-col col-span-1 md:col-span-2">
-                    <label className={labelCls}>Nombre</label>
-                    <input type="text" placeholder="Nombre" className={inputCls} />
-                  </div>
-                  <div className="flex flex-col col-span-1 md:col-span-2">
-                    <label className={labelCls}>Apellido</label>
-                    <input type="text" placeholder="Apellido" className={inputCls} />
-                  </div>
-                  <div className="flex flex-col col-span-1 md:col-span-2">
-                    <label className={labelCls}>Tipo de pasajero</label>
-                    <CustomSelect
-                      value=""
-                      onChange={() => { }}
-                      options={[
-                        { label: "Seleccionar", value: "" },
-                        { label: "Adulto (12+)", value: "adulto" },
-                        { label: "Menor (2-11)", value: "menor" },
-                        { label: "Infante (0-2)", value: "infante" },
-                        { label: "Adulto mayor (65+)", value: "mayor" },
-                      ]}
-                    />
-                  </div>
-                  <div className="flex flex-col col-span-1 md:col-span-3">
-                    <label className={labelCls}>DNI</label>
-                    <input type="text" placeholder="00.000.000" className={inputCls} />
-                  </div>
-                  <div className="flex flex-col col-span-1 md:col-span-3">
-                    <label className={labelCls}>
-                      Vencimiento DNI
-                      {getExpirationBadge(passengerDates[id.toString()]?.dni)}
-                    </label>
-                    <CustomDatePicker
-                      value={passengerDates[id.toString()]?.dni || ""}
-                      onChange={(val) => handleDateChange(id.toString(), "dni", val)}
-                    />
-                  </div>
-                  <div className="flex flex-col col-span-1 md:col-span-3">
-                    <label className={labelCls}>Pasaporte</label>
-                    <input type="text" placeholder="AAA000000" className={inputCls} />
-                  </div>
-                  <div className="flex flex-col col-span-1 md:col-span-3">
-                    <label className={labelCls}>
-                      Vencimiento Pasaporte
-                      {getExpirationBadge(passengerDates[id.toString()]?.pasaporte)}
-                    </label>
-                    <CustomDatePicker
-                      value={passengerDates[id.toString()]?.pasaporte || ""}
-                      onChange={(val) => handleDateChange(id.toString(), "pasaporte", val)}
-                    />
-                  </div>
-                  <div className="flex flex-col col-span-1 md:col-span-3">
-                    <label className={labelCls}>Email</label>
-                    <input type="email" placeholder="correo@email.com" className={inputCls} />
-                  </div>
-                  <div className="flex flex-col col-span-1 md:col-span-3">
-                    <label className={labelCls}>Contacto</label>
-                    <input type="text" placeholder="+54 11 0000-0000" className={inputCls} />
-                  </div>
-                </div>
-              </div>
-            ))}
-
-            <button
-              type="button"
-              onClick={addPasajero}
-              className="flex items-center justify-center gap-2 w-full py-3 text-[13px] font-medium text-gray-500 hover:text-black hover:bg-gray-100 rounded-2xl transition-all select-none"
-            >
-              <IoAddOutline size={18} />
-              Añadir pasajero
-            </button>
-          </div>
+          <PasajerosSection pasajeros={pasajeros} onChange={setPasajeros} showErrors={showErrors} requireNombreTitular />
         </SectionCard>
 
         {/* ══ SECCIÓN 4: Archivos ══ */}
         <SectionCard
           icon={
             <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center">
-              <IoAttach size={18} className="text-black" />
+              <FiPaperclip size={15} className="text-black" />
             </div>
           }
           title="Archivos adjuntos"

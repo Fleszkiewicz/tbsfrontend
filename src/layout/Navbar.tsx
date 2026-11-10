@@ -4,8 +4,10 @@ import { useNavigate, NavLink } from "react-router-dom";
 import { useUser } from "../hooks/useUser";
 import Swal from "sweetalert2";
 import { IoFileTrayFullOutline, IoReceiptOutline, IoPieChartOutline, IoChevronDown } from "react-icons/io5";
-import { FiDollarSign, FiUser } from "react-icons/fi";
+import { FiUser } from "react-icons/fi";
 import { LuLogOut } from "react-icons/lu";
+import { IoTrendingUpOutline } from "react-icons/io5";
+
 
 function Navbar() {
   const navigate = useNavigate();
@@ -87,7 +89,7 @@ function Navbar() {
             <span className="hidden md:inline">Expedientes</span>
           </NavLink>
           <NavLink to="/finance" className={navLinkClass}>
-            <FiDollarSign size={20} />
+            <IoTrendingUpOutline size={20} />
             <span className="hidden md:inline">Finanzas</span>
           </NavLink>
           <NavLink to="/expenses" className={navLinkClass}>

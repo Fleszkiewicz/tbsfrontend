@@ -1,3 +1,5 @@
+import type { PasajeroApi, PasajeroPayload } from "./pasajeros";
+
 interface Service {
   id: number;
   nombre: string;
@@ -9,6 +11,7 @@ interface Service {
 }
 
 export interface Trip {
+  pasajeros?: PasajeroApi[];
   id: string;
   estado: string;
   cancelado?: 0 | 1;
@@ -130,8 +133,7 @@ export type CreateTripRequest = {
     cotizacion: number | null;
     observacion?: string | null;
   }[];
-  nombre?: string;
-  apellido: string;
+  pasajeros: PasajeroPayload[];
   valor_total: number;
   valor_total_usd?: number;
   pago?: string;
@@ -145,8 +147,7 @@ export type CreateTripRequest = {
 };
 
 export type UpdateTripRequest = {
-  apellido?: string;
-  nombre?: string;
+  pasajeros?: PasajeroPayload[];
   pago?: string;
   destino?: "internacional" | "nacional";
   moneda?: number;
@@ -203,3 +204,61 @@ export type CreateExpenseRequest = {
 };
 
 export type ExpensesApiResponse = ApiResponse<Expense>;
+
+export type CategoriaEdad = "infante" | "menor" | "adulto" | "mayor";
+
+export type PasajeroApi = {
+  pasajero_id: number;
+  es_titular: boolean;
+  categoria_edad: CategoriaEdad | null;
+  dni: string | null;
+  nombre: string | null;
+  apellido: string;
+  email: string | null;
+  telefono: string | null;
+  pasaporte: string | null;
+  vencimiento_dni: string | null;
+  vencimiento_pasaporte: string | null;
+};
+
+export type PasajeroBusqueda = {
+  id: number;
+  dni: string;
+  nombre: string | null;
+  apellido: string;
+  email: string | null;
+  telefono: string | null;
+  pasaporte: string | null;
+  vencimiento_dni: string | null;
+  vencimiento_pasaporte: string | null;
+};
+
+export type PasajeroForm = {
+  key: string;
+  pasajero_id: number | null;
+  es_titular: boolean;
+  dni: string;
+  dni_original: string;
+  nombre: string;
+  apellido: string;
+  email: string;
+  telefono: string;
+  pasaporte: string;
+  vencimiento_dni: string;
+  vencimiento_pasaporte: string;
+  categoria_edad: CategoriaEdad | "";
+};
+
+export type PasajeroPayload = {
+  pasajero_id: number | null;
+  es_titular: boolean;
+  dni: string | null;
+  nombre: string | null;
+  apellido: string;
+  email: string | null;
+  telefono: string | null;
+  pasaporte: string | null;
+  vencimiento_dni: string | null;
+  vencimiento_pasaporte: string | null;
+  categoria_edad: CategoriaEdad | null;
+};
