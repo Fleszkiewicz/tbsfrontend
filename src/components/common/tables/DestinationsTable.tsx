@@ -1,47 +1,26 @@
 import { Table } from "../../../layout/Table";
 import { IoAddOutline } from "react-icons/io5";
 import { LuTrash2 } from "react-icons/lu";
-import type { DestinoEntry } from "../../../types/types";
+import type { DestinoEntry, DestinoServiceDetail } from "../../../types/types";
 import { renderEstado } from "../../../utils/utilsTsx";
+import { destinoEstado, serviciosEstado } from "../../../utils/destinos";
 
 type DestinationsTableProps = {
   destinos: DestinoEntry[];
   onAdd: () => void;
   onEdit: (index: number) => void;
   onRemove: (index: number, e: React.MouseEvent) => void;
+  /** Servicios viejos sin destino. Si hay alguno, se muestra una fila extra. */
+  sinDestino?: DestinoServiceDetail[];
+  onEditSinDestino?: () => void;
 };
 
-export const getDestinoEstado = (d: DestinoEntry): "finalizado" | "pendiente" => {
-  // Fechas obligatorias
-  if (!d.fecha_ida || !d.fecha_vuelta) return "pendiente";
+// Se mantiene exportada por compatibilidad; la lógica vive en utils/destinos.ts
+export const getDestinoEstado = destinoEstado;
 
-  // Debe tener al menos un servicio cargado
-  if (!d.servicios || d.servicios.length === 0) return "pendiente";
-
-  // Todos los servicios deben tener sus campos completos (menos observación)
-  const allServicesComplete = d.servicios.every((s) => {
-    // 1. Servicio seleccionado
-    if (!s.id || Number(s.id) <= 0) return false;
-
-    // 2. Valor ingresado y mayor a 0
-    if (typeof s.valor !== "number" || Number(s.valor) <= 0) return false;
-
-    // 3. Moneda válida (1: ARS, 2: USD)
-    if (s.moneda !== 1 && s.moneda !== 2) return false;
-
-    // 4. Si la moneda es USD (2), debe tener cotización mayor a 0
-    if (s.moneda === 2 && (!s.cotizacion || Number(s.cotizacion) <= 0)) {
-      return false;
-    }
-
-    // 5. Pagado por debe estar definido y no ser "pendiente"
-    if (!s.pagado_por || s.pagado_por === "pendiente") return false;
-
-    return true;
-  });
-
-  return allServicesComplete ? "finalizado" : "pendiente";
-};
+type Row =
+  | { kind: "destino"; d: DestinoEntry; idx: number }
+  | { kind: "sin" };
 
 const headers = [
   { label: "Destino", key: "destino" },
@@ -52,16 +31,26 @@ const headers = [
   { label: "Acciones", key: "acciones" },
 ];
 
+const fmt = (iso: string) =>
+  iso ? new Date(iso + "T00:00:00").toLocaleDateString("es-AR") : "-";
+
+const tdBase = "py-3 px-4 md:px-5 text-[13px] md:text-[14px] text-center";
+
 export const DestinationsTable = ({
   destinos,
   onAdd,
   onEdit,
   onRemove,
+  sinDestino = [],
+  onEditSinDestino,
 }: DestinationsTableProps) => {
+  const rows: Row[] = destinos.map((d, idx) => ({ kind: "destino", d, idx }));
+  if (sinDestino.length > 0) rows.push({ kind: "sin" });
+
   return (
     <Table
       headers={headers}
-      data={destinos}
+      data={rows}
       noDataMessage="No hay destinos agregados aún."
       footerAction={
         <button
@@ -73,41 +62,63 @@ export const DestinationsTable = ({
           Añadir destino
         </button>
       }
-      renderRow={(d, idx) => (
-        <tr
-          key={idx}
-          onClick={() => onEdit(idx)}
-          className="border-b border-gray-250 hover:bg-gray-100 transition-colors group cursor-pointer"
-        >
-          <td className="py-3 px-4 md:px-5 text-[13px] md:text-[14px] font-bold text-gray-700 capitalize text-center whitespace-nowrap">
-            {d.destino}
-          </td>
-          <td className="py-3 px-4 md:px-5 text-[13px] md:text-[14px] font-medium text-gray-600 text-center whitespace-nowrap">
-            {d.fecha_ida ? new Date(d.fecha_ida + "T00:00:00").toLocaleDateString("es-AR") : "-"}
-          </td>
-          <td className="py-3 px-4 md:px-5 text-[13px] md:text-[14px] font-medium text-gray-600 text-center whitespace-nowrap">
-            {d.fecha_vuelta ? new Date(d.fecha_vuelta + "T00:00:00").toLocaleDateString("es-AR") : "-"}
-          </td>
-          <td className="py-3 px-4 md:px-5 text-[13px] md:text-[14px] font-medium text-gray-600 text-center">
-            {d.servicios.length > 0 ? d.servicios.length : "-"}
-          </td>
-          <td className="py-3 px-4 md:px-5 text-center">
-            {renderEstado(getDestinoEstado(d))}
-          </td>
-          <td className="py-3 px-4 md:px-5 text-center">
-            <div className="flex justify-center">
-              <button
-                type="button"
-                className="text-gray-500 hover:text-red-600 transition-colors p-1.5 rounded-lg"
-                onClick={(e) => onRemove(idx, e)}
-                title="Eliminar destino"
-              >
-                <LuTrash2 size={16} />
-              </button>
-            </div>
-          </td>
-        </tr>
-      )}
+      renderRow={(row) => {
+        if (row.kind === "sin") {
+          return (
+            <tr
+              key="sin-destino"
+              onClick={() => onEditSinDestino?.()}
+              className="border-b border-gray-250 hover:bg-gray-100 transition-colors group cursor-pointer"
+            >
+              <td className={`${tdBase} font-bold text-gray-500 italic whitespace-nowrap`}>
+                Sin destino asignado
+              </td>
+              <td className={`${tdBase} font-medium text-gray-400`}>-</td>
+              <td className={`${tdBase} font-medium text-gray-400`}>-</td>
+              <td className={`${tdBase} font-medium text-gray-600`}>
+                {sinDestino.length}
+              </td>
+              <td className={tdBase}>{renderEstado(serviciosEstado(sinDestino))}</td>
+              <td className={`${tdBase} text-gray-300`}>-</td>
+            </tr>
+          );
+        }
+
+        const { d, idx } = row;
+        return (
+          <tr
+            key={d.destino_id ?? `new-${idx}`}
+            onClick={() => onEdit(idx)}
+            className="border-b border-gray-250 hover:bg-gray-100 transition-colors group cursor-pointer"
+          >
+            <td className={`${tdBase} font-bold text-gray-700 capitalize whitespace-nowrap`}>
+              {d.destino}
+            </td>
+            <td className={`${tdBase} font-medium text-gray-600 whitespace-nowrap`}>
+              {fmt(d.fecha_desde)}
+            </td>
+            <td className={`${tdBase} font-medium text-gray-600 whitespace-nowrap`}>
+              {fmt(d.fecha_hasta)}
+            </td>
+            <td className={`${tdBase} font-medium text-gray-600`}>
+              {d.servicios.length > 0 ? d.servicios.length : "-"}
+            </td>
+            <td className={tdBase}>{renderEstado(destinoEstado(d))}</td>
+            <td className={tdBase}>
+              <div className="flex justify-center">
+                <button
+                  type="button"
+                  className="text-gray-500 hover:text-red-600 transition-colors p-1.5 rounded-lg"
+                  onClick={(e) => onRemove(idx, e)}
+                  title="Eliminar destino"
+                >
+                  <LuTrash2 size={16} />
+                </button>
+              </div>
+            </td>
+          </tr>
+        );
+      }}
     />
   );
 };

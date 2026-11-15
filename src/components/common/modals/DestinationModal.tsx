@@ -4,51 +4,66 @@ import Swal from "sweetalert2";
 import { CustomDatePicker } from "../ui/CustomDatePicker";
 import { useServices } from "../../../hooks/useServices";
 import type { DestinoEntry } from "../../../types/types";
+import { getDestinoDateError } from "../../../utils/destinos";
 
 const inputCls =
   "w-full bg-[#f0f0f0] rounded-xl px-4 py-2.5 text-[14px] font-medium text-[#1D1D1F] outline-none focus:ring-2 focus:ring-black/10 transition-all placeholder:text-gray-400 border-none";
 const labelCls =
   "block text-[12px] text-gray-400 font-medium mb-1.5 select-none";
 
+const EMPTY: DestinoEntry = {
+  destino: "",
+  fecha_desde: "",
+  fecha_hasta: "",
+  servicios: [],
+};
+
 type Props = {
   isOpen: boolean;
   onClose: () => void;
   onSave: (destino: DestinoEntry) => void;
+  /** Fechas globales de la reserva (YYYY-MM-DD) para validar el rango */
+  viajeDesde: string;
+  viajeHasta: string;
 };
 
-export const DestinationModal = ({ isOpen, onClose, onSave }: Props) => {
+export const DestinationModal = ({
+  isOpen,
+  onClose,
+  onSave,
+  viajeDesde,
+  viajeHasta,
+}: Props) => {
   const { data: services } = useServices();
 
-  const [newDestino, setNewDestino] = useState<DestinoEntry>({
-    destino: "",
-    fecha_ida: "",
-    fecha_vuelta: "",
-    servicios: [],
-  });
-
+  const [newDestino, setNewDestino] = useState<DestinoEntry>(EMPTY);
   const [selectedServiceIds, setSelectedServiceIds] = useState<number[]>([]);
 
   useEffect(() => {
     if (isOpen) {
-      setNewDestino({ destino: "", fecha_ida: "", fecha_vuelta: "", servicios: [] });
+      setNewDestino(EMPTY);
       setSelectedServiceIds([]);
     }
   }, [isOpen]);
 
   if (!isOpen) return null;
 
+  const dateError = getDestinoDateError(newDestino, viajeDesde, viajeHasta);
+  const canSave = newDestino.destino.trim() !== "" && !dateError;
+
   const toggleDestinoServicio = (serviceId: number) => {
     setSelectedServiceIds((prev) =>
       prev.includes(serviceId)
         ? prev.filter((id) => id !== serviceId)
-        : [...prev, serviceId]
+        : [...prev, serviceId],
     );
   };
 
   const handleSafeClose = () => {
-    const hasChanges = newDestino.destino !== "" ||
-      newDestino.fecha_ida !== "" ||
-      newDestino.fecha_vuelta !== "" ||
+    const hasChanges =
+      newDestino.destino !== "" ||
+      newDestino.fecha_desde !== "" ||
+      newDestino.fecha_hasta !== "" ||
       selectedServiceIds.length > 0;
 
     if (hasChanges) {
@@ -64,17 +79,18 @@ export const DestinationModal = ({ isOpen, onClose, onSave }: Props) => {
         color: "#1D1D1F",
         background: "#ffffff",
         customClass: {
-          popup: "rounded-[24px] shadow-[0_8px_30px_rgb(0,0,0,0.12)] border border-gray-100 py-5 px-3",
+          popup:
+            "rounded-[24px] shadow-[0_8px_30px_rgb(0,0,0,0.12)] border border-gray-100 py-5 px-3",
           title: "text-[16px] font-semibold text-black mt-0",
           htmlContainer: "text-[13px] text-gray-500 font-medium mt-1 mb-6 mx-0",
           actions: "flex w-full gap-2 px-3 m-0",
-          confirmButton: "flex-1 bg-[#FF3B30] hover:bg-[#E3342B] text-white font-semibold py-2.5 rounded-xl transition-colors text-[13px] m-0",
-          cancelButton: "flex-1 bg-[#e8e8e8] hover:bg-[#dcdcdc] text-black font-semibold py-2.5 rounded-xl transition-colors text-[13px] m-0"
-        }
+          confirmButton:
+            "flex-1 bg-[#FF3B30] hover:bg-[#E3342B] text-white font-semibold py-2.5 rounded-xl transition-colors text-[13px] m-0",
+          cancelButton:
+            "flex-1 bg-[#e8e8e8] hover:bg-[#dcdcdc] text-black font-semibold py-2.5 rounded-xl transition-colors text-[13px] m-0",
+        },
       }).then((result) => {
-        if (result.isConfirmed) {
-          onClose();
-        }
+        if (result.isConfirmed) onClose();
       });
     } else {
       onClose();
@@ -82,21 +98,22 @@ export const DestinationModal = ({ isOpen, onClose, onSave }: Props) => {
   };
 
   const handleSave = () => {
-    if (!newDestino.destino) return;
+    if (!canSave) return;
 
     const detailedServicios = selectedServiceIds.map((id) => {
       const serviceDef = services?.data?.find((s) => s.id === id);
       return {
-        id,
+        servicio_tipo_id: id,
+        nombre: serviceDef?.nombre,
         valor: 0,
-        moneda: serviceDef?.moneda?.toLowerCase() === "usd" ? 2 : 1,
+        moneda_id: serviceDef?.moneda?.toLowerCase() === "usd" ? 2 : 1,
         cotizacion: null,
         pagado_por: "pendiente" as const,
-        observacion: ""
+        observacion: null,
       };
     });
 
-    onSave({ ...newDestino, servicios: detailedServicios });
+    onSave({ ...newDestino, destino: newDestino.destino.trim(), servicios: detailedServicios });
     onClose();
   };
 
@@ -133,7 +150,9 @@ export const DestinationModal = ({ isOpen, onClose, onSave }: Props) => {
               <input
                 type="text"
                 value={newDestino.destino}
-                onChange={(e) => setNewDestino((p) => ({ ...p, destino: e.target.value }))}
+                onChange={(e) =>
+                  setNewDestino((p) => ({ ...p, destino: e.target.value }))
+                }
                 placeholder="Ej: Madrid"
                 className={inputCls}
                 autoFocus
@@ -142,17 +161,34 @@ export const DestinationModal = ({ isOpen, onClose, onSave }: Props) => {
             <div className="flex flex-col">
               <label className={labelCls}>Desde</label>
               <CustomDatePicker
-                value={newDestino.fecha_ida}
-                onChange={(val) => setNewDestino((p) => ({ ...p, fecha_ida: val }))}
+                value={newDestino.fecha_desde}
+                minDate={viajeDesde || undefined}
+                maxDate={viajeHasta || undefined}
+                rangeStart={viajeDesde || undefined}
+                rangeEnd={viajeHasta || undefined}
+                onChange={(val) =>
+                  setNewDestino((p) => ({ ...p, fecha_desde: val }))
+                }
               />
             </div>
             <div className="flex flex-col">
               <label className={labelCls}>Hasta</label>
               <CustomDatePicker
-                value={newDestino.fecha_vuelta}
-                onChange={(val) => setNewDestino((p) => ({ ...p, fecha_vuelta: val }))}
+                value={newDestino.fecha_hasta}
+                minDate={viajeDesde || undefined}
+                maxDate={viajeHasta || undefined}
+                rangeStart={viajeDesde || undefined}
+                rangeEnd={viajeHasta || undefined}
+                onChange={(val) =>
+                  setNewDestino((p) => ({ ...p, fecha_hasta: val }))
+                }
               />
             </div>
+            {dateError && (
+              <p className="text-red-500 text-[12px] font-medium -mt-1">
+                {dateError}
+              </p>
+            )}
           </div>
 
           <div className="flex flex-col">
@@ -183,8 +219,8 @@ export const DestinationModal = ({ isOpen, onClose, onSave }: Props) => {
           <button
             type="button"
             onClick={handleSave}
-            disabled={!newDestino.destino}
-            className="w-full bg-black hover:bg-gray-900 text-white font-semibold text-[14px] rounded-full py-3 transition-colors active:scale-[0.98] disabled:cursor-not-allowed select-none"
+            disabled={!canSave}
+            className="w-full bg-black hover:bg-gray-900 text-white font-semibold text-[14px] rounded-full py-3 transition-colors active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed select-none"
           >
             Guardar
           </button>

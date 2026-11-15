@@ -1,16 +1,14 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { useForm } from "@tanstack/react-form";
+import { useForm, useStore } from "@tanstack/react-form";
 import { toast } from "sonner";
 import {
   IoArrowBack,
   IoAirplaneOutline,
   IoLocationOutline,
   IoPeopleOutline,
-  IoAttach
 } from "react-icons/io5";
 import { toDateInput } from "../utils/utils";
-import { useServices } from "../hooks/useServices";
 import { useCreateTrip } from "../hooks/useTrips";
 import { CustomDatePicker } from "../components/common/ui/CustomDatePicker";
 import { CustomSelect } from "../components/common/ui/CustomSelect";
@@ -20,6 +18,7 @@ import { DestinationsTable } from "../components/common/tables/DestinationsTable
 import { ArchiveTable } from "../components/common/tables/ArchiveTable";
 import { FileUploadModal } from "../components/common/modals/FileUploadModal";
 import type { CreateTripRequest, DestinoEntry, TripFile } from "../types/types";
+import { destinoToPayload, getDestinoDateError } from "../utils/destinos";
 import { SUCURSALES, PAGOS } from "../utils/constants";
 import { isEmpty, hasMissingTripFields, getTripDateError } from "../utils/tripValidation";
 import { FieldLabel } from "../components/common/ui/FieldLabel";
@@ -32,8 +31,7 @@ import { FiPaperclip } from "react-icons/fi";
 // ─── Shared style tokens ──────────────────────────────────────────────────────
 const inputCls =
   "w-full bg-[#f0f0f0] rounded-xl px-3 md:px-4 py-2 md:py-2.5 text-[13px] md:text-[14px] font-medium text-[#1D1D1F] outline-none focus:ring-2 focus:ring-black/10 transition-all placeholder:text-gray-400 border-none";
-const labelCls =
-  "block text-[11px] md:text-[12px] text-gray-400 font-medium mb-1 md:mb-1.5 select-none";
+
 
 
 
@@ -75,7 +73,6 @@ function SectionCard({
 function CreateTrip() {
 
   const navigate = useNavigate();
-  const { data: services } = useServices();
   const { mutateAsync: createTrip } = useCreateTrip();
   const [showErrors, setShowErrors] = useState(false);
 
@@ -127,7 +124,6 @@ function CreateTrip() {
       fecha: today,
       fecha_ida: "",
       fecha_vuelta: "",
-      servicios: [],
       cotizacion: null,
     } as Omit<CreateTripRequest, "pasajeros">,
     onSubmit: async ({ value, formApi }) => {
@@ -147,17 +143,7 @@ function CreateTrip() {
             : 0,
         cotizacion:
           value.moneda === 2 || value.moneda === 3 ? value.cotizacion : null,
-        servicios: (value.servicios || []).map((s) => {
-          const originalService = services?.data?.find((os) => os.id === s.id);
-          const isUSD = originalService?.moneda?.toLowerCase() === "usd";
-          return {
-            id: s.id,
-            valor: 0,
-            pagado_por: "pendiente",
-            moneda: isUSD ? 2 : 1,
-            cotizacion: isUSD ? (value.cotizacion ?? null) : null,
-          };
-        }),
+        destinos: destinos.map(destinoToPayload),
       };
       try {
         // ✅ 2. OBTENER EL ID SIN LLAMAR DOS VECES A LA API
@@ -187,6 +173,11 @@ function CreateTrip() {
       toast.error(err);
       return;
     }
+    const destinoFuera = destinos.find((d) => getDestinoDateError(d, toDateInput(values.fecha_ida), toDateInput(values.fecha_vuelta)));
+    if (destinoFuera) {
+      toast.error(`Destino "${destinoFuera.destino}": ${getDestinoDateError(destinoFuera, toDateInput(values.fecha_ida), toDateInput(values.fecha_vuelta))}`);
+      return;
+    }
     const conflicto = await findDniConflict(pasajeros);
     if (conflicto) {
       toast.error(conflicto);
@@ -194,6 +185,10 @@ function CreateTrip() {
     }
     form.handleSubmit();
   };
+
+  // Fechas globales de la reserva (reactivas) para validar los destinos
+  const viajeDesde: string = useStore(form.store, (s) => s.values.fecha_ida) || "";
+  const viajeHasta: string = useStore(form.store, (s) => s.values.fecha_vuelta) || "";
 
   const [selectedMoneda, setSelectedMoneda] = useState<number>(
     form.getFieldValue("moneda") ?? 0
@@ -531,8 +526,7 @@ function CreateTrip() {
           }
           title="Información de pasajeros"
         >
-          <PasajerosSection pasajeros={pasajeros} onChange={setPasajeros} showErrors={showErrors} requireNombreTitular />
-        </SectionCard>
+          <PasajerosSection pasajeros={pasajeros} onChange={setPasajeros} showErrors={showErrors} requireNombreTitular fechaFin={viajeHasta} />        </SectionCard>
 
         {/* ══ SECCIÓN 4: Archivos ══ */}
         <SectionCard
@@ -555,6 +549,8 @@ function CreateTrip() {
         isOpen={showDestinoModal}
         onClose={() => setShowDestinoModal(false)}
         onSave={handleSaveDestino}
+        viajeDesde={viajeDesde}
+        viajeHasta={viajeHasta}
       />
 
       <FileUploadModal
@@ -569,6 +565,8 @@ function CreateTrip() {
           onClose={() => setEditingDestinoIndex(null)}
           onSave={handleSaveDestino}
           initialData={destinos[editingDestinoIndex]}
+          viajeDesde={viajeDesde}
+          viajeHasta={viajeHasta}
         />
       )}
     </div>

@@ -8,6 +8,7 @@ export const renderEstado = (estado: string) => {
     "en espera": "text-yellow-600 bg-yellow-100",
     "en curso": "text-blue-600 bg-blue-100",
     finalizado: "text-green-600 bg-green-100",
+    confirmado: "text-green-600 bg-green-100",
     cancelado: "text-red-600 bg-red-100",
   };
   return (

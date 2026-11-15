@@ -1,22 +1,20 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { useForm } from "@tanstack/react-form";
+import { useForm, useStore } from "@tanstack/react-form";
 import { toast } from "sonner";
 import {
   IoArrowBack,
   IoLocationOutline,
   IoPeopleOutline,
-  IoAttach,
   IoCashOutline,
   IoCheckmark,
   IoTicketOutline,
 } from "react-icons/io5";
 import { PasajerosSection } from "../components/common/ui/PasajerosSection";
-import { emptyPasajero, toPayload, getPasajerosError, findDniConflict, fromApi } from "../utils/pasajeros";
+import { toPayload, getPasajerosError, findDniConflict, fromApi } from "../utils/pasajeros";
 import type { PasajeroForm } from "../types/types";
 import { formattedAmount, toDateInput } from "../utils/utils";
 import { renderEstado } from "../utils/utilsTsx";
-import { useServices } from "../hooks/useServices";
 import { useTrip, useSaveTrip, useCancelTrip, useRevertCancelTrip } from "../hooks/useTrips";
 import { CustomDatePicker } from "../components/common/ui/CustomDatePicker";
 import { CustomSelect } from "../components/common/ui/CustomSelect";
@@ -27,7 +25,14 @@ import { DestinationsTable } from "../components/common/tables/DestinationsTable
 import { ArchiveTable } from "../components/common/tables/ArchiveTable";
 import { FileUploadModal } from "../components/common/modals/FileUploadModal";
 import { CancelTripModal } from "../components/common/modals/CancelTripModal";
-import type { DestinoEntry, TripFile, UpdateTripRequest } from "../types/types";
+import type { DestinoEntry, DestinoServiceDetail, TripFile, UpdateTripRequest } from "../types/types";
+import {
+  destinosFromApi,
+  serviciosSinDestinoFromApi,
+  destinoToPayload,
+  servicioToPayload,
+  getDestinoDateError,
+} from "../utils/destinos";
 import { SUCURSALES, PAGOS } from "../utils/constants";
 import { isEmpty, hasMissingTripFields, getTripDateError } from "../utils/tripValidation";
 import { FieldLabel } from "../components/common/ui/FieldLabel";
@@ -75,7 +80,6 @@ function SectionCard({
 function Trip() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { data: services } = useServices();
   const { data: tripResponse, isLoading } = useTrip(id!);
 
   const tripData = tripResponse?.data;
@@ -88,6 +92,12 @@ function Trip() {
   const [destinos, setDestinos] = useState<DestinoEntry[]>([]);
   const [showDestinoModal, setShowDestinoModal] = useState(false);
   const [editingDestinoIndex, setEditingDestinoIndex] = useState<number | null>(null);
+  const [serviciosSinDestino, setServiciosSinDestino] = useState<DestinoServiceDetail[]>([]);
+  const [editingSinDestino, setEditingSinDestino] = useState(false);
+  const sinDestinoInitial = useMemo<DestinoEntry>(
+    () => ({ destino: "", fecha_desde: "", fecha_hasta: "", servicios: serviciosSinDestino }),
+    [serviciosSinDestino],
+  );
 
   const handleSaveDestino = (destino: DestinoEntry) => {
     if (editingDestinoIndex !== null) {
@@ -101,6 +111,11 @@ function Trip() {
       setDestinos((prev) => [...prev, destino]);
       toast.success("Destino añadido.");
     }
+  };
+
+  const handleSaveSinDestino = (d: DestinoEntry) => {
+    setServiciosSinDestino(d.servicios);
+    toast.success("Servicios actualizados.");
   };
 
   const handleEditDestino = (idx: number) => {
@@ -187,7 +202,8 @@ function Trip() {
         valor_total: value.moneda === 2 ? 0 : value.valor_total,
         valor_total_usd: value.moneda === 1 ? 0 : value.valor_total_usd,
         cotizacion: value.moneda === 1 ? null : value.cotizacion,
-        servicios: [],
+        destinos: destinos.map(destinoToPayload),
+        servicios_sin_destino: serviciosSinDestino.map(servicioToPayload),
       };
 
       try {
@@ -200,10 +216,16 @@ function Trip() {
     },
   });
 
+  // Fechas globales de la reserva (reactivas) para validar los destinos
+  const viajeDesde: string = useStore(form.store, (s) => s.values.fecha_ida) || "";
+  const viajeHasta: string = useStore(form.store, (s) => s.values.fecha_vuelta) || "";
+
   // Load tripData into form
   useEffect(() => {
     if (tripData) {
       setPasajeros(fromApi(tripData.pasajeros));
+      setDestinos(destinosFromApi(tripData.destinos));
+      setServiciosSinDestino(serviciosSinDestinoFromApi(tripData.servicios_sin_destino));
       form.setFieldValue("fecha", tripData.fecha ? tripData.fecha.split("T")[0] : "");
       form.setFieldValue("fecha_ida", tripData.fecha_ida ? tripData.fecha_ida.split("T")[0] : "");
       form.setFieldValue("fecha_vuelta", tripData.fecha_vuelta ? tripData.fecha_vuelta.split("T")[0] : "");
@@ -234,6 +256,11 @@ function Trip() {
     setDateError(err);
     if (err) {
       toast.error(err);
+      return;
+    }
+    const destinoFuera = destinos.find((d) => getDestinoDateError(d, toDateInput(values.fecha_ida), toDateInput(values.fecha_vuelta)));
+    if (destinoFuera) {
+      toast.error(`Destino "${destinoFuera.destino}": ${getDestinoDateError(destinoFuera, toDateInput(values.fecha_ida), toDateInput(values.fecha_vuelta))}`);
       return;
     }
     const conflicto = await findDniConflict(pasajeros);
@@ -685,6 +712,8 @@ function Trip() {
               }}
               onEdit={handleEditDestino}
               onRemove={handleRemoveDestino}
+              sinDestino={serviciosSinDestino}
+              onEditSinDestino={() => setEditingSinDestino(true)}
             />
           </div>
         </SectionCard>
@@ -698,8 +727,7 @@ function Trip() {
           }
           title="Información de pasajeros"
         >
-          <PasajerosSection pasajeros={pasajeros} onChange={setPasajeros} showErrors={showErrors} />
-        </SectionCard>
+          <PasajerosSection pasajeros={pasajeros} onChange={setPasajeros} showErrors={showErrors} fechaFin={viajeHasta} />        </SectionCard>
 
         {/* ══ SECCIÓN 4: Archivos ══ */}
         <SectionCard
@@ -835,6 +863,8 @@ function Trip() {
         isOpen={showDestinoModal}
         onClose={() => setShowDestinoModal(false)}
         onSave={handleSaveDestino}
+        viajeDesde={viajeDesde}
+        viajeHasta={viajeHasta}
       />
 
       <FileUploadModal
@@ -849,6 +879,20 @@ function Trip() {
           onClose={() => setEditingDestinoIndex(null)}
           onSave={handleSaveDestino}
           initialData={destinos[editingDestinoIndex]}
+          viajeDesde={viajeDesde}
+          viajeHasta={viajeHasta}
+        />
+      )}
+
+      {editingSinDestino && (
+        <DestinationEditModal
+          isOpen={true}
+          sinDestino
+          onClose={() => setEditingSinDestino(false)}
+          onSave={handleSaveSinDestino}
+          initialData={sinDestinoInitial}
+          viajeDesde={viajeDesde}
+          viajeHasta={viajeHasta}
         />
       )}
 

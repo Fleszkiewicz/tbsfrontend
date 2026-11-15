@@ -7,6 +7,7 @@ import { CustomDatePicker } from "../ui/CustomDatePicker";
 import { CustomSelect } from "../ui/CustomSelect";
 import { useServices } from "../../../hooks/useServices";
 import type { DestinoEntry, DestinoServiceDetail } from "../../../types/types";
+import { getDestinoDateError } from "../../../utils/destinos";
 
 const labelCls =
   "block text-[12px] text-gray-400 font-medium mb-1.5 select-none";
@@ -16,38 +17,38 @@ type Props = {
   onClose: () => void;
   onSave: (destino: DestinoEntry) => void;
   initialData: DestinoEntry;
+  /** Fechas globales de la reserva (YYYY-MM-DD) para validar el rango */
+  viajeDesde: string;
+  viajeHasta: string;
+  /** Grupo "Sin destino asignado": sin nombre ni fechas, solo servicios */
+  sinDestino?: boolean;
 };
 
-export const DestinationEditModal = ({ isOpen, onClose, onSave, initialData }: Props) => {
+export const DestinationEditModal = ({
+  isOpen,
+  onClose,
+  onSave,
+  initialData,
+  viajeDesde,
+  viajeHasta,
+  sinDestino = false,
+}: Props) => {
   const { data: services } = useServices();
   const [newDestino, setNewDestino] = useState<DestinoEntry>(initialData);
 
   useEffect(() => {
-    if (isOpen && initialData) {
-      // Compatibility mapping if it comes from an older version that stored numbers
-      const mappedServicios: DestinoServiceDetail[] = initialData.servicios.map((s: any) => {
-        if (typeof s === "number") {
-          const serviceDef = services?.data?.find(x => x.id === s);
-          return {
-            id: s,
-            valor: 0,
-            moneda: serviceDef?.moneda?.toLowerCase() === "usd" ? 2 : 1,
-            cotizacion: null,
-            pagado_por: "pendiente",
-            observacion: ""
-          };
-        }
-        return s;
-      });
-      setNewDestino({ ...initialData, servicios: mappedServicios });
-    }
-  }, [isOpen, initialData, services]);
+    if (isOpen && initialData) setNewDestino(initialData);
+  }, [isOpen, initialData]);
 
   if (!isOpen) return null;
 
+  const dateError = sinDestino
+    ? null
+    : getDestinoDateError(newDestino, viajeDesde, viajeHasta);
+
   const handleSafeClose = () => {
-    // Simple comparison to check for changes
-    const hasChanges = JSON.stringify(newDestino) !== JSON.stringify(initialData);
+    const hasChanges =
+      JSON.stringify(newDestino) !== JSON.stringify(initialData);
 
     if (hasChanges) {
       Swal.fire({
@@ -62,17 +63,18 @@ export const DestinationEditModal = ({ isOpen, onClose, onSave, initialData }: P
         color: "#1D1D1F",
         background: "#ffffff",
         customClass: {
-          popup: "rounded-[24px] shadow-[0_8px_30px_rgb(0,0,0,0.12)] border border-gray-100 py-5 px-3",
+          popup:
+            "rounded-[24px] shadow-[0_8px_30px_rgb(0,0,0,0.12)] border border-gray-100 py-5 px-3",
           title: "text-[16px] font-semibold text-black mt-0",
           htmlContainer: "text-[13px] text-gray-500 font-medium mt-1 mb-6 mx-0",
           actions: "flex w-full gap-2 px-3 m-0",
-          confirmButton: "flex-1 bg-[#FF3B30] hover:bg-[#E3342B] text-white font-semibold py-2.5 rounded-xl transition-colors text-[13px] m-0",
-          cancelButton: "flex-1 bg-[#e8e8e8] hover:bg-[#dcdcdc] text-black font-semibold py-2.5 rounded-xl transition-colors text-[13px] m-0"
-        }
+          confirmButton:
+            "flex-1 bg-[#FF3B30] hover:bg-[#E3342B] text-white font-semibold py-2.5 rounded-xl transition-colors text-[13px] m-0",
+          cancelButton:
+            "flex-1 bg-[#e8e8e8] hover:bg-[#dcdcdc] text-black font-semibold py-2.5 rounded-xl transition-colors text-[13px] m-0",
+        },
       }).then((result) => {
-        if (result.isConfirmed) {
-          onClose();
-        }
+        if (result.isConfirmed) onClose();
       });
     } else {
       onClose();
@@ -80,30 +82,35 @@ export const DestinationEditModal = ({ isOpen, onClose, onSave, initialData }: P
   };
 
   const handleSave = () => {
+    if (dateError) return;
     onSave(newDestino);
     onClose();
   };
 
   const addService = () => {
-    setNewDestino(prev => ({
+    setNewDestino((prev) => ({
       ...prev,
       servicios: [
         ...prev.servicios,
         {
-          id: services?.data?.[0]?.id ?? 0,
+          servicio_tipo_id: services?.data?.[0]?.id ?? 0,
           valor: 0,
-          moneda: 1,
+          moneda_id: 1,
           cotizacion: null,
           pagado_por: "pendiente",
-          observacion: ""
-        }
-      ]
+          observacion: null,
+        },
+      ],
     }));
     toast.success("Servicio añadido.");
   };
 
-  const updateService = (index: number, field: keyof DestinoServiceDetail, value: any) => {
-    setNewDestino(prev => {
+  const updateService = <K extends keyof DestinoServiceDetail>(
+    index: number,
+    field: K,
+    value: DestinoServiceDetail[K],
+  ) => {
+    setNewDestino((prev) => {
       const newServicios = [...prev.servicios];
       newServicios[index] = { ...newServicios[index], [field]: value };
       return { ...prev, servicios: newServicios };
@@ -125,7 +132,9 @@ export const DestinationEditModal = ({ isOpen, onClose, onSave, initialData }: P
             <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center">
               <IoLocationOutline size={18} className="text-black" />
             </div>
-            Destino: {newDestino.destino}
+            {sinDestino
+              ? "Servicios sin destino asignado"
+              : `Destino: ${newDestino.destino}`}
           </h2>
           <button
             type="button"
@@ -138,26 +147,48 @@ export const DestinationEditModal = ({ isOpen, onClose, onSave, initialData }: P
 
         <div className="border-t border-gray-100 shrink-0" />
 
-        <div className="p-6 md:p-8 overflow-y-auto flex-1 pb-24" style={{ scrollbarWidth: "none" }}>
+        <div
+          className="p-6 md:p-8 overflow-y-auto flex-1 pb-24"
+          style={{ scrollbarWidth: "none" }}
+        >
           {/* Dates */}
-          <div className="mb-8">
-            <div className="flex flex-wrap gap-6">
-              <div className="flex flex-col w-[200px]">
-                <label className={labelCls}>Desde</label>
-                <CustomDatePicker
-                  value={newDestino.fecha_ida}
-                  onChange={(val) => setNewDestino(p => ({ ...p, fecha_ida: val }))}
-                />
+          {!sinDestino && (
+            <div className="mb-8">
+              <div className="flex flex-wrap gap-6">
+                <div className="flex flex-col w-[200px]">
+                  <label className={labelCls}>Desde</label>
+                  <CustomDatePicker
+                    value={newDestino.fecha_desde}
+                    minDate={viajeDesde || undefined}
+                    maxDate={viajeHasta || undefined}
+                    rangeStart={viajeDesde || undefined}
+                    rangeEnd={viajeHasta || undefined}
+                    onChange={(val) =>
+                      setNewDestino((p) => ({ ...p, fecha_desde: val }))
+                    }
+                  />
+                </div>
+                <div className="flex flex-col w-[200px]">
+                  <label className={labelCls}>Hasta</label>
+                  <CustomDatePicker
+                    value={newDestino.fecha_hasta}
+                    minDate={viajeDesde || undefined}
+                    maxDate={viajeHasta || undefined}
+                    rangeStart={viajeDesde || undefined}
+                    rangeEnd={viajeHasta || undefined}
+                    onChange={(val) =>
+                      setNewDestino((p) => ({ ...p, fecha_hasta: val }))
+                    }
+                  />
+                </div>
               </div>
-              <div className="flex flex-col w-[200px]">
-                <label className={labelCls}>Hasta</label>
-                <CustomDatePicker
-                  value={newDestino.fecha_vuelta}
-                  onChange={(val) => setNewDestino(p => ({ ...p, fecha_vuelta: val }))}
-                />
-              </div>
+              {dateError && (
+                <p className="text-red-500 text-[12px] font-medium mt-2">
+                  {dateError}
+                </p>
+              )}
             </div>
-          </div>
+          )}
 
           {/* Title Servicios */}
           <div className="mb-2">
@@ -175,26 +206,41 @@ export const DestinationEditModal = ({ isOpen, onClose, onSave, initialData }: P
                   <th className="px-4 py-2.5 font-semibold">Cotización</th>
                   <th className="px-4 py-2.5 font-semibold">Pagado por</th>
                   <th className="px-4 py-2.5 font-semibold">Observación</th>
-                  <th className="px-4 py-2.5 font-semibold text-center w-[60px] rounded-tr-2xl">Acciones</th>
+                  <th className="px-4 py-2.5 font-semibold text-center w-[60px] rounded-tr-2xl">
+                    Acciones
+                  </th>
                 </tr>
               </thead>
               <tbody>
                 {newDestino.servicios.length === 0 ? (
                   <tr>
-                    <td colSpan={7} className="px-4 py-8 text-center text-[13px] text-gray-500 font-medium">
+                    <td
+                      colSpan={7}
+                      className="px-4 py-8 text-center text-[13px] text-gray-500 font-medium"
+                    >
                       No hay servicios agregados aún.
                     </td>
                   </tr>
                 ) : (
                   newDestino.servicios.map((s, idx) => (
-                    <tr key={idx} className="border-b border-gray-100 hover:bg-gray-50 transition-colors">
+                    <tr
+                      key={idx}
+                      className="border-b border-gray-100 hover:bg-gray-50 transition-colors"
+                    >
                       {/* NOMBRE */}
                       <td className="px-2 md:px-4 py-3 align-top min-w-[180px]">
                         <CustomSelect
                           size="sm"
-                          value={s.id}
-                          onChange={(val) => updateService(idx, "id", Number(val))}
-                          options={services?.data?.map(serv => ({ label: serv.nombre, value: serv.id })) || []}
+                          value={s.servicio_tipo_id}
+                          onChange={(val) =>
+                            updateService(idx, "servicio_tipo_id", Number(val))
+                          }
+                          options={
+                            services?.data?.map((serv) => ({
+                              label: serv.nombre,
+                              value: serv.id,
+                            })) || []
+                          }
                         />
                       </td>
                       {/* VALOR */}
@@ -202,7 +248,14 @@ export const DestinationEditModal = ({ isOpen, onClose, onSave, initialData }: P
                         <input
                           type="text"
                           className="w-full bg-[#f0f0f0] rounded-lg px-2.5 py-1 text-[14px] font-medium text-[#1D1D1F] outline-none focus:ring-2 focus:ring-black/10 transition-all border-none"
-                          value={s.valor ? new Intl.NumberFormat("es-AR", { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(s.valor) : ""}
+                          value={
+                            s.valor
+                              ? new Intl.NumberFormat("es-AR", {
+                                minimumFractionDigits: 0,
+                                maximumFractionDigits: 0,
+                              }).format(s.valor)
+                              : ""
+                          }
                           onChange={(e) => {
                             const num = Number(e.target.value.replace(/\D/g, ""));
                             updateService(idx, "valor", num);
@@ -214,8 +267,10 @@ export const DestinationEditModal = ({ isOpen, onClose, onSave, initialData }: P
                       <td className="px-2 md:px-4 py-3 align-top w-[100px]">
                         <CustomSelect
                           size="sm"
-                          value={s.moneda}
-                          onChange={(val) => updateService(idx, "moneda", Number(val))}
+                          value={s.moneda_id}
+                          onChange={(val) =>
+                            updateService(idx, "moneda_id", Number(val))
+                          }
                           options={[
                             { label: "ARS", value: 1 },
                             { label: "USD", value: 2 },
@@ -224,14 +279,25 @@ export const DestinationEditModal = ({ isOpen, onClose, onSave, initialData }: P
                       </td>
                       {/* COTIZACIÓN */}
                       <td className="px-2 md:px-4 py-3 align-top w-[110px]">
-                        {s.moneda === 2 ? (
+                        {s.moneda_id === 2 ? (
                           <input
                             type="text"
                             className="w-full bg-[#f0f0f0] rounded-lg px-2.5 py-1 text-[14px] font-medium text-[#1D1D1F] outline-none focus:ring-2 focus:ring-black/10 transition-all border-none"
-                            value={s.cotizacion ? new Intl.NumberFormat("es-AR", { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(s.cotizacion) : ""}
+                            value={
+                              s.cotizacion
+                                ? new Intl.NumberFormat("es-AR", {
+                                  minimumFractionDigits: 0,
+                                  maximumFractionDigits: 0,
+                                }).format(s.cotizacion)
+                                : ""
+                            }
                             onChange={(e) => {
                               const val = e.target.value.replace(/\D/g, "");
-                              updateService(idx, "cotizacion", val ? Number(val) : null);
+                              updateService(
+                                idx,
+                                "cotizacion",
+                                val ? Number(val) : null,
+                              );
                             }}
                             placeholder="0"
                           />
@@ -250,7 +316,7 @@ export const DestinationEditModal = ({ isOpen, onClose, onSave, initialData }: P
                             { label: "Pablo", value: "pablo" },
                             { label: "Soledad", value: "soledad" },
                             { label: "Mariana", value: "mariana" },
-                            { label: "Mixto", value: "mixto" }
+                            { label: "Mixto", value: "mixto" },
                           ]}
                         />
                       </td>
@@ -260,7 +326,9 @@ export const DestinationEditModal = ({ isOpen, onClose, onSave, initialData }: P
                           type="text"
                           className="w-full bg-[#f0f0f0] rounded-lg px-2.5 py-1 text-[13px] font-light text-[#1D1D1F] outline-none focus:ring-2 focus:ring-black/10 transition-all border-none"
                           value={s.observacion ?? ""}
-                          onChange={(e) => updateService(idx, "observacion", e.target.value)}
+                          onChange={(e) =>
+                            updateService(idx, "observacion", e.target.value)
+                          }
                           placeholder="-"
                         />
                       </td>
@@ -269,10 +337,10 @@ export const DestinationEditModal = ({ isOpen, onClose, onSave, initialData }: P
                         <button
                           type="button"
                           onClick={() => {
-                            setNewDestino(prev => {
-                              const newServicios = prev.servicios.filter((_, i) => i !== idx);
-                              return { ...prev, servicios: newServicios };
-                            });
+                            setNewDestino((prev) => ({
+                              ...prev,
+                              servicios: prev.servicios.filter((_, i) => i !== idx),
+                            }));
                             toast.success("Servicio eliminado.");
                           }}
                           className="p-1.5 text-gray-500 hover:text-red-600 rounded-lg transition-colors mt-0.5 inline-flex"
@@ -282,7 +350,8 @@ export const DestinationEditModal = ({ isOpen, onClose, onSave, initialData }: P
                         </button>
                       </td>
                     </tr>
-                  )))}
+                  ))
+                )}
               </tbody>
             </table>
 
@@ -295,18 +364,16 @@ export const DestinationEditModal = ({ isOpen, onClose, onSave, initialData }: P
               Añadir servicio
             </button>
           </div>
-
-
-
         </div>
 
         <div className="border-t border-gray-100 shrink-0" />
         {/* Botón Guardar */}
-        <div className=" flex justify-center py-5 rounded-b-[20px]">
+        <div className="flex justify-center py-5 rounded-b-[20px]">
           <button
             type="button"
             onClick={handleSave}
-            className="px-10 py-3 rounded-full bg-black hover:bg-gray-900 text-white font-semibold text-[14px] transition-colors active:scale-[0.98] shadow-sm flex items-center gap-2"
+            disabled={!!dateError}
+            className="px-10 py-3 rounded-full bg-black hover:bg-gray-900 text-white font-semibold text-[14px] transition-colors active:scale-[0.98] shadow-sm flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             Guardar cambios
           </button>

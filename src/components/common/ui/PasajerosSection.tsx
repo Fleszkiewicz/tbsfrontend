@@ -9,7 +9,7 @@ import { FieldLabel } from "./FieldLabel";
 import { useDebounce } from "../../../hooks/useDebounce";
 import { buscarPasajerosPorDni } from "../../../services/pasajeros.services";
 import { CATEGORIAS_EDAD } from "../../../utils/constants";
-import { emptyPasajero, normalizeDni } from "../../../utils/pasajeros";
+import { emptyPasajero, normalizeDni, venceAntesDe } from "../../../utils/pasajeros";
 import type { PasajeroBusqueda, PasajeroForm } from "../../../types/types";
 
 const inputCls =
@@ -17,44 +17,25 @@ const inputCls =
 const labelCls =
     "block text-[11px] md:text-[12px] text-gray-400 font-medium mb-1 md:mb-1.5 select-none";
 
-const getExpirationBadge = (dateStr: string) => {
-    if (!dateStr) return null;
-    const expDate = new Date(dateStr + "T00:00:00");
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-
-    if (expDate < today) {
-        return (
-            <span className="ml-2 text-[10px] font-bold text-red-600 bg-red-100 px-2 py-0.5 rounded-full uppercase tracking-wider">
-                Vencido
-            </span>
-        );
-    }
-
-    const twoMonthsFromNow = new Date(today);
-    twoMonthsFromNow.setMonth(today.getMonth() + 2);
-
-    if (expDate <= twoMonthsFromNow) {
-        return (
-            <span className="ml-2 text-[10px] font-bold text-yellow-600 bg-yellow-100 px-2 py-0.5 rounded-full uppercase tracking-wider">
-                Por expirar
-            </span>
-        );
-    }
-
-    return null;
-};
+// Estado "Renovar": mismo aspecto que los estados del viaje (letra roja, fondo rojo claro)
+const RenovarBadge = ({ label, venc, fechaFin }: { label: string; venc: string; fechaFin: string }) =>
+    venceAntesDe(venc, fechaFin) ? (
+        <span className="ml-2 text-[12px] font-light px-2 py-0.5 rounded-full capitalize text-center whitespace-nowrap text-red-600 bg-red-100">
+            Renovar {label}
+        </span>
+    ) : null;
 
 type CardProps = {
     p: PasajeroForm;
     index: number;
     showErrors: boolean;
     requireNombreTitular: boolean;
+    fechaFin: string;
     onUpdate: (patch: Partial<PasajeroForm>) => void;
     onRemove: () => void;
 };
 
-function PasajeroCard({ p, index, showErrors, requireNombreTitular, onUpdate, onRemove }: CardProps) {
+function PasajeroCard({ p, index, showErrors, requireNombreTitular, fechaFin, onUpdate, onRemove }: CardProps) {
     const [open, setOpen] = useState(false);
     const boxRef = useRef<HTMLDivElement>(null);
 
@@ -80,7 +61,6 @@ function PasajeroCard({ p, index, showErrors, requireNombreTitular, onUpdate, on
 
     const exacto = debouncedDni === dni ? sugerencias.find((s) => s.dni === dni) : undefined;
     const conflicto = !!exacto && exacto.id !== p.pasajero_id;
-    const quienEs = exacto ? [exacto.nombre, exacto.apellido].filter(Boolean).join(" ") : "";
 
     const handleDni = (value: string) => {
         const patch: Partial<PasajeroForm> = { dni: value };
@@ -201,7 +181,7 @@ function PasajeroCard({ p, index, showErrors, requireNombreTitular, onUpdate, on
                 <div className="flex flex-col col-span-1 md:col-span-3">
                     <label className={labelCls}>
                         Vto DNI
-                        {getExpirationBadge(p.vencimiento_dni)}
+                        <RenovarBadge label="DNI" venc={p.vencimiento_dni} fechaFin={fechaFin} />
                     </label>
                     <CustomDatePicker
                         value={p.vencimiento_dni}
@@ -224,7 +204,7 @@ function PasajeroCard({ p, index, showErrors, requireNombreTitular, onUpdate, on
                 <div className="flex flex-col col-span-1 md:col-span-3">
                     <label className={labelCls}>
                         Vto Pasaporte
-                        {getExpirationBadge(p.vencimiento_pasaporte)}
+                        <RenovarBadge label="Pasaporte" venc={p.vencimiento_pasaporte} fechaFin={fechaFin} />
                     </label>
                     <CustomDatePicker
                         value={p.vencimiento_pasaporte}
@@ -264,6 +244,8 @@ type Props = {
     onChange: (list: PasajeroForm[]) => void;
     showErrors?: boolean;
     requireNombreTitular?: boolean;
+    /** Fecha de fin del viaje (YYYY-MM-DD): los vencimientos anteriores se marcan "Renovar" */
+    fechaFin?: string;
 };
 
 export function PasajerosSection({
@@ -271,6 +253,7 @@ export function PasajerosSection({
     onChange,
     showErrors = false,
     requireNombreTitular = false,
+    fechaFin = "",
 }: Props) {
     const updateAt = (key: string, patch: Partial<PasajeroForm>) =>
         onChange(pasajeros.map((p) => (p.key === key ? { ...p, ...patch } : p)));
@@ -294,6 +277,7 @@ export function PasajerosSection({
                     index={index}
                     showErrors={showErrors}
                     requireNombreTitular={requireNombreTitular}
+                    fechaFin={fechaFin}
                     onUpdate={(patch) => updateAt(p.key, patch)}
                     onRemove={() => removeAt(p.key)}
                 />

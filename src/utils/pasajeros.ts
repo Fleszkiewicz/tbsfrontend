@@ -19,6 +19,10 @@ export const emptyPasajero = (esTitular = false): PasajeroForm => ({
     categoria_edad: "",
 });
 
+// true si hay vencimiento y fecha de fin, y el vencimiento es anterior a la fecha de fin (YYYY-MM-DD)
+export const venceAntesDe = (vencimiento: string, fechaFin: string) =>
+    !!vencimiento && !!fechaFin && vencimiento < fechaFin;
+
 const onlyDate = (value: string | null | undefined) => (value ? value.split("T")[0] : "");
 
 // Datos del backend -> estado del formulario (el titular siempre primero)

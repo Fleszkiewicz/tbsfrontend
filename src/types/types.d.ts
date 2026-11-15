@@ -34,6 +34,8 @@ export interface Trip {
   costo: number;
   costo_usd: number;
   cotizacion: number | null;
+  destinos?: DestinoEntry[];
+  servicios_sin_destino?: DestinoServiceDetail[];
   servicios: Service[];
 }
 
@@ -125,7 +127,7 @@ export type Finance = {
 export type FinanceData = Finance[];
 
 export type CreateTripRequest = {
-  servicios: {
+  servicios?: {
     id: number;
     valor: number;
     pagado_por: "pendiente";
@@ -133,6 +135,7 @@ export type CreateTripRequest = {
     cotizacion: number | null;
     observacion?: string | null;
   }[];
+  destinos?: DestinoPayload[];
   pasajeros: PasajeroPayload[];
   valor_total: number;
   valor_total_usd?: number;
@@ -158,6 +161,8 @@ export type UpdateTripRequest = {
   valor_total_usd?: number;
   cotizacion?: number | null;
   servicios?: UpdateServiceData[];
+  destinos?: DestinoPayload[];
+  servicios_sin_destino?: DestinoServicePayload[];
 };
 
 export type User = {
@@ -167,20 +172,35 @@ export type User = {
   avatar: string | undefined;
 };
 
+export type PagadoPor = "pendiente" | "pablo" | "soledad" | "mariana" | "mixto";
+
 export type DestinoServiceDetail = {
-  id: number; // refers to the service definition ID
+  servicio_tipo_id: number;
   valor: number;
-  pagado_por: "pendiente" | "pablo" | "soledad" | "mariana" | "mixto";
-  moneda: number;
+  moneda_id: number; // 1 = ARS, 2 = USD
   cotizacion: number | null;
+  pagado_por: PagadoPor;
   observacion: string | null;
+  nombre?: string; // solo lectura: lo devuelve la API
 };
 
 export type DestinoEntry = {
+  destino_id?: number;
   destino: string;
-  fecha_ida: string;
-  fecha_vuelta: string;
+  fecha_desde: string; // YYYY-MM-DD
+  fecha_hasta: string; // YYYY-MM-DD
+  orden?: number;
   servicios: DestinoServiceDetail[];
+};
+
+export type DestinoServicePayload = Omit<DestinoServiceDetail, "nombre">;
+
+export type DestinoPayload = {
+  destino_id?: number;
+  destino: string;
+  fecha_desde: string;
+  fecha_hasta: string;
+  servicios: DestinoServicePayload[];
 };
 
 export interface Expense {
