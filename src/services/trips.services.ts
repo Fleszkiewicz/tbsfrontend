@@ -1,6 +1,5 @@
 import { api, API_URL } from "../config/axios";
 import type {
-    CreateTripResponse,
     UpdateDeleteTripResponse,
     UpdateTripRequest,
     CreateTripRequest,
