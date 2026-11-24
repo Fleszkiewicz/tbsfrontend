@@ -174,7 +174,7 @@ function Trip() {
   const { data: pagosSocios = [] } = useDistribucion(id);
   const { mutate: toggleSocio } = useToggleSocio(id ?? "");
 
-  const togglePartnerPayout = (partner: "pablo" | "soledad" | "marian") => {
+  const togglePartnerPayout = (partner: "pablo" | "soledad" | "mariana") => {
     const abonado = !pagosSocios.some((p) => p.socio === partner);
     toggleSocio(
       { socio: partner, abonado },
@@ -843,7 +843,7 @@ function Trip() {
                 [
                   { key: "pablo", name: "Pablo" },
                   { key: "soledad", name: "Soledad" },
-                  { key: "marian", name: "Marian" },
+                  { key: "mariana", name: "Mariana" },
                 ] as const
               ).map(({ key, name }) => {
                 const pago = pagosSocios.find((p) => p.socio === key);

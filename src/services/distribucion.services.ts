@@ -1,6 +1,6 @@
 import { api } from "../config/axios";
 
-export type Socio = "pablo" | "soledad" | "marian";
+export type Socio = "pablo" | "soledad" | "mariana";
 
 export type PagoSocio = {
   socio: Socio;
