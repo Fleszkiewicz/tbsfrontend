@@ -61,11 +61,11 @@ export const useDeleteTrip = () => {
   return useMutation({
     mutationFn: deleteTrip,
     onSuccess: () => {
-      toast.success("Expediente eliminado correctamente");
+      toast.success("Expediente eliminado correctamente", { id: "trip-delete" });
       queryClient.invalidateQueries({ queryKey: ["trips"] });
     },
     onError: (error: any) => {
-      toast.error(error?.response?.data?.error || "No se pudo eliminar el expediente");
+      toast.error(error?.response?.data?.error || "No se pudo eliminar el expediente", { id: "trip-delete" });
     },
   });
 };
@@ -122,13 +122,13 @@ export const useCancelTrip = () => {
     mutationFn: ({ tripId, motivo }: { tripId: string; motivo: string }) =>
       cancelTrip(tripId, motivo),
     onSuccess: (_, variables) => {
-      toast.success("Expediente cancelado");
+      toast.success("Expediente cancelado", { id: "trip-cancel" });
       queryClient.invalidateQueries({ queryKey: ["trip", variables.tripId] });
       queryClient.invalidateQueries({ queryKey: ["trips"] });
       queryClient.invalidateQueries({ queryKey: ["finance"] });
     },
     onError: (error) => {
-      toast.error(getErrorMessage(error, "No se pudo cancelar el expediente"));
+      toast.error(getErrorMessage(error, "No se pudo cancelar el expediente"), { id: "trip-cancel" });
     },
   });
 };
@@ -139,13 +139,13 @@ export const useRevertCancelTrip = () => {
   return useMutation({
     mutationFn: (tripId: string) => revertTripCancellation(tripId),
     onSuccess: (_, tripId) => {
-      toast.success("Cancelación anulada");
+      toast.success("Cancelación anulada", { id: "trip-cancel" });
       queryClient.invalidateQueries({ queryKey: ["trip", tripId] });
       queryClient.invalidateQueries({ queryKey: ["trips"] });
       queryClient.invalidateQueries({ queryKey: ["finance"] });
     },
     onError: (error) => {
-      toast.error(getErrorMessage(error, "No se pudo anular la cancelación"));
+      toast.error(getErrorMessage(error, "No se pudo anular la cancelación"), { id: "trip-cancel" });
     },
   });
 };

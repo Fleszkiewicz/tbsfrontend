@@ -114,16 +114,16 @@ function Trip() {
         updated[editingDestinoIndex] = destino;
         return updated;
       });
-      toast.success("Destino actualizado.");
+      toast.success("Destino actualizado.", { id: "destino" });
     } else {
       setDestinos((prev) => [...prev, destino]);
-      toast.success("Destino añadido.");
+      toast.success("Destino añadido.", { id: "destino" });
     }
   };
 
   const handleSaveSinDestino = (d: DestinoEntry) => {
     setServiciosSinDestino(d.servicios);
-    toast.success("Servicios actualizados.");
+    toast.success("Servicios actualizados.", { id: "destino" });
   };
 
   const handleEditDestino = (idx: number) => {
@@ -133,7 +133,7 @@ function Trip() {
   const handleRemoveDestino = (idx: number, e: React.MouseEvent) => {
     e.stopPropagation();
     setDestinos((prev) => prev.filter((_, i) => i !== idx));
-    toast.success("Destino eliminado.");
+    toast.success("Destino eliminado.", { id: "destino" });
   };
 
   // ── Archivos adjuntos (guardados en el bucket) ──
@@ -164,9 +164,9 @@ function Trip() {
   const handleFileDelete = async (fileId: string) => {
     try {
       await removeArchivo(fileId);
-      toast.success("Archivo eliminado.");
+      toast.success("Archivo eliminado.", { id: "archivo" });
     } catch {
-      toast.error("No se pudo eliminar el archivo.");
+      toast.error("No se pudo eliminar el archivo.", { id: "archivo" });
     }
   };
 
@@ -178,7 +178,7 @@ function Trip() {
     const abonado = !pagosSocios.some((p) => p.socio === partner);
     toggleSocio(
       { socio: partner, abonado },
-      { onError: () => toast.error("No se pudo actualizar el pago del socio.") },
+      { onError: () => toast.error("No se pudo actualizar el pago del socio.", { id: "socio" }) },
     );
   };
 
@@ -308,6 +308,7 @@ function Trip() {
       toast.error(conflicto, { id: "validacion" });
       return;
     }
+    toast.dismiss("validacion"); // el aviso de validación no queda debajo del de guardado
     form.handleSubmit();
   };
 

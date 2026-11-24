@@ -116,6 +116,7 @@ export const FileUploadModal = ({ isOpen, onClose, onUpload }: FileUploadModalPr
             toast.error(MSG_CAMPOS_OBLIGATORIOS, { id: "validacion" });
             return;
         }
+        toast.dismiss("validacion");
         onUpload(selectedFiles, category);
         setSelectedFiles([]);
         setCategory("");

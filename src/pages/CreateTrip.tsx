@@ -94,10 +94,10 @@ function CreateTrip() {
         updated[editingDestinoIndex] = destino;
         return updated;
       });
-      toast.success("Destino actualizado.");
+      toast.success("Destino actualizado.", { id: "destino" });
     } else {
       setDestinos((prev) => [...prev, destino]);
-      toast.success("Destino añadido.");
+      toast.success("Destino añadido.", { id: "destino" });
     }
   };
 
@@ -108,7 +108,7 @@ function CreateTrip() {
   const handleRemoveDestino = (idx: number, e: React.MouseEvent) => {
     e.stopPropagation();
     setDestinos((prev) => prev.filter((_, i) => i !== idx));
-    toast.success("Destino eliminado.");
+    toast.success("Destino eliminado.", { id: "destino" });
   };
 
   const [pasajeros, setPasajeros] = useState<PasajeroForm[]>(() => [emptyPasajero(true)]);
@@ -137,7 +137,7 @@ function CreateTrip() {
         fecha: new Date().toLocaleDateString("es-AR"),
       })),
     ]);
-    toast.success(`${newFiles.length} archivo(s) agregados. Se subirán al guardar el expediente.`);
+    toast.success(`${newFiles.length} archivo(s) agregados. Se subirán al guardar el expediente.`, { id: "archivo" });
   };
 
   const handleFileDelete = (fileId: string) => {
@@ -146,7 +146,7 @@ function CreateTrip() {
       if (f) URL.revokeObjectURL(f.url);
       return prev.filter((x) => x.id !== fileId);
     });
-    toast.success("Archivo eliminado.");
+    toast.success("Archivo eliminado.", { id: "archivo" });
   };
 
   const now = new Date();
@@ -209,8 +209,8 @@ function CreateTrip() {
         navigate(`/trip/${newId}`);
       } catch (error: any) {
         const errorMsg =
-          error?.response?.data?.error || error?.message || "Error al crear el viaje";
-        toast.error(errorMsg);
+          error?.response?.data?.error || error?.message || "No se pudo crear el expediente";
+        toast.error(errorMsg, { id: "trip-create" });
       }
     },
   });
@@ -242,6 +242,7 @@ function CreateTrip() {
       toast.error(conflicto, { id: "validacion" });
       return;
     }
+    toast.dismiss("validacion"); // el aviso de validación no queda debajo del de guardado
     form.handleSubmit();
   };
 

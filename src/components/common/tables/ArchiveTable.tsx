@@ -39,7 +39,7 @@ export const ArchiveTable = ({ files, onUpload, onDelete, resolveUrl }: ArchiveT
       a.click();
       a.remove();
     } catch {
-      toast.error("No se pudo descargar el archivo. Intenta de nuevo.");
+      toast.error("No se pudo descargar el archivo. Intenta de nuevo.", { id: "archivo" });
     }
   };
 
@@ -48,7 +48,7 @@ export const ArchiveTable = ({ files, onUpload, onDelete, resolveUrl }: ArchiveT
       const url = await getUrl(file, "inline");
       setPreviewFile({ ...file, url });
     } catch {
-      toast.error("No se pudo abrir el archivo. Intenta de nuevo.");
+      toast.error("No se pudo abrir el archivo. Intenta de nuevo.", { id: "archivo" });
     }
   };
 

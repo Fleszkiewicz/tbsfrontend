@@ -113,6 +113,7 @@ export const DestinationModal = ({
       return;
     }
 
+    toast.dismiss("validacion");
     const detailedServicios = selectedServiceIds.map((id) => {
       const serviceDef = services?.data?.find((s) => s.id === id);
       return {

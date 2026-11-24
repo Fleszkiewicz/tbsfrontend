@@ -86,6 +86,7 @@ export const ExpenseCreateModal = ({ isOpen, onClose }: Props) => {
       return;
     }
 
+    toast.dismiss("validacion");
     createExpense(
       {
         motivo: motivo.trim(),

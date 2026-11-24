@@ -260,12 +260,12 @@ export function PasajerosSection({
 
     const removeAt = (key: string) => {
         onChange(pasajeros.filter((p) => p.key !== key));
-        toast.success("Pasajero eliminado.");
+        toast.success("Pasajero eliminado.", { id: "pasajero" });
     };
 
     const add = () => {
         onChange([...pasajeros, emptyPasajero(false)]);
-        toast.success("Pasajero añadido.");
+        toast.success("Pasajero añadido.", { id: "pasajero" });
     };
 
     return (

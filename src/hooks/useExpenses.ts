@@ -36,11 +36,11 @@ export const useCreateExpense = () => {
     return useMutation({
         mutationFn: createExpense,
         onSuccess: () => {
-            toast.success("Gasto añadido correctamente");
+            toast.success("Gasto añadido correctamente", { id: "expense-save" });
             queryClient.invalidateQueries({ queryKey: ["expenses"] });
         },
         onError: (error) => {
-            toast.error(getErrorMessage(error, "Error al crear el gasto"));
+            toast.error(getErrorMessage(error, "Error al crear el gasto"), { id: "expense-save" });
         },
     });
 };
@@ -51,11 +51,11 @@ export const useDeleteExpense = () => {
     return useMutation({
         mutationFn: deleteExpense,
         onSuccess: () => {
-            toast.success("Gasto eliminado correctamente");
+            toast.success("Gasto eliminado correctamente", { id: "expense-del" });
             queryClient.invalidateQueries({ queryKey: ["expenses"] });
         },
         onError: (error) => {
-            toast.error(getErrorMessage(error, "Error al eliminar el gasto"));
+            toast.error(getErrorMessage(error, "Error al eliminar el gasto"), { id: "expense-del" });
         },
     });
 };
