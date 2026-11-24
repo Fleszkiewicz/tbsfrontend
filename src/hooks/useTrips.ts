@@ -21,13 +21,13 @@ import { modalStore } from "../store/modalStore";
 
 
 export const useTrips = () => {
-  const { estado, year, month, page, search } = tripsStore();
+  const { estado, year, month, page, search, sucursal } = tripsStore();
   const debouncedSearch = useDebounce(search.trim(), 300);
 
   return useQuery({
-    queryKey: ["trips", estado, year, month, page, debouncedSearch],
+    queryKey: ["trips", estado, year, month, page, debouncedSearch, sucursal],
     queryFn: () =>
-      getTrips(estado ?? "desc", 10, page, month, year, debouncedSearch),
+      getTrips(estado ?? "desc", 10, page, month, year, debouncedSearch, sucursal),
     placeholderData: keepPreviousData,
   });
 };

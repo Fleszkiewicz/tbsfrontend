@@ -12,7 +12,7 @@ function Home() {
   const navigate = useNavigate();
   const {
     estado, page, setEstado, setMonth, setPage, year, setYear, month,
-    resetFilters, search, setSearch,
+    resetFilters, search, setSearch, sucursal, setSucursal,
   } = tripsStore();
 
   const { data: trips, isLoading } = useTrips();
@@ -82,6 +82,8 @@ function Home() {
               setMonth={setMonth}
               estado={estado}
               setEstado={setEstado}
+              sucursal={sucursal}
+              setSucursal={setSucursal}
             />
           </div>
         </div>

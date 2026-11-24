@@ -16,6 +16,7 @@ export async function getTrips(
     month: number | null,
     year: number | null,
     search: string,
+    sucursal: "baradero" | "hurlingham" | null = null,
 ): Promise<TripsApiResponse | undefined> {
     try {
         const params = new URLSearchParams();
@@ -26,6 +27,7 @@ export async function getTrips(
         if (year !== null) params.append("year", year.toString());
         if (month !== null) params.append("month", month.toString());
         if (search) params.append("search", search);
+        if (sucursal) params.append("sucursal", sucursal);
 
         const { data } = await api.get<TripsApiResponse>(
             `${API_ENDPOINT}?${params.toString()}`
