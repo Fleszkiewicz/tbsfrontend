@@ -340,7 +340,7 @@ function Trip() {
   return (
     <div className="max-w-[900px] mx-auto px-4 pt-24 md:pt-28 pb-16">
       {/* ── Header ── */}
-      <div className="flex items-end justify-between mb-8">
+      <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between mb-8">
         <div>
           <button
             onClick={handleBack}
@@ -349,7 +349,7 @@ function Trip() {
             <IoArrowBack size={15} />
             Volver
           </button>
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
             <h1 className="text-[29px] md:text-[32px] lg:text-[35px] font-bold text-[#1D1D1F] tracking-tight select-none cursor-default">
               Legajo {id}
             </h1>
@@ -797,19 +797,19 @@ function Trip() {
           title="Distribución de ganancias"
         >
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-            <div className="flex flex-col gap-3">
-              <div className="border border-gray-200 rounded-2xl p-4 flex-1 flex flex-col justify-between">
+            <div className="grid grid-cols-2 gap-3 md:flex md:flex-col">
+              <div className="border border-gray-200 rounded-2xl p-3 md:p-4 flex-1 flex flex-col justify-between">
                 <div>
                   <span className="text-[12px] text-gray-500 font-medium block">Ganancia total del viaje</span>
                   <div className="mt-1.5">
                     {(isArsTrip || isMixtoTrip) && (
-                      <span className="text-[20px] font-bold text-[#1D1D1F]">
+                      <span className="text-[17px] md:text-[20px] font-bold text-[#1D1D1F]">
                         ${formattedAmount(gananciaArs)}
                       </span>
                     )}
-                    {isMixtoTrip && <span className="mx-2 text-gray-300 text-[20px]">&</span>}
+                    {isMixtoTrip && <span className="mx-2 text-gray-300 text-[17px] md:text-[20px]">&</span>}
                     {(isUsdTrip || isMixtoTrip) && (
-                      <span className="text-[20px] font-bold text-[#1D1D1F]">
+                      <span className="text-[17px] md:text-[20px] font-bold text-[#1D1D1F]">
                         USD {formattedAmount(gananciaUsd)}
                       </span>
                     )}
@@ -818,18 +818,18 @@ function Trip() {
                 <span className="text-[11px] text-gray-400 mt-2">Margen neto generado</span>
               </div>
 
-              <div className="border border-gray-200 rounded-2xl p-4 flex-1 flex flex-col justify-between">
+              <div className="border border-gray-200 rounded-2xl p-3 md:p-4 flex-1 flex flex-col justify-between">
                 <div>
                   <span className="text-[12px] text-gray-500 font-medium block">Monto a abonar a cada socio</span>
                   <div className="mt-1.5">
                     {(isArsTrip || isMixtoTrip) && (
-                      <span className="text-[20px] font-bold text-emerald-600">
+                      <span className="text-[17px] md:text-[20px] font-bold text-emerald-600">
                         ${formattedAmount(cuotaArs)}
                       </span>
                     )}
-                    {isMixtoTrip && <span className="mx-2 text-gray-300 text-[20px] direction-horizontal">&</span>}
+                    {isMixtoTrip && <span className="mx-2 text-gray-300 text-[17px] md:text-[20px] direction-horizontal">&</span>}
                     {(isUsdTrip || isMixtoTrip) && (
-                      <span className="text-[20px] font-bold text-emerald-600">
+                      <span className="text-[17px] md:text-[20px] font-bold text-emerald-600">
                         USD {formattedAmount(cuotaUsd)}
                       </span>
                     )}
