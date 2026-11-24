@@ -95,7 +95,7 @@ function PasajeroCard({ p, index, showErrors, requireNombreTitular, fechaFin, on
         <div className="border border-gray-200 rounded-2xl p-5">
             <div className="flex items-center justify-between mb-4">
                 <p className="text-[14px] font-semibold text-[#1D1D1F] select-none">
-                    {p.es_titular ? "Pasajero 1  -  Titular de la reserva" : `Pasajero ${index + 1}`}
+                    {p.es_titular ? "Pasajero 1  -  Titular del expediente" : `Pasajero ${index + 1}`}
                 </p>
                 {!p.es_titular && (
                     <button

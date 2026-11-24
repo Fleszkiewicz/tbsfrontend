@@ -55,7 +55,7 @@ export function TripsTable({
                                     onClick={(e) => {
                                         e.stopPropagation();
                                         Swal.fire({
-                                            title: `Eliminar reserva con legajo ${trip.id}`,
+                                            title: `Eliminar expediente con legajo ${trip.id}`,
                                             text: "¿Estás seguro? Esta acción es irreversible.",
                                             width: "300px",
                                             showCancelButton: true,

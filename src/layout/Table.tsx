@@ -18,7 +18,7 @@ export function Table<T>({
   headers,
   data,
   renderRow,
-  noDataMessage = "No hay reservas añadidas para este período.",
+  noDataMessage = "No hay expedientes añadidos para este período.",
   footerAction,
 }: Props<T>) {
   return (

@@ -102,7 +102,7 @@ export const getDestinoDateError = (
     if (!viajeDesde || !viajeHasta) return null;
     const fuera = (f: string) => !!f && (f < viajeDesde || f > viajeHasta);
     if (fuera(d.fecha_desde) || fuera(d.fecha_hasta)) {
-        return `Exceso de fechas: el destino debe estar dentro de la reserva (${ddmmyyyy(viajeDesde)} al ${ddmmyyyy(viajeHasta)}).`;
+        return `Exceso de fechas: el destino debe estar dentro del expediente (${ddmmyyyy(viajeDesde)} al ${ddmmyyyy(viajeHasta)}).`;
     }
     return null;
 };

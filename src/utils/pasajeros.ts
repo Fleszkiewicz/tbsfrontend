@@ -64,7 +64,7 @@ export const toPayload = (list: PasajeroForm[]): PasajeroPayload[] =>
 // Validaciones que no dependen del servidor
 export function getPasajerosError(list: PasajeroForm[], isCreate: boolean): string | null {
     const titular = list.find((p) => p.es_titular);
-    if (!titular) return "Falta el titular de la reserva";
+    if (!titular) return "Falta el titular del expediente";
     if (!titular.apellido.trim() || (isCreate && !titular.nombre.trim())) {
         return "Complete el nombre y el apellido del titular";
     }
