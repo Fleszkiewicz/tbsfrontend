@@ -69,7 +69,7 @@ function Navbar() {
           onClick={() => navigate("/home")}
         >
           <img
-            src="https://res.cloudinary.com/dttpgbmdx/image/upload/v1752706284/tbs-logo_frbbyo.png"
+            src="https://pub-5c8628dd9ea2411c84e12bc3d128a23f.r2.dev/favicon.png"
             alt="The Black Sheep Logo"
             className="w-8 h-8 md:w-12 md:h-12 object-contain"
           />

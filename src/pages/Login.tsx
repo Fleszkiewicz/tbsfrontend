@@ -2,9 +2,9 @@ import { FcGoogle } from "react-icons/fc";
 import { API_URL } from "../config/axios";
 
 const BG_IMAGE =
-  "https://res.cloudinary.com/dttpgbmdx/image/upload/v1768442836/bg_login_dqbrvl.png";
+  "https://pub-5c8628dd9ea2411c84e12bc3d128a23f.r2.dev/bg_login.png";
 const LOGO =
-  "https://res.cloudinary.com/dttpgbmdx/image/upload/v1752706284/tbs-logo_frbbyo.png";
+  "https://pub-5c8628dd9ea2411c84e12bc3d128a23f.r2.dev/favicon.png";
 
 function Login() {
   const handleLogin = async () => {
