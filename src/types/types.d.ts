@@ -1,5 +1,3 @@
-import type { PasajeroApi, PasajeroPayload } from "./pasajeros";
-
 interface Service {
   id: number;
   nombre: string;
@@ -81,10 +79,6 @@ export type GetAccessTokenResponse = {
   accessToken: string;
 };
 
-export type CreateTripResponse = {
-  trip: string;
-};
-
 export type LogOutResponse = {
   message: string;
 };
@@ -92,23 +86,6 @@ export type LogOutResponse = {
 export type UpdateDeleteTripResponse = {
   message: string;
   trip: string;
-};
-
-export type CreateServiceTripData = {
-  viaje_id: string;
-  servicio_id: number;
-  valor: number;
-  pagado_por: "pendiente" | "pablo" | "soledad" | "mariana" | "mixto";
-  observacion?: string | null;
-  cotizacion?: number | null;
-};
-export type UpdateServiceData = {
-  id: number;
-  valor: number;
-  pagado_por: "pendiente" | "pablo" | "soledad" | "mariana" | "mixto";
-  moneda: number;
-  observacion: string | null;
-  cotizacion: number | null;
 };
 
 type FinanceResume = {
@@ -127,14 +104,6 @@ export type Finance = {
 export type FinanceData = Finance[];
 
 export type CreateTripRequest = {
-  servicios?: {
-    id: number;
-    valor: number;
-    pagado_por: "pendiente";
-    moneda: number;
-    cotizacion: number | null;
-    observacion?: string | null;
-  }[];
   destinos?: DestinoPayload[];
   pasajeros: PasajeroPayload[];
   valor_total: number;
@@ -160,7 +129,6 @@ export type UpdateTripRequest = {
   valor_total?: number;
   valor_total_usd?: number;
   cotizacion?: number | null;
-  servicios?: UpdateServiceData[];
   destinos?: DestinoPayload[];
   servicios_sin_destino?: DestinoServicePayload[];
 };

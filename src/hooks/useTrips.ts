@@ -17,7 +17,6 @@ import {
 } from "../services/trips.services";
 import { toast } from "sonner";
 import type { UpdateTripRequest } from "../types/types";
-import { modalStore } from "../store/modalStore";
 
 
 export const useTrips = () => {
@@ -68,32 +67,6 @@ export const useDeleteTrip = () => {
       toast.error(error?.response?.data?.error || "No se pudo eliminar el expediente", { id: "trip-delete" });
     },
   });
-};
-
-export const useUpdateTrip = () => {
-  const queryClient = useQueryClient();
-  const { setIsEdit, setIsOpen } = modalStore();
-  const { setTripId } = tripsStore();
-
-  const { mutate: updateTripMutate } = useMutation({
-    mutationFn: ({
-      tripId,
-      dataUpdated,
-    }: {
-      tripId: string;
-      dataUpdated: UpdateTripRequest;
-    }) => updateTrip(tripId, dataUpdated),
-    onSuccess: (_, variables) => {
-      toast.success("Expediente actualizado correctamente", { id: "trip-save" });
-      queryClient.invalidateQueries({ queryKey: ["trip", variables.tripId] });
-      queryClient.invalidateQueries({ queryKey: ["trips"] });
-      setIsEdit(false);
-      setIsOpen(true);
-      setTripId(variables.tripId);
-    },
-  });
-
-  return { updateTripMutate };
 };
 
 export const useSaveTrip = () => {
