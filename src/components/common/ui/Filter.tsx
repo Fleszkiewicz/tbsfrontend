@@ -65,6 +65,12 @@ const CustomSelect = ({ label, value, options, onChange }: CustomSelectProps) =>
   );
 };
 
+const FIRST_YEAR = 2025;
+const YEARS = Array.from(
+  { length: Math.max(new Date().getFullYear(), 2026) - FIRST_YEAR + 1 },
+  (_, i) => FIRST_YEAR + i,
+);
+
 type Props = {
   estado?: string | null;
   setEstado?: (estado: string | null) => void;
@@ -101,8 +107,8 @@ export const Filter = ({
           value={year ?? (allowAllYears ? null : 2026)}
           options={[
             ...(allowAllYears ? [{ label: "Año", value: null }] : []),
-            { label: "2025", value: 2025 },
-            { label: "2026", value: 2026 },
+            // desde 2025 hasta el año actual (como mínimo 2026), así el año por defecto siempre está en la lista
+            ...YEARS.map((y) => ({ label: String(y), value: y })),
           ]}
           onChange={setYear}
         />

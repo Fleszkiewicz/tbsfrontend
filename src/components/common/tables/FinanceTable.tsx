@@ -2,12 +2,36 @@ import type { FinanceData } from "../../../types/types";
 import { formattedAmount } from "../../../utils/utils";
 import { FiTrendingDown, FiTrendingUp } from "react-icons/fi";
 
-export function FinanceTable({ financeData, viewMode = null }: { financeData: FinanceData; viewMode?: "ARS" | "USD" | null }) {
+// Nombres de los meses armados en el front: el SP los devuelve con MONTHNAME() (en inglés)
+const MESES = Array.from({ length: 12 }, (_, i) =>
+  new Date(2000, i, 1).toLocaleString("es-AR", { month: "long" })
+);
+
+const EMPTY_RESUMEN = { ingreso: 0, egreso: 0, ganancia: 0 };
+
+export function FinanceTable({
+  financeData,
+  viewMode = null,
+  month = null,
+}: {
+  financeData: FinanceData;
+  viewMode?: "ARS" | "USD" | null;
+  month?: number | null;
+}) {
   const isAll = viewMode === null;
   const showArs = viewMode === "ARS" || isAll;
   const showUsd = viewMode === "USD" || isAll;
 
   const getUsdClass = (base: string) => isAll ? `${base} hidden md:table-cell` : base;
+
+  // Siempre los 12 meses del año elegido (o solo el mes filtrado); los meses sin movimiento van con guion
+  const meses = month ? [month] : Array.from({ length: 12 }, (_, i) => i + 1);
+  const filas = meses.map((mesNum) => ({
+    mesNum,
+    item: financeData?.find((f) => Number(f.mes_num) === mesNum),
+  }));
+
+  const emptyCell = <span className="text-gray-300">-</span>;
 
   return (
     <div className="flex flex-col gap-4">
@@ -47,35 +71,32 @@ export function FinanceTable({ financeData, viewMode = null }: { financeData: Fi
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100">
-            {financeData?.map((item) => {
-              const ars = item.resumen.find((r) => r.moneda === "ars") || {
-                ingreso: 0,
-                egreso: 0,
-                ganancia: 0,
-              };
-              const usd = item.resumen.find((r) => r.moneda === "usd") || {
-                ingreso: 0,
-                egreso: 0,
-                ganancia: 0,
-              };
+            {filas.map(({ mesNum, item }) => {
+              const sinMovimiento = !item;
+              const ars = item?.resumen.find((r) => r.moneda === "ars") || EMPTY_RESUMEN;
+              const usd = item?.resumen.find((r) => r.moneda === "usd") || EMPTY_RESUMEN;
 
               return (
-                <tr key={item.mes_num} className="group hover:bg-gray-50 transition-colors">
+                <tr key={mesNum} className="group hover:bg-gray-50 transition-colors">
                   <td className="whitespace-nowrap py-4 px-3 md:px-6 text-[13px] md:text-[14px] font-semibold text-[#1D1D1F] capitalize">
-                    {item.mes.slice(0, 3)}
+                    {MESES[mesNum - 1].slice(0, 3)}
                   </td>
 
                   {showArs && (
                     <>
                       <td className="whitespace-nowrap px-1 md:px-4 py-4 text-[12px] md:text-[14px] text-gray-600 text-center">
-                        ${formattedAmount(Number(ars.ingreso))}
+                        {sinMovimiento ? emptyCell : `$${formattedAmount(Number(ars.ingreso))}`}
                       </td>
                       <td className="whitespace-nowrap px-1 md:px-4 py-4 text-[12px] md:text-[14px] text-gray-600 text-center">
-                        ${formattedAmount(Number(ars.egreso))}
+                        {sinMovimiento ? emptyCell : `$${formattedAmount(Number(ars.egreso))}`}
                       </td>
                       <td className={`whitespace-nowrap px-1 md:px-4 py-4 text-[12px] md:text-[14px] font-semibold text-center ${Number(ars.ganancia) >= 0 ? 'text-[#34C759]' : 'text-[#FF3B30]'}`}>
-                        {Number(ars.ganancia) >= 0 ? <FiTrendingUp size={14} className="inline-block mr-1 md:mr-2" /> : <FiTrendingDown size={14} className="inline-block mr-1 md:mr-2" />}
-                        ${formattedAmount(Number(ars.ganancia))}
+                        {sinMovimiento ? emptyCell : (
+                          <>
+                            {Number(ars.ganancia) >= 0 ? <FiTrendingUp size={14} className="inline-block mr-1 md:mr-2" /> : <FiTrendingDown size={14} className="inline-block mr-1 md:mr-2" />}
+                            ${formattedAmount(Number(ars.ganancia))}
+                          </>
+                        )}
                       </td>
                     </>
                   )}
@@ -83,31 +104,27 @@ export function FinanceTable({ financeData, viewMode = null }: { financeData: Fi
                   {showUsd && (
                     <>
                       <td className={getUsdClass("whitespace-nowrap px-1 md:px-4 py-4 text-[12px] md:text-[14px] text-gray-600 text-center border-l border-gray-100")}>
-                        ${formattedAmount(Number(usd.ingreso))}
+                        {sinMovimiento ? emptyCell : `$${formattedAmount(Number(usd.ingreso))}`}
                       </td>
                       <td className={getUsdClass("whitespace-nowrap px-1 md:px-4 py-4 text-[12px] md:text-[14px] text-gray-600 text-center")}>
-                        ${formattedAmount(Number(usd.egreso))}
+                        {sinMovimiento ? emptyCell : `$${formattedAmount(Number(usd.egreso))}`}
                       </td>
                       <td className={getUsdClass(`whitespace-nowrap px-1 md:px-4 py-4 text-[12px] md:text-[14px] font-semibold text-center ${Number(usd.ganancia) >= 0 ? 'text-[#34C759]' : 'text-[#FF3B30]'}`)}>
-                        {Number(usd.ganancia) >= 0 ? <FiTrendingUp size={14} className="inline-block mr-1 md:mr-2" /> : <FiTrendingDown size={14} className="inline-block mr-1 md:mr-2" />}
-                        ${formattedAmount(Number(usd.ganancia))}
+                        {sinMovimiento ? emptyCell : (
+                          <>
+                            {Number(usd.ganancia) >= 0 ? <FiTrendingUp size={14} className="inline-block mr-1 md:mr-2" /> : <FiTrendingDown size={14} className="inline-block mr-1 md:mr-2" />}
+                            ${formattedAmount(Number(usd.ganancia))}
+                          </>
+                        )}
                       </td>
                     </>
                   )}
                 </tr>
               );
             })}
-            {(!financeData || financeData.length === 0) && (
-              <tr>
-                <td colSpan={viewMode === null ? 7 : 4} className="p-8 text-center text-[14px] font-light text-gray-600">
-                  No hay datos financieros disponibles para este período.
-                </td>
-              </tr>
-            )}
           </tbody>
         </table>
       </div>
     </div>
   );
 }
-

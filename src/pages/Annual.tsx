@@ -42,7 +42,7 @@ function Annual() {
               <p className="text-gray-400 font-medium animate-pulse">Cargando finanzas...</p>
             </div>
           ) : finance ? (
-            <FinanceTable financeData={finance.data} viewMode={currency} />
+            <FinanceTable financeData={finance.data} viewMode={currency} month={month} />
           ) : (
             <div className="p-20 text-center text-gray-400 font-medium">
               No se encontraron resultados
