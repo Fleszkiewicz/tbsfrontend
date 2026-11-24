@@ -25,6 +25,9 @@ import { DestinationsTable } from "../components/common/tables/DestinationsTable
 import { ArchiveTable } from "../components/common/tables/ArchiveTable";
 import { FileUploadModal } from "../components/common/modals/FileUploadModal";
 import { CancelTripModal } from "../components/common/modals/CancelTripModal";
+import { useArchivos, useUploadArchivos, useDeleteArchivo } from "../hooks/useArchivos";
+import { getArchivoUrl } from "../services/archivos.services";
+import { useDistribucion, useToggleSocio } from "../hooks/useDistribucion";
 import type { DestinoEntry, DestinoServiceDetail, TripFile, UpdateTripRequest } from "../types/types";
 import {
   destinosFromApi,
@@ -128,47 +131,50 @@ function Trip() {
     toast.success("Destino eliminado.");
   };
 
-  // ── Local state: archivos ──
-  const [files, setFiles] = useState<TripFile[]>([]);
+  // ── Archivos adjuntos (guardados en el bucket) ──
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
+  const { data: archivosApi = [] } = useArchivos(id);
+  const { mutateAsync: uploadArchivos } = useUploadArchivos(id ?? "");
+  const { mutateAsync: removeArchivo } = useDeleteArchivo(id ?? "");
 
-  const handleFileUpload = (newFiles: File[], category: string) => {
-    const mappedFiles: TripFile[] = newFiles.map((file) => ({
-      id: Math.random().toString(36).substr(2, 9),
-      nombre: file.name,
-      categoria: category,
-      url: URL.createObjectURL(file),
-      fecha: new Date().toLocaleDateString("es-AR"),
-    }));
-    setFiles((prev) => [...prev, ...mappedFiles]);
-    toast.success(`${newFiles.length} archivos subidos correctamente.`);
-  };
-  const handleFileDelete = (fileId: string) => {
-    setFiles((prev) => prev.filter((f) => f.id !== fileId));
-    toast.success("Archivo eliminado.");
-  };
+  const files: TripFile[] = archivosApi.map((a) => ({
+    id: String(a.id),
+    nombre: a.nombre,
+    categoria: a.categoria,
+    fecha: a.fecha.split("-").reverse().join("/"),
+    url: "",
+  }));
 
-  // ── Local state: liquidación a socios (visual) ──
-  const [partnerPayouts, setPartnerPayouts] = useState<Record<string, boolean>>(() => {
-    if (!id) return { pablo: false, soledad: false, marian: false };
+  const handleFileUpload = async (newFiles: File[], category: string) => {
+    const t = toast.loading(`Subiendo ${newFiles.length} archivo(s)...`);
     try {
-      const saved = localStorage.getItem(`tbs_payouts_${id}`);
-      return saved ? JSON.parse(saved) : { pablo: false, soledad: false, marian: false };
+      const { failed } = await uploadArchivos(newFiles.map((file) => ({ file, categoria: category })));
+      if (failed.length) toast.error(`No se pudieron subir: ${failed.join(", ")}`, { id: t });
+      else toast.success("Archivos subidos correctamente.", { id: t });
     } catch {
-      return { pablo: false, soledad: false, marian: false };
+      toast.error("No se pudieron subir los archivos.", { id: t });
     }
-  });
+  };
+
+  const handleFileDelete = async (fileId: string) => {
+    try {
+      await removeArchivo(fileId);
+      toast.success("Archivo eliminado.");
+    } catch {
+      toast.error("No se pudo eliminar el archivo.");
+    }
+  };
+
+  // ── Distribución de ganancias: qué socio ya cobró este legajo (guardado en la base) ──
+  const { data: pagosSocios = [] } = useDistribucion(id);
+  const { mutate: toggleSocio } = useToggleSocio(id ?? "");
 
   const togglePartnerPayout = (partner: "pablo" | "soledad" | "marian") => {
-    setPartnerPayouts((prev) => {
-      const updated = { ...prev, [partner]: !prev[partner] };
-      if (id) {
-        try {
-          localStorage.setItem(`tbs_payouts_${id}`, JSON.stringify(updated));
-        } catch { }
-      }
-      return updated;
-    });
+    const abonado = !pagosSocios.some((p) => p.socio === partner);
+    toggleSocio(
+      { socio: partner, abonado },
+      { onError: () => toast.error("No se pudo actualizar el pago del socio.") },
+    );
   };
 
   const [pasajeros, setPasajeros] = useState<PasajeroForm[]>([]);
@@ -742,6 +748,7 @@ function Trip() {
             files={files}
             onUpload={() => setIsUploadModalOpen(true)}
             onDelete={handleFileDelete}
+            resolveUrl={(f, disposition) => getArchivoUrl(id!, f.id, disposition)}
           />
         </SectionCard>
 
@@ -805,7 +812,12 @@ function Trip() {
                   { key: "marian", name: "Marian" },
                 ] as const
               ).map(({ key, name }) => {
-                const isPaid = !!partnerPayouts[key];
+                const pago = pagosSocios.find((p) => p.socio === key);
+                const isPaid = !!pago;
+                const montoCambio =
+                  !!pago &&
+                  pago.fecha !== "" &&
+                  (Math.abs(pago.monto_ars - cuotaArs) > 0.01 || Math.abs(pago.monto_usd - cuotaUsd) > 0.01);
                 return (
                   <div
                     key={key}
@@ -838,6 +850,11 @@ function Trip() {
                             <span>USD {formattedAmount(cuotaUsd)}</span>
                           )}
                         </div>
+                        {pago?.fecha && (
+                          <div className="text-[11px] text-gray-400 font-medium mt-0.5">
+                            Abonado el {pago.fecha.split("-").reverse().join("/")}
+                          </div>
+                        )}
                       </div>
                     </div>
 
@@ -850,6 +867,11 @@ function Trip() {
                       >
                         {isPaid ? "Abonado" : "Pendiente"}
                       </span>
+                      {montoCambio && (
+                        <span className="block text-[10px] text-amber-600 font-medium mt-1 text-right">
+                          La ganancia cambió desde el pago
+                        </span>
+                      )}
                     </div>
                   </div>
                 );

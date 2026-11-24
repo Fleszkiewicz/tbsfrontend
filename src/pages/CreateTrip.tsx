@@ -26,6 +26,7 @@ import { PasajerosSection } from "../components/common/ui/PasajerosSection";
 import { emptyPasajero, toPayload, getPasajerosError, findDniConflict } from "../utils/pasajeros";
 import type { PasajeroForm } from "../types/types";
 import { FiPaperclip } from "react-icons/fi";
+import { uploadArchivos } from "../services/archivos.services";
 
 
 // ─── Shared style tokens ──────────────────────────────────────────────────────
@@ -110,6 +111,42 @@ function CreateTrip() {
 
   const [pasajeros, setPasajeros] = useState<PasajeroForm[]>(() => [emptyPasajero(true)]);
 
+  // ── Archivos: esperan en memoria y se suben una vez creado el legajo ──
+  type PendingItem = { id: string; file: File; categoria: string; url: string; fecha: string };
+  const [pending, setPending] = useState<PendingItem[]>([]);
+  const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
+
+  const files: TripFile[] = pending.map(({ id, file, categoria, url, fecha }) => ({
+    id,
+    nombre: file.name,
+    categoria,
+    url,
+    fecha,
+  }));
+
+  const handleFileUpload = (newFiles: File[], category: string) => {
+    setPending((prev) => [
+      ...prev,
+      ...newFiles.map((file) => ({
+        id: crypto.randomUUID(),
+        file,
+        categoria: category,
+        url: URL.createObjectURL(file),
+        fecha: new Date().toLocaleDateString("es-AR"),
+      })),
+    ]);
+    toast.success(`${newFiles.length} archivo(s) agregados. Se subirán al guardar el expediente.`);
+  };
+
+  const handleFileDelete = (fileId: string) => {
+    setPending((prev) => {
+      const f = prev.find((x) => x.id === fileId);
+      if (f) URL.revokeObjectURL(f.url);
+      return prev.filter((x) => x.id !== fileId);
+    });
+    toast.success("Archivo eliminado.");
+  };
+
   const now = new Date();
   const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
 
@@ -148,6 +185,24 @@ function CreateTrip() {
       try {
         // ✅ 2. OBTENER EL ID SIN LLAMAR DOS VECES A LA API
         const newId = await createTrip(trip);
+
+        if (pending.length > 0) {
+          const t = toast.loading(`Subiendo ${pending.length} archivo(s)...`);
+          const { failed } = await uploadArchivos(
+            String(newId),
+            pending.map(({ file, categoria }) => ({ file, categoria })),
+          );
+          if (failed.length) {
+            toast.warning(
+              `El expediente se creó, pero no se pudieron subir: ${failed.join(", ")}. Súbelos desde el legajo.`,
+              { id: t, duration: 8000 },
+            );
+          } else {
+            toast.dismiss(t);
+          }
+          pending.forEach((p) => URL.revokeObjectURL(p.url));
+        }
+
         formApi.reset();
         navigate(`/trip/${newId}`);
       } catch (error: any) {
@@ -198,26 +253,6 @@ function CreateTrip() {
   useEffect(() => {
     setSelectedMoneda(form.getFieldValue("moneda") ?? 0);
   }, []);
-
-  const [files, setFiles] = useState<TripFile[]>([]);
-  const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
-
-  const handleFileUpload = (newFiles: File[], category: string) => {
-    const mappedFiles: TripFile[] = newFiles.map(file => ({
-      id: Math.random().toString(36).substr(2, 9),
-      nombre: file.name,
-      categoria: category,
-      url: URL.createObjectURL(file),
-      fecha: new Date().toLocaleDateString("es-AR")
-    }));
-    setFiles(prev => [...prev, ...mappedFiles]);
-    toast.success(`${newFiles.length} archivos subidos correctamente.`);
-  };
-
-  const handleFileDelete = (id: string) => {
-    setFiles(prev => prev.filter(f => f.id !== id));
-    toast.success("Archivo eliminado.");
-  };
 
   return (
     <div className="max-w-[900px] mx-auto px-4 pt-24 md:pt-28 pb-16">

@@ -10,6 +10,8 @@ type ArchiveTableProps = {
   files: TripFile[];
   onUpload: () => void;
   onDelete: (id: string) => void;
+  /** Para archivos ya guardados (url vacía): pide al backend una URL firmada y temporal */
+  resolveUrl?: (file: TripFile, disposition: "inline" | "attachment") => Promise<string>;
 };
 
 const headers = [
@@ -17,12 +19,37 @@ const headers = [
   { label: "Categoría", key: "categoria" },
   { label: "Acciones", key: "acciones", className: "text-right" },
 ];
-export const ArchiveTable = ({ files, onUpload, onDelete }: ArchiveTableProps) => {
+export const ArchiveTable = ({ files, onUpload, onDelete, resolveUrl }: ArchiveTableProps) => {
   const [previewFile, setPreviewFile] = useState<TripFile | null>(null);
 
-  const handleDownload = (file: TripFile) => {
-    toast.info(`Iniciando descarga de: ${file.nombre}`);
-    window.open(file.url, "_blank");
+  const getUrl = async (file: TripFile, disposition: "inline" | "attachment") => {
+    if (file.url) return file.url; // archivo local todavía sin subir (alta de legajo)
+    if (!resolveUrl) throw new Error("sin url");
+    return resolveUrl(file, disposition);
+  };
+
+  const handleDownload = async (file: TripFile) => {
+    try {
+      const url = await getUrl(file, "attachment");
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = file.nombre;
+      a.rel = "noopener";
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+    } catch {
+      toast.error("No se pudo descargar el archivo. Intenta de nuevo.");
+    }
+  };
+
+  const handlePreview = async (file: TripFile) => {
+    try {
+      const url = await getUrl(file, "inline");
+      setPreviewFile({ ...file, url });
+    } catch {
+      toast.error("No se pudo abrir el archivo. Intenta de nuevo.");
+    }
   };
 
   const sortedFiles = [...files].sort((a, b) => a.categoria.localeCompare(b.categoria));
@@ -66,7 +93,7 @@ export const ArchiveTable = ({ files, onUpload, onDelete }: ArchiveTableProps) =
             <td className="px-6 py-4 text-right">
               <div className="flex items-center justify-end gap-1 md:gap-2 -mr-3 md:mr-0">
                 <button
-                  onClick={() => setPreviewFile(file)}
+                  onClick={() => handlePreview(file)}
                   className="w-8 h-8 rounded-lg flex items-center justify-center text-gray-400 hover:text-blue-500 hover:bg-blue-50 transition-all"
                   title="Vista previa"
                 >

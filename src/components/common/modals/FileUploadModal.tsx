@@ -4,6 +4,7 @@ import { LuTrash2 } from "react-icons/lu";
 import { CustomSelect } from "../ui/CustomSelect";
 import { toast } from "sonner";
 import Swal from "sweetalert2";
+import { ARCHIVO_ACCEPT, ARCHIVO_CATEGORIAS, archivoError } from "../../../utils/archivos";
 
 type FileUploadModalProps = {
     isOpen: boolean;
@@ -13,13 +14,6 @@ type FileUploadModalProps = {
 
 const labelCls =
     "block text-[12px] text-gray-400 font-medium mb-1.5 select-none";
-
-const CATEGORIES = [
-    { label: "Vuelos", value: "Vuelos" },
-    { label: "Hoteles", value: "Hoteles" },
-    { label: "Seguros", value: "Seguros" },
-    { label: "Pasajero", value: "Pasajero" },
-];
 
 export const FileUploadModal = ({ isOpen, onClose, onUpload }: FileUploadModalProps) => {
     const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
@@ -37,6 +31,16 @@ export const FileUploadModal = ({ isOpen, onClose, onUpload }: FileUploadModalPr
 
     if (!isOpen) return null;
 
+    const addFiles = (incoming: File[]) => {
+        const valid: File[] = [];
+        for (const f of incoming) {
+            const err = archivoError(f);
+            if (err) toast.error(err);
+            else valid.push(f);
+        }
+        if (valid.length > 0) setSelectedFiles(prev => [...prev, ...valid]);
+    };
+
     const handleDragOver = (e: React.DragEvent) => {
         e.preventDefault();
         setIsDragging(true);
@@ -50,16 +54,15 @@ export const FileUploadModal = ({ isOpen, onClose, onUpload }: FileUploadModalPr
         e.preventDefault();
         setIsDragging(false);
         if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
-            const filesArray = Array.from(e.dataTransfer.files);
-            setSelectedFiles(prev => [...prev, ...filesArray]);
+            addFiles(Array.from(e.dataTransfer.files));
         }
     };
 
     const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files && e.target.files.length > 0) {
-            const filesArray = Array.from(e.target.files);
-            setSelectedFiles(prev => [...prev, ...filesArray]);
+            addFiles(Array.from(e.target.files));
         }
+        e.target.value = "";
     };
 
     const removeFile = (index: number) => {
@@ -104,6 +107,10 @@ export const FileUploadModal = ({ isOpen, onClose, onUpload }: FileUploadModalPr
             toast.error("Por favor, selecciona al menos un archivo.");
             return;
         }
+        if (!category) {
+            toast.error("Selecciona una categoría.");
+            return;
+        }
         onUpload(selectedFiles, category);
         setSelectedFiles([]);
         setCategory("");
@@ -140,7 +147,7 @@ export const FileUploadModal = ({ isOpen, onClose, onUpload }: FileUploadModalPr
                         <CustomSelect
                             value={category}
                             onChange={(val) => setCategory(val)}
-                            options={CATEGORIES}
+                            options={ARCHIVO_CATEGORIAS}
                             placeholder="Seleccionar"
                         />
                     </div>
@@ -162,6 +169,7 @@ export const FileUploadModal = ({ isOpen, onClose, onUpload }: FileUploadModalPr
                             <input
                                 type="file"
                                 multiple
+                                accept={ARCHIVO_ACCEPT}
                                 className="hidden"
                                 ref={fileInputRef}
                                 onChange={handleFileSelect}
@@ -175,6 +183,7 @@ export const FileUploadModal = ({ isOpen, onClose, onUpload }: FileUploadModalPr
                                 <p className="text-[13px] font-semibold text-[#1D1D1F]">
                                     Haz clic o arrastra más archivos
                                 </p>
+                                <p className="text-[11px] text-gray-400 mt-0.5">PDF o imágenes, hasta 10 MB</p>
                             </div>
                         </div>
                     </div>
