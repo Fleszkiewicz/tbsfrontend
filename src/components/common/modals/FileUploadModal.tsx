@@ -5,6 +5,8 @@ import { CustomSelect } from "../ui/CustomSelect";
 import { toast } from "sonner";
 import Swal from "sweetalert2";
 import { ARCHIVO_ACCEPT, ARCHIVO_CATEGORIAS, archivoError } from "../../../utils/archivos";
+import { MSG_CAMPOS_OBLIGATORIOS } from "../../../utils/messages";
+import { FieldLabel } from "../ui/FieldLabel";
 
 type FileUploadModalProps = {
     isOpen: boolean;
@@ -19,6 +21,7 @@ export const FileUploadModal = ({ isOpen, onClose, onUpload }: FileUploadModalPr
     const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
     const [category, setCategory] = useState<string>("");
     const [isDragging, setIsDragging] = useState(false);
+    const [showErrors, setShowErrors] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     // Reset state when modal opens
@@ -26,6 +29,7 @@ export const FileUploadModal = ({ isOpen, onClose, onUpload }: FileUploadModalPr
         if (isOpen) {
             setSelectedFiles([]);
             setCategory("");
+            setShowErrors(false);
         }
     }, [isOpen]);
 
@@ -33,10 +37,14 @@ export const FileUploadModal = ({ isOpen, onClose, onUpload }: FileUploadModalPr
 
     const addFiles = (incoming: File[]) => {
         const valid: File[] = [];
+        const errors: string[] = [];
         for (const f of incoming) {
             const err = archivoError(f);
-            if (err) toast.error(err);
+            if (err) errors.push(err);
             else valid.push(f);
+        }
+        if (errors.length > 0) {
+            toast.error(errors[0] + (errors.length > 1 ? ` (y ${errors.length - 1} más)` : ""), { id: "archivo-invalido" });
         }
         if (valid.length > 0) setSelectedFiles(prev => [...prev, ...valid]);
     };
@@ -103,12 +111,9 @@ export const FileUploadModal = ({ isOpen, onClose, onUpload }: FileUploadModalPr
     };
 
     const handleSubmit = () => {
-        if (selectedFiles.length === 0) {
-            toast.error("Por favor, selecciona al menos un archivo.");
-            return;
-        }
-        if (!category) {
-            toast.error("Selecciona una categoría.");
+        if (selectedFiles.length === 0 || !category) {
+            setShowErrors(true);
+            toast.error(MSG_CAMPOS_OBLIGATORIOS, { id: "validacion" });
             return;
         }
         onUpload(selectedFiles, category);
@@ -143,7 +148,7 @@ export const FileUploadModal = ({ isOpen, onClose, onUpload }: FileUploadModalPr
                 <div className="p-6 flex flex-col gap-6 max-h-[70vh] overflow-y-auto" style={{ scrollbarWidth: "none" }}>
                     {/* Category Select */}
                     <div className="flex flex-col">
-                        <label className={labelCls}>Categoría (para todos los archivos)</label>
+                        <FieldLabel text="Categoría (para todos los archivos)" invalid={showErrors && !category} />
                         <CustomSelect
                             value={category}
                             onChange={(val) => setCategory(val)}
@@ -154,7 +159,7 @@ export const FileUploadModal = ({ isOpen, onClose, onUpload }: FileUploadModalPr
 
                     {/* Drag & Drop Area */}
                     <div className="flex flex-col">
-                        <label className={labelCls}>Archivos</label>
+                        <FieldLabel text="Archivos" invalid={showErrors && selectedFiles.length === 0} />
                         <div
                             onDragOver={handleDragOver}
                             onDragLeave={handleDragLeave}
@@ -230,7 +235,6 @@ export const FileUploadModal = ({ isOpen, onClose, onUpload }: FileUploadModalPr
                 <div className="px-6 py-5">
                     <button
                         onClick={handleSubmit}
-                        disabled={selectedFiles.length === 0}
                         className="w-full bg-black hover:bg-gray-900 text-white font-semibold text-[14px] rounded-full py-3 transition-colors active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed select-none"
                     >
                         Subir {selectedFiles.length > 0 ? `${selectedFiles.length} archivos` : "archivos"}

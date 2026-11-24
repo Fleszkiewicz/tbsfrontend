@@ -27,6 +27,8 @@ import { FileUploadModal } from "../components/common/modals/FileUploadModal";
 import { CancelTripModal } from "../components/common/modals/CancelTripModal";
 import { useArchivos, useUploadArchivos, useDeleteArchivo } from "../hooks/useArchivos";
 import { getArchivoUrl } from "../services/archivos.services";
+import { MSG_CAMPOS_OBLIGATORIOS } from "../utils/messages";
+import { confirmLeaveUnsaved } from "../utils/dialogs";
 import { useDistribucion, useToggleSocio } from "../hooks/useDistribucion";
 import type { DestinoEntry, DestinoServiceDetail, TripFile, UpdateTripRequest } from "../types/types";
 import {
@@ -89,6 +91,9 @@ function Trip() {
 
   const [showErrors, setShowErrors] = useState(false);
   const [dateError, setDateError] = useState<string | null>(null);
+  // Punto de comparación para detectar cambios sin guardar
+  const [baseline, setBaseline] = useState<string | null>(null);
+  const [rebase, setRebase] = useState(false);
 
   // ── Local state: destinos ──
   const [selectedMoneda, setSelectedMoneda] = useState<number>(0);
@@ -214,10 +219,9 @@ function Trip() {
 
       try {
         await saveTrip({ tripId: id!, dataUpdated });
-        toast.success("Expediente guardado correctamente");
-      } catch (error: any) {
-        const errorMsg = error?.response?.data?.error || error?.message || "Error al actualizar el viaje";
-        toast.error(errorMsg);
+        setRebase(true); // lo guardado pasa a ser el nuevo punto de comparación
+      } catch {
+        // el aviso de error ya lo muestra useSaveTrip
       }
     },
   });
@@ -225,6 +229,33 @@ function Trip() {
   // Fechas globales de la reserva (reactivas) para validar los destinos
   const viajeDesde: string = useStore(form.store, (s) => s.values.fecha_ida) || "";
   const viajeHasta: string = useStore(form.store, (s) => s.values.fecha_vuelta) || "";
+
+  // ── Cambios sin guardar ──
+  const formValues = useStore(form.store, (s) => s.values);
+  const snapshot = JSON.stringify({ formValues, pasajeros, destinos, serviciosSinDestino });
+  const isDirty = baseline !== null && snapshot !== baseline;
+
+  useEffect(() => {
+    if (rebase) {
+      setBaseline(snapshot);
+      setRebase(false);
+    }
+  }, [rebase, snapshot]);
+
+  useEffect(() => {
+    if (!isDirty) return;
+    const warn = (ev: BeforeUnloadEvent) => {
+      ev.preventDefault();
+      ev.returnValue = "";
+    };
+    window.addEventListener("beforeunload", warn);
+    return () => window.removeEventListener("beforeunload", warn);
+  }, [isDirty]);
+
+  const handleBack = async () => {
+    if (isDirty && !(await confirmLeaveUnsaved())) return;
+    navigate("/home");
+  };
 
   // Load tripData into form
   useEffect(() => {
@@ -247,31 +278,34 @@ function Trip() {
       form.setFieldValue("valor_total", Number(tripData.valor_total) || null);
       form.setFieldValue("valor_total_usd", Number(tripData.valor_total_usd) || null);
       form.setFieldValue("cotizacion", Number(tripData.cotizacion) || null);
+      setRebase(true);
     }
   }, [tripData, form]);
 
   const handleSave = async () => {
     const values = form.state.values;
     const pasajerosError = getPasajerosError(pasajeros, false);
-    if (hasMissingTripFields(values, false) || pasajerosError) {
+    const faltanCampos = hasMissingTripFields(values, false);
+    if (faltanCampos || pasajerosError) {
       setShowErrors(true);
-      toast.error(pasajerosError ?? "Debe rellenar los campos obligatorios para guardar el expediente");
+      const soloDniRepetido = !faltanCampos && !!pasajerosError && /repetido/i.test(pasajerosError);
+      toast.error(soloDniRepetido ? pasajerosError! : MSG_CAMPOS_OBLIGATORIOS, { id: "validacion" });
       return;
     }
     const err = getTripDateError(values);
     setDateError(err);
     if (err) {
-      toast.error(err);
+      toast.error(err, { id: "validacion" });
       return;
     }
     const destinoFuera = destinos.find((d) => getDestinoDateError(d, toDateInput(values.fecha_ida), toDateInput(values.fecha_vuelta)));
     if (destinoFuera) {
-      toast.error(`Destino "${destinoFuera.destino}": ${getDestinoDateError(destinoFuera, toDateInput(values.fecha_ida), toDateInput(values.fecha_vuelta))}`);
+      toast.error(`Destino "${destinoFuera.destino}": ${getDestinoDateError(destinoFuera, toDateInput(values.fecha_ida), toDateInput(values.fecha_vuelta))}`, { id: "validacion" });
       return;
     }
     const conflicto = await findDniConflict(pasajeros);
     if (conflicto) {
-      toast.error(conflicto);
+      toast.error(conflicto, { id: "validacion" });
       return;
     }
     form.handleSubmit();
@@ -308,7 +342,7 @@ function Trip() {
       <div className="flex items-end justify-between mb-8">
         <div>
           <button
-            onClick={() => navigate("/home")}
+            onClick={handleBack}
             className="flex items-center gap-1.5 text-gray-400 hover:text-black transition-colors text-[13px] font-medium mb-3 select-none"
           >
             <IoArrowBack size={15} />

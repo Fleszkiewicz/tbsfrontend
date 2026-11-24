@@ -102,7 +102,7 @@ export const DestinationEditModal = ({
         },
       ],
     }));
-    toast.success("Servicio añadido.");
+    toast.success("Servicio añadido.", { id: "servicio-add" });
   };
 
   const updateService = <K extends keyof DestinoServiceDetail>(
@@ -341,7 +341,7 @@ export const DestinationEditModal = ({
                               ...prev,
                               servicios: prev.servicios.filter((_, i) => i !== idx),
                             }));
-                            toast.success("Servicio eliminado.");
+                            toast.success("Servicio eliminado.", { id: "servicio-del" });
                           }}
                           className="p-1.5 text-gray-500 hover:text-red-600 rounded-lg transition-colors mt-0.5 inline-flex"
                           title="Eliminar servicio"

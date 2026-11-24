@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useForm, useStore } from "@tanstack/react-form";
 import { toast } from "sonner";
@@ -27,6 +27,8 @@ import { emptyPasajero, toPayload, getPasajerosError, findDniConflict } from "..
 import type { PasajeroForm } from "../types/types";
 import { FiPaperclip } from "react-icons/fi";
 import { uploadArchivos } from "../services/archivos.services";
+import { MSG_CAMPOS_OBLIGATORIOS } from "../utils/messages";
+import { confirmLeaveUnsaved } from "../utils/dialogs";
 
 
 // ─── Shared style tokens ──────────────────────────────────────────────────────
@@ -187,7 +189,7 @@ function CreateTrip() {
         const newId = await createTrip(trip);
 
         if (pending.length > 0) {
-          const t = toast.loading(`Subiendo ${pending.length} archivo(s)...`);
+          toast.loading(`Subiendo ${pending.length} archivo(s)...`, { id: "trip-create" });
           const { failed } = await uploadArchivos(
             String(newId),
             pending.map(({ file, categoria }) => ({ file, categoria })),
@@ -195,10 +197,10 @@ function CreateTrip() {
           if (failed.length) {
             toast.warning(
               `El expediente se creó, pero no se pudieron subir: ${failed.join(", ")}. Súbelos desde el legajo.`,
-              { id: t, duration: 8000 },
+              { id: "trip-create", duration: 8000 },
             );
           } else {
-            toast.dismiss(t);
+            toast.success("Expediente creado y archivos subidos correctamente", { id: "trip-create" });
           }
           pending.forEach((p) => URL.revokeObjectURL(p.url));
         }
@@ -217,25 +219,27 @@ function CreateTrip() {
   const handleSave = async () => {
     const values = form.state.values;
     const pasajerosError = getPasajerosError(pasajeros, true);
-    if (hasMissingTripFields(values, true) || pasajerosError) {
+    const faltanCampos = hasMissingTripFields(values, true);
+    if (faltanCampos || pasajerosError) {
       setShowErrors(true);
-      toast.error(pasajerosError ?? "Debe rellenar los campos obligatorios para guardar el expediente");
+      const soloDniRepetido = !faltanCampos && !!pasajerosError && /repetido/i.test(pasajerosError);
+      toast.error(soloDniRepetido ? pasajerosError! : MSG_CAMPOS_OBLIGATORIOS, { id: "validacion" });
       return;
     }
     const err = getTripDateError(values);
     setDateError(err);
     if (err) {
-      toast.error(err);
+      toast.error(err, { id: "validacion" });
       return;
     }
     const destinoFuera = destinos.find((d) => getDestinoDateError(d, toDateInput(values.fecha_ida), toDateInput(values.fecha_vuelta)));
     if (destinoFuera) {
-      toast.error(`Destino "${destinoFuera.destino}": ${getDestinoDateError(destinoFuera, toDateInput(values.fecha_ida), toDateInput(values.fecha_vuelta))}`);
+      toast.error(`Destino "${destinoFuera.destino}": ${getDestinoDateError(destinoFuera, toDateInput(values.fecha_ida), toDateInput(values.fecha_vuelta))}`, { id: "validacion" });
       return;
     }
     const conflicto = await findDniConflict(pasajeros);
     if (conflicto) {
-      toast.error(conflicto);
+      toast.error(conflicto, { id: "validacion" });
       return;
     }
     form.handleSubmit();
@@ -244,6 +248,28 @@ function CreateTrip() {
   // Fechas globales de la reserva (reactivas) para validar los destinos
   const viajeDesde: string = useStore(form.store, (s) => s.values.fecha_ida) || "";
   const viajeHasta: string = useStore(form.store, (s) => s.values.fecha_vuelta) || "";
+
+  // ── Cambios sin guardar: se compara contra el estado inicial del formulario ──
+  const formValues = useStore(form.store, (s) => s.values);
+  const snapshot = JSON.stringify({ formValues, pasajeros, destinos, archivos: pending.map((p) => p.id) });
+  const initialSnapshot = useRef<string | null>(null);
+  if (initialSnapshot.current === null) initialSnapshot.current = snapshot;
+  const isDirty = snapshot !== initialSnapshot.current;
+
+  useEffect(() => {
+    if (!isDirty) return;
+    const warn = (ev: BeforeUnloadEvent) => {
+      ev.preventDefault();
+      ev.returnValue = "";
+    };
+    window.addEventListener("beforeunload", warn);
+    return () => window.removeEventListener("beforeunload", warn);
+  }, [isDirty]);
+
+  const handleBack = async () => {
+    if (isDirty && !(await confirmLeaveUnsaved())) return;
+    navigate("/home");
+  };
 
   const [selectedMoneda, setSelectedMoneda] = useState<number>(
     form.getFieldValue("moneda") ?? 0
@@ -260,7 +286,7 @@ function CreateTrip() {
       <div className="flex items-end justify-between mb-8">
         <div>
           <button
-            onClick={() => navigate("/home")}
+            onClick={handleBack}
             className="flex items-center gap-1.5 text-gray-400 hover:text-black transition-colors text-[13px] font-medium mb-3 select-none"
           >
             <IoArrowBack size={15} />

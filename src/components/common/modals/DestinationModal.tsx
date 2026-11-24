@@ -1,7 +1,10 @@
 import { useState, useEffect } from "react";
 import { IoCloseOutline } from "react-icons/io5";
 import Swal from "sweetalert2";
+import { toast } from "sonner";
 import { CustomDatePicker } from "../ui/CustomDatePicker";
+import { FieldLabel } from "../ui/FieldLabel";
+import { MSG_CAMPOS_OBLIGATORIOS } from "../../../utils/messages";
 import { useServices } from "../../../hooks/useServices";
 import type { DestinoEntry } from "../../../types/types";
 import { getDestinoDateError } from "../../../utils/destinos";
@@ -38,18 +41,20 @@ export const DestinationModal = ({
 
   const [newDestino, setNewDestino] = useState<DestinoEntry>(EMPTY);
   const [selectedServiceIds, setSelectedServiceIds] = useState<number[]>([]);
+  const [showErrors, setShowErrors] = useState(false);
 
   useEffect(() => {
     if (isOpen) {
       setNewDestino(EMPTY);
       setSelectedServiceIds([]);
+      setShowErrors(false);
     }
   }, [isOpen]);
 
   if (!isOpen) return null;
 
   const dateError = getDestinoDateError(newDestino, viajeDesde, viajeHasta);
-  const canSave = newDestino.destino.trim() !== "" && !dateError;
+  const nombreVacio = newDestino.destino.trim() === "";
 
   const toggleDestinoServicio = (serviceId: number) => {
     setSelectedServiceIds((prev) =>
@@ -98,7 +103,15 @@ export const DestinationModal = ({
   };
 
   const handleSave = () => {
-    if (!canSave) return;
+    if (nombreVacio) {
+      setShowErrors(true);
+      toast.error(MSG_CAMPOS_OBLIGATORIOS, { id: "validacion" });
+      return;
+    }
+    if (dateError) {
+      toast.error(dateError, { id: "validacion" });
+      return;
+    }
 
     const detailedServicios = selectedServiceIds.map((id) => {
       const serviceDef = services?.data?.find((s) => s.id === id);
@@ -146,7 +159,7 @@ export const DestinationModal = ({
         <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-5">
           <div className="flex flex-col gap-4">
             <div className="flex flex-col">
-              <label className={labelCls}>Destino</label>
+              <FieldLabel text="Destino" invalid={showErrors && nombreVacio} />
               <input
                 type="text"
                 value={newDestino.destino}
@@ -219,7 +232,6 @@ export const DestinationModal = ({
           <button
             type="button"
             onClick={handleSave}
-            disabled={!canSave}
             className="w-full bg-black hover:bg-gray-900 text-white font-semibold text-[14px] rounded-full py-3 transition-colors active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed select-none"
           >
             Guardar

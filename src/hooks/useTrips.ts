@@ -46,7 +46,7 @@ export const useCreateTrip = () => {
   return useMutation({
     mutationFn: createTrip,
     onSuccess: () => {
-      toast.success("Reserva añadida correctamente");
+      toast.success("Expediente creado correctamente", { id: "trip-create" });
       queryClient.invalidateQueries({ queryKey: ["trips"] });
     },
     onError: (err) => {
@@ -61,11 +61,11 @@ export const useDeleteTrip = () => {
   return useMutation({
     mutationFn: deleteTrip,
     onSuccess: () => {
-      toast.success("Reserva eliminada correctamente");
+      toast.success("Expediente eliminado correctamente");
       queryClient.invalidateQueries({ queryKey: ["trips"] });
     },
     onError: (error: any) => {
-      toast.error(error?.response?.data?.error || "No se pudo eliminar la reserva");
+      toast.error(error?.response?.data?.error || "No se pudo eliminar el expediente");
     },
   });
 };
@@ -84,7 +84,7 @@ export const useUpdateTrip = () => {
       dataUpdated: UpdateTripRequest;
     }) => updateTrip(tripId, dataUpdated),
     onSuccess: (_, variables) => {
-      toast.success("Reserva actualizada exitosamente");
+      toast.success("Expediente actualizado correctamente", { id: "trip-save" });
       queryClient.invalidateQueries({ queryKey: ["trip", variables.tripId] });
       queryClient.invalidateQueries({ queryKey: ["trips"] });
       setIsEdit(false);
@@ -102,12 +102,12 @@ export const useSaveTrip = () => {
     mutationFn: ({ tripId, dataUpdated }: { tripId: string; dataUpdated: UpdateTripRequest }) =>
       updateTrip(tripId, dataUpdated),
     onSuccess: (_, { tripId }) => {
-      toast.success("Cambios guardados");
+      toast.success("Expediente guardado correctamente", { id: "trip-save" });
       queryClient.invalidateQueries({ queryKey: ["trip", tripId] });
       queryClient.invalidateQueries({ queryKey: ["trips"] });
     },
     onError: (error: any) => {
-      toast.error(error?.response?.data?.error || "Error al guardar los cambios");
+      toast.error(error?.response?.data?.error || "Error al guardar el expediente", { id: "trip-save" });
     },
   });
 };
@@ -122,13 +122,13 @@ export const useCancelTrip = () => {
     mutationFn: ({ tripId, motivo }: { tripId: string; motivo: string }) =>
       cancelTrip(tripId, motivo),
     onSuccess: (_, variables) => {
-      toast.success("Reserva cancelada");
+      toast.success("Expediente cancelado");
       queryClient.invalidateQueries({ queryKey: ["trip", variables.tripId] });
       queryClient.invalidateQueries({ queryKey: ["trips"] });
       queryClient.invalidateQueries({ queryKey: ["finance"] });
     },
     onError: (error) => {
-      toast.error(getErrorMessage(error, "No se pudo cancelar la reserva"));
+      toast.error(getErrorMessage(error, "No se pudo cancelar el expediente"));
     },
   });
 };
