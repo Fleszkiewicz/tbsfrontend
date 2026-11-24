@@ -13,6 +13,8 @@ type Props = {
   /** Banda gris continua entre rangeStart y rangeEnd (ambos inclusive) */
   rangeStart?: string;
   rangeEnd?: string;
+  /** "right": en mobile el calendario se abre alineado al borde derecho del campo */
+  align?: "left" | "right";
 };
 
 const DAYS_OF_WEEK = ["Do", "Lu", "Ma", "Mi", "Ju", "Vi", "Sa"];
@@ -31,6 +33,7 @@ export const CustomDatePicker = ({
   maxDate,
   rangeStart,
   rangeEnd,
+  align = "left",
 }: Props) => {
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -104,7 +107,7 @@ export const CustomDatePicker = ({
 
       {/* Popover Calendar */}
       {isOpen && (
-        <div className="absolute top-[calc(100%+8px)] left-0 w-[270px] bg-white rounded-[24px] shadow-[0_8px_30px_rgb(0,0,0,0.12)] p-4 z-[100] animate-in fade-in duration-100 border border-gray-100/50">
+        <div className={`absolute top-[calc(100%+8px)] ${align === "right" ? "right-0 md:right-auto md:left-0" : "left-0"} w-[270px] bg-white rounded-[24px] shadow-[0_8px_30px_rgb(0,0,0,0.12)] p-4 z-[100] animate-in fade-in duration-100 border border-gray-100/50`}>
 
           {/* Header: « año anterior · ‹ mes anterior | mes y año | mes siguiente › · año siguiente » */}
           <div className="flex justify-between items-center mb-4">

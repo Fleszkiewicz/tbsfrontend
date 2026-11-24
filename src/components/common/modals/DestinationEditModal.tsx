@@ -154,8 +154,8 @@ export const DestinationEditModal = ({
           {/* Dates */}
           {!sinDestino && (
             <div className="mb-8">
-              <div className="flex flex-wrap gap-6">
-                <div className="flex flex-col w-[200px]">
+              <div className="grid grid-cols-2 gap-3 md:flex md:flex-wrap md:gap-6">
+                <div className="flex flex-col min-w-0 md:w-[200px]">
                   <label className={labelCls}>Desde</label>
                   <CustomDatePicker
                     value={newDestino.fecha_desde}
@@ -168,9 +168,10 @@ export const DestinationEditModal = ({
                     }
                   />
                 </div>
-                <div className="flex flex-col w-[200px]">
+                <div className="flex flex-col min-w-0 md:w-[200px]">
                   <label className={labelCls}>Hasta</label>
                   <CustomDatePicker
+                    align="right"
                     value={newDestino.fecha_hasta}
                     minDate={viajeDesde || undefined}
                     maxDate={viajeHasta || undefined}
@@ -197,7 +198,8 @@ export const DestinationEditModal = ({
 
           {/* Table */}
           <div className="bg-white border border-gray-200 rounded-2xl mb-4">
-            <table className="w-full text-[14px] text-left border-collapse">
+            <div className="overflow-x-auto rounded-t-2xl">
+            <table className="w-full min-w-[1100px] md:min-w-0 text-[14px] text-left border-collapse">
               <thead>
                 <tr className="bg-[#1D1D1F] text-white">
                   <th className="px-4 py-2.5 font-semibold rounded-tl-2xl">Nombre</th>
@@ -354,6 +356,7 @@ export const DestinationEditModal = ({
                 )}
               </tbody>
             </table>
+            </div>
 
             <button
               type="button"
