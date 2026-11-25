@@ -13,6 +13,7 @@ export interface Trip {
   id: string;
   estado: string;
   cancelado?: 0 | 1;
+  categoria_cancelacion?: string | null;
   motivo_cancelacion?: string | null;
   fecha_cancelacion?: string | null;
   es_legado?: 0 | 1;

@@ -17,6 +17,7 @@ import {
 } from "../services/trips.services";
 import { toast } from "sonner";
 import type { UpdateTripRequest } from "../types/types";
+import type { CategoriaCancelacion } from "../utils/cancelacion";
 
 
 export const useTrips = () => {
@@ -92,8 +93,8 @@ export const useCancelTrip = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ tripId, motivo }: { tripId: string; motivo: string }) =>
-      cancelTrip(tripId, motivo),
+    mutationFn: ({ tripId, categoria }: { tripId: string; categoria: CategoriaCancelacion }) =>
+      cancelTrip(tripId, categoria),
     onSuccess: (_, variables) => {
       toast.success("Expediente cancelado", { id: "trip-cancel" });
       queryClient.invalidateQueries({ queryKey: ["trip", variables.tripId] });

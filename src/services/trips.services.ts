@@ -1,4 +1,5 @@
 import { api, API_URL } from "../config/axios";
+import type { CategoriaCancelacion } from "../utils/cancelacion";
 import type {
     UpdateDeleteTripResponse,
     UpdateTripRequest,
@@ -89,8 +90,8 @@ export async function deleteTrip(id: string) {
 
 
 
-export async function cancelTrip(id: string, motivo: string) {
-    const { data } = await api.post(`${API_ENDPOINT}/${id}/cancel`, { motivo });
+export async function cancelTrip(id: string, categoria: CategoriaCancelacion) {
+    const { data } = await api.post(`${API_ENDPOINT}/${id}/cancel`, { categoria });
     return data;
 }
 

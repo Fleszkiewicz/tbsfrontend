@@ -6,6 +6,7 @@ import {
 } from "react-icons/io5";
 import { CustomSelect } from "../ui/CustomSelect";
 import { toast } from "sonner";
+import { CATEGORIAS_CANCELACION, type CategoriaCancelacion } from "../../../utils/cancelacion";
 
 type CancelTripModalProps = {
   isOpen: boolean;
@@ -15,19 +16,13 @@ type CancelTripModalProps = {
   currentMotivo?: string;
   currentFecha?: string;
   isLoading?: boolean;
-  onConfirm: (motivo: string) => void;
+  onConfirm: (categoria: CategoriaCancelacion) => void;
   onRevert: () => void;
 };
 
 const CANCELLATION_REASONS = [
   { label: "Seleccionar motivo", value: "" },
-  { label: "Económico", value: "Económico" },
-  { label: "Problemas familiares", value: "Problemas familiares" },
-  { label: "Sin respuesta del cliente", value: "Sin respuesta del cliente" },
-  { label: "Eligió otra agencia / competidor", value: "Eligió otra agencia / competidor" },
-  { label: "Cambio de fechas o planes", value: "Cambio de fechas o planes" },
-  { label: "Problemas de salud", value: "Problemas de salud" },
-  { label: "Otro motivo", value: "Otro motivo" },
+  ...CATEGORIAS_CANCELACION,
 ];
 
 const formatFecha = (fecha?: string) => {
@@ -63,7 +58,7 @@ export const CancelTripModal = ({
       toast.error("Por favor, selecciona un motivo de cancelación.");
       return;
     }
-    onConfirm(motivo);
+    onConfirm(motivo as CategoriaCancelacion);
   };
 
   return (

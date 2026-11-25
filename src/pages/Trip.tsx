@@ -15,6 +15,7 @@ import { toPayload, getPasajerosError, findDniConflict, fromApi } from "../utils
 import type { PasajeroForm } from "../types/types";
 import { formattedAmount, toDateInput } from "../utils/utils";
 import { renderEstado } from "../utils/utilsTsx";
+import { categoriaCancelacionLabel } from "../utils/cancelacion";
 import { useTrip, useSaveTrip, useCancelTrip, useRevertCancelTrip } from "../hooks/useTrips";
 import { CustomDatePicker } from "../components/common/ui/CustomDatePicker";
 import { CustomSelect } from "../components/common/ui/CustomSelect";
@@ -958,12 +959,16 @@ function Trip() {
         onClose={() => setIsCancelModalOpen(false)}
         tripId={id}
         isCanceled={isCanceled}
-        currentMotivo={tripData?.motivo_cancelacion ?? undefined}
+        currentMotivo={
+          categoriaCancelacionLabel(tripData?.categoria_cancelacion) ??
+          tripData?.motivo_cancelacion ??
+          undefined
+        }
         currentFecha={tripData?.fecha_cancelacion ?? undefined}
         isLoading={isCancelling || isReverting}
-        onConfirm={(motivo) => {
+        onConfirm={(categoria) => {
           cancelTrip(
-            { tripId: id!, motivo },
+            { tripId: id!, categoria },
             { onSuccess: () => setIsCancelModalOpen(false) },
           );
         }}
