@@ -8,6 +8,8 @@ import { IoSearch, IoAdd, IoReloadOutline } from "react-icons/io5";
 import { ExpenseCreateModal } from "../components/common/modals/ExpenseCreateModal";
 import { Pagination } from "../components/common/ui/Pagination";
 
+const PAGE_SIZE = 10;
+
 function Expenses() {
 
     const { year, setYear, month, setMonth, currency, setCurrency, resetFilters, sucursal, setSucursal, page, setPage } =
@@ -20,13 +22,18 @@ function Expenses() {
 
     const searchHandleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setSearchTerm(e.target.value);
+        setPage(1);
     };
 
     // Año, mes y moneda los filtra el backend. La búsqueda por motivo,
-    // al ser una lista corta, se hace acá.
+    // al ser una lista corta, se hace acá, igual que el paginado (de a PAGE_SIZE).
     const filteredExpenses = (expensesResponse?.data ?? []).filter((exp) =>
         exp.motivo.toLowerCase().includes(searchTerm.toLowerCase()),
     );
+    const totalPages = Math.max(1, Math.ceil(filteredExpenses.length / PAGE_SIZE));
+    // Si se borra la última fila de la última página, se muestra la anterior
+    const currentPage = Math.min(page, totalPages);
+    const pageExpenses = filteredExpenses.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
 
     return (
         <>
@@ -91,11 +98,15 @@ function Expenses() {
                             No se pudieron cargar los gastos.
                         </div>
                     ) : (
-                        <ExpensesTable expenses={filteredExpenses} onDelete={deleteExpense} />
+                        <ExpensesTable expenses={pageExpenses} onDelete={deleteExpense} />
                     )}
                 </div>
                 {/* Paginación */}
-                <Pagination page={page} setPage={setPage} />
+                <Pagination
+                    page={currentPage}
+                    setPage={(p) => setPage(typeof p === "function" ? p(currentPage) : p)}
+                    totalPages={totalPages}
+                />
             </div>
 
             <ExpenseCreateModal

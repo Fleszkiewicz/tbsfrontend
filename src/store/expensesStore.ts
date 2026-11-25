@@ -21,10 +21,10 @@ export const expensesStore = create<ExpensesStore>((set) => ({
     currency: null,
     sucursal: null,
     page: 1,
-    setYear: (year) => set({ year: year ?? 2026 }),
-    setMonth: (month) => set({ month }),
-    setCurrency: (currency) => set({ currency }),
-    setSucursal: (sucursal) => set({ sucursal }),
+    setYear: (year) => set({ year: year ?? 2026, page: 1 }),
+    setMonth: (month) => set({ month, page: 1 }),
+    setCurrency: (currency) => set({ currency, page: 1 }),
+    setSucursal: (sucursal) => set({ sucursal, page: 1 }),
     setPage: (page) =>
         set((state) => ({
             page: typeof page === "function" ? page(state.page) : page,

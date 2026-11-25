@@ -1,15 +1,13 @@
-import { useTrips } from "../../../hooks/useTrips";
 import { IoChevronBack, IoChevronForward } from "react-icons/io5";
 
 type Props = {
   page: number;
   setPage: (page: number | ((prev: number) => number)) => void;
+  /** Total de páginas de la tabla que usa el paginador (cada página pasa el suyo) */
+  totalPages: number;
 };
 
-export const Pagination = ({ page, setPage }: Props) => {
-  const { data: trips } = useTrips();
-  const totalPages = trips?.pagination?.totalPages ?? 1;
-
+export const Pagination = ({ page, setPage, totalPages }: Props) => {
   if (totalPages <= 0) return null;
 
   return (

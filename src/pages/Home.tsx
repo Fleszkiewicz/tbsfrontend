@@ -94,7 +94,7 @@ function Home() {
         </div>
 
         {/* Paginación */}
-        <Pagination page={page} setPage={setPage} />
+        <Pagination page={page} setPage={setPage} totalPages={trips?.pagination?.totalPages ?? 1} />
       </div>
 
     </>
