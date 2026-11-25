@@ -101,8 +101,8 @@ export function FinanzasView() {
                 }
               />
               <Legend iconType="circle" iconSize={8} formatter={legendFormatter} />
-              <Bar dataKey="ingreso" name="Ingresos" fill={MENSUAL.ingreso} radius={[4, 4, 0, 0]} maxBarSize={20} />
-              <Bar dataKey="costo" name="Costos" fill={MENSUAL.costo} radius={[4, 4, 0, 0]} maxBarSize={20} />
+              <Bar dataKey="ingreso" name="Ingresos" fill={MENSUAL.ingreso} fillOpacity={0.35} radius={[4, 4, 0, 0]} maxBarSize={20} />
+              <Bar dataKey="costo" name="Costos" fill={MENSUAL.costo} fillOpacity={0.35} radius={[4, 4, 0, 0]} maxBarSize={20} />
               <Line
                 type="monotone"
                 dataKey="ganancia"
