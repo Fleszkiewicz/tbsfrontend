@@ -194,7 +194,7 @@ export function DonutChart({
 // ─── Ranking en barras horizontales ──────────────────────────────────────────
 export function HorizontalBars({
   data,
-  color = C.ink,
+  color = C.blue,
   name = "Cantidad",
   labelWidth = 130,
 }: {

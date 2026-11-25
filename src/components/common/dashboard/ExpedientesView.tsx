@@ -16,6 +16,7 @@ import { ChartCard, ChartTooltip, DonutChart, ViewError, ViewSkeleton } from "./
 import {
   AXIS_TICK,
   C,
+  SUCURSAL_COLORS,
   capitalize,
   fillMonths,
   fmtMoney,
@@ -31,7 +32,6 @@ const ESTADOS = [
   { key: "cancelado", color: C.red },
 ];
 
-const SUCURSAL_COLORS: Record<string, string> = { Baradero: C.ink, Hurlingham: C.blue };
 
 export function ExpedientesView() {
   const { data, isLoading, isError } = useDashboard("expedientes");
@@ -91,7 +91,7 @@ export function ExpedientesView() {
               />
               <Bar dataKey="cantidad" name="Expedientes" radius={[8, 8, 0, 0]} maxBarSize={64}>
                 {data.sucursales.map((s) => (
-                  <Cell key={s.sucursal} fill={SUCURSAL_COLORS[s.sucursal] ?? C.grayLight} />
+                  <Cell key={s.sucursal} fill={SUCURSAL_COLORS[s.sucursal] ?? C.teal} />
                 ))}
               </Bar>
             </BarChart>
@@ -108,8 +108,8 @@ export function ExpedientesView() {
             <AreaChart data={evolucion} margin={{ top: 10, right: 8, bottom: 0, left: -20 }}>
               <defs>
                 <linearGradient id="gradExpedientes" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor={C.ink} stopOpacity={0.18} />
-                  <stop offset="100%" stopColor={C.ink} stopOpacity={0} />
+                  <stop offset="0%" stopColor={C.blue} stopOpacity={0.18} />
+                  <stop offset="100%" stopColor={C.blue} stopOpacity={0} />
                 </linearGradient>
               </defs>
               <CartesianGrid strokeDasharray="3 3" stroke={C.grid} vertical={false} />
@@ -126,7 +126,7 @@ export function ExpedientesView() {
                 type="monotone"
                 dataKey="cantidad"
                 name="Expedientes"
-                stroke={C.ink}
+                stroke={C.blue}
                 strokeWidth={2}
                 fill="url(#gradExpedientes)"
                 dot={false}
@@ -151,7 +151,7 @@ export function ExpedientesView() {
                 </span>
                 <span className="flex-1 h-1.5 rounded-full bg-gray-100 overflow-hidden">
                   <span
-                    className="block h-full rounded-full bg-red-400"
+                    className="block h-full rounded-full bg-red-500"
                     style={{ width: `${maxMotivo > 0 ? (m.value / maxMotivo) * 100 : 0}%` }}
                   />
                 </span>

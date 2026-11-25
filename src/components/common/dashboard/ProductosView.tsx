@@ -2,6 +2,7 @@ import {
   Bar,
   BarChart,
   CartesianGrid,
+  Cell,
   ResponsiveContainer,
   Tooltip,
   XAxis,
@@ -16,13 +17,13 @@ import {
   ViewError,
   ViewSkeleton,
 } from "./DashboardUI";
-import { AXIS_TICK, C, capitalize, fmtNum, fmtPct, pct } from "../../../utils/dashboard";
+import { AXIS_TICK, C, VIVOS, capitalize, fmtNum, fmtPct, pct } from "../../../utils/dashboard";
 
 const EDADES = [
-  { key: "infante", label: "Infantes", color: C.amber },
-  { key: "menor", label: "Menores", color: C.blue },
-  { key: "adulto", label: "Adultos", color: C.ink },
-  { key: "mayor", label: "Mayores", color: C.gray },
+  { key: "infante", label: "Infantes", color: C.orange },
+  { key: "menor", label: "Menores", color: C.emerald },
+  { key: "adulto", label: "Adultos", color: C.blue },
+  { key: "mayor", label: "Mayores", color: C.violet },
 ] as const;
 
 export function ProductosView() {
@@ -39,7 +40,7 @@ export function ProductosView() {
 
   const tipos = [
     { name: "Nacional", value: nacional, color: C.emerald },
-    { name: "Internacional", value: internacional, color: C.ink },
+    { name: "Internacional", value: internacional, color: C.blue },
   ].filter((t) => t.value > 0);
 
   const edades = EDADES.map((e) => ({
@@ -88,7 +89,11 @@ export function ProductosView() {
               />
               <YAxis tick={AXIS_TICK} axisLine={false} tickLine={false} allowDecimals={false} />
               <Tooltip cursor={{ fill: "#F7F7F7" }} content={<ChartTooltip />} />
-              <Bar dataKey="cantidad" name="Servicios" fill={C.blue} radius={[6, 6, 0, 0]} maxBarSize={40} />
+              <Bar dataKey="cantidad" name="Servicios" radius={[6, 6, 0, 0]} maxBarSize={40}>
+                {servicios.map((s, i) => (
+                  <Cell key={s.servicio_tipo_id} fill={VIVOS[i % VIVOS.length]} />
+                ))}
+              </Bar>
             </BarChart>
           </ResponsiveContainer>
         </ChartCard>

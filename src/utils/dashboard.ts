@@ -13,7 +13,16 @@ export const C = {
   yellow: "#EAB308",
   red: "#EF4444",
   violet: "#8B5CF6",
+  pink: "#EC4899",
+  cyan: "#06B6D4",
+  teal: "#14B8A6",
+  indigo: "#6366F1",
 };
+
+// Colores vivos (misma saturación que Estados de expedientes) para series con muchas categorías
+export const VIVOS = [C.blue, C.emerald, C.orange, C.violet, C.pink, C.cyan, C.yellow, C.red, C.teal, C.indigo, C.amber];
+
+export const SUCURSAL_COLORS: Record<string, string> = { Baradero: C.blue, Hurlingham: C.violet, "Sin sucursal": C.cyan };
 
 
 export const AXIS_TICK = { fontSize: 12, fill: C.gray };

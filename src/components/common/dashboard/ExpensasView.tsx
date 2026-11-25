@@ -22,6 +22,7 @@ import {
 import {
   AXIS_TICK,
   C,
+  SUCURSAL_COLORS,
   fillMonths,
   fmtCompact,
   fmtMoney,
@@ -29,7 +30,6 @@ import {
   type Moneda,
 } from "../../../utils/dashboard";
 
-const SUCURSAL_COLORS: Record<string, string> = { Baradero: C.ink, Hurlingham: C.blue };
 
 export function ExpensasView() {
   const { data, isLoading, isError } = useDashboard("expensas");
@@ -104,7 +104,7 @@ export function ExpensasView() {
               <Tooltip cursor={{ fill: "#F7F7F7" }} content={<ChartTooltip format={(v) => fmtMoney(v, monedaSucursal)} />} />
               <Bar dataKey="monto" name="Expensas" radius={[8, 8, 0, 0]} maxBarSize={72}>
                 {sucursales.map((s) => (
-                  <Cell key={s.sucursal} fill={SUCURSAL_COLORS[s.sucursal] ?? C.grayLight} />
+                  <Cell key={s.sucursal} fill={SUCURSAL_COLORS[s.sucursal] ?? C.teal} />
                 ))}
               </Bar>
             </BarChart>

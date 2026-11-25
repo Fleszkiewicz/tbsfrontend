@@ -3,10 +3,6 @@ import {
   IoChevronBack,
   IoChevronForward,
   IoReloadOutline,
-  IoDocumentTextOutline,
-  IoAirplaneOutline,
-  IoCashOutline,
-  IoReceiptOutline,
 } from "react-icons/io5";
 import { Filter } from "../components/common/ui/Filter";
 import { dashboardStore } from "../store/dashboardStore";
@@ -16,10 +12,10 @@ import { FinanzasView } from "../components/common/dashboard/FinanzasView";
 import { ExpensasView } from "../components/common/dashboard/ExpensasView";
 
 const VISTAS = [
-  { key: "expedientes", title: "Expedientes", icon: IoDocumentTextOutline, View: ExpedientesView },
-  { key: "productos", title: "Destinos y Servicios", icon: IoAirplaneOutline, View: ProductosView },
-  { key: "finanzas", title: "Finanzas", icon: IoCashOutline, View: FinanzasView },
-  { key: "expensas", title: "Expensas", icon: IoReceiptOutline, View: ExpensasView },
+  { key: "expedientes", title: "Expedientes", View: ExpedientesView },
+  { key: "productos", title: "Destinos y Servicios", View: ProductosView },
+  { key: "finanzas", title: "Finanzas", View: FinanzasView },
+  { key: "expensas", title: "Expensas", View: ExpensasView },
 ] as const;
 
 const Dashboard = () => {
@@ -51,7 +47,7 @@ const Dashboard = () => {
   }, []);
 
   const actual = VISTAS[vista] ?? VISTAS[0];
-  const { View, icon: Icon } = actual;
+  const { View } = actual;
 
   return (
     <div className="max-w-[1000px] mx-auto px-4 pt-24 md:pt-28 pb-16">
@@ -93,8 +89,7 @@ const Dashboard = () => {
           </button>
 
           <div className="flex flex-col items-center min-w-0">
-            <h2 className="flex items-center gap-2 text-[16px] md:text-[18px] font-semibold text-[#1D1D1F] select-none truncate">
-              <Icon size={18} className="text-gray-400 shrink-0" />
+            <h2 className="text-[16px] md:text-[18px] font-semibold text-[#1D1D1F] select-none truncate">
               {actual.title}
             </h2>
             <div className="flex items-center gap-1.5 mt-2">

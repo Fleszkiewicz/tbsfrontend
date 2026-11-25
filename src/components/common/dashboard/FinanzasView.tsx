@@ -27,20 +27,20 @@ import {
 } from "../../../utils/dashboard";
 
 const PAGOS: Record<string, { label: string; color: string }> = {
-  contado_efectivo: { label: "Contado (efectivo)", color: C.ink },
+  contado_efectivo: { label: "Contado (efectivo)", color: C.emerald },
   contado_transferencia: { label: "Contado (transferencia)", color: C.blue },
-  cuotas: { label: "Cuotas", color: C.emerald },
-  financiacion: { label: "Financiación", color: C.amber },
+  cuotas: { label: "Cuotas", color: C.violet },
+  financiacion: { label: "Financiación", color: C.orange },
 };
 
 const MONEDAS: Record<number, { label: string; color: string }> = {
-  1: { label: "ARS", color: C.ink },
+  1: { label: "ARS", color: C.blue },
   2: { label: "USD", color: C.emerald },
-  3: { label: "Mixto", color: C.amber },
+  3: { label: "Mixto", color: C.violet },
 };
 
-// Ingresos, costos y ganancia: tonos de una misma familia (azules) para no competir entre sí
-const MENSUAL = { ingreso: "#93C5FD", costo: "#DBEAFE", ganancia: "#1D4ED8" };
+// Ingresos, costos y ganancia: colores vivos de la paleta (azul, naranja y verde)
+const MENSUAL = { ingreso: C.blue, costo: C.orange, ganancia: C.emerald };
 
 const legendFormatter = (value: string) => <span className="text-[12px] text-gray-500">{value}</span>;
 
@@ -66,12 +66,12 @@ export function FinanzasView() {
   const pagos = data.pagos.map((p) => ({
     name: PAGOS[p.pago]?.label ?? capitalize(p.pago),
     value: p.cantidad,
-    color: PAGOS[p.pago]?.color ?? C.gray,
+    color: PAGOS[p.pago]?.color ?? C.cyan,
   }));
 
   const monedas = data.monedas.map((m) => ({
     label: MONEDAS[m.moneda_id]?.label ?? m.moneda.toUpperCase(),
-    color: MONEDAS[m.moneda_id]?.color ?? C.gray,
+    color: MONEDAS[m.moneda_id]?.color ?? C.cyan,
     cantidad: m.cantidad,
   }));
 
