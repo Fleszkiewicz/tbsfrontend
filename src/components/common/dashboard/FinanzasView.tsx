@@ -36,11 +36,11 @@ const PAGOS: Record<string, { label: string; color: string }> = {
 const MONEDAS: Record<number, { label: string; color: string }> = {
   1: { label: "ARS", color: C.blue },
   2: { label: "USD", color: C.emerald },
-  3: { label: "Mixto", color: C.violet },
+  3: { label: "Mixto", color: C.orange },
 };
 
-// Ingresos, costos y ganancia: colores vivos de la paleta (azul, naranja y verde)
-const MENSUAL = { ingreso: C.blue, costo: C.orange, ganancia: C.emerald };
+// Ingresos, costos y ganancia: gama de azules (ingresos un poco más claro, costos un poco más oscuro, ganancia el azul base)
+const MENSUAL = { ingreso: "#60A5FA", costo: "#2563EB", ganancia: C.blue };
 
 const legendFormatter = (value: string) => <span className="text-[12px] text-gray-500">{value}</span>;
 

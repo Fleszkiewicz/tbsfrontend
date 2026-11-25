@@ -91,7 +91,7 @@ export function ExpedientesView() {
               />
               <Bar dataKey="cantidad" name="Expedientes" radius={[8, 8, 0, 0]} maxBarSize={64}>
                 {data.sucursales.map((s) => (
-                  <Cell key={s.sucursal} fill={SUCURSAL_COLORS[s.sucursal] ?? C.teal} />
+                  <Cell key={s.sucursal} fill={SUCURSAL_COLORS[s.sucursal] ?? C.grayLight} />
                 ))}
               </Bar>
             </BarChart>

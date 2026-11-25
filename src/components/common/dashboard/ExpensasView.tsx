@@ -104,7 +104,7 @@ export function ExpensasView() {
               <Tooltip cursor={{ fill: "#F7F7F7" }} content={<ChartTooltip format={(v) => fmtMoney(v, monedaSucursal)} />} />
               <Bar dataKey="monto" name="Expensas" radius={[8, 8, 0, 0]} maxBarSize={72}>
                 {sucursales.map((s) => (
-                  <Cell key={s.sucursal} fill={SUCURSAL_COLORS[s.sucursal] ?? C.teal} />
+                  <Cell key={s.sucursal} fill={SUCURSAL_COLORS[s.sucursal] ?? C.grayLight} />
                 ))}
               </Bar>
             </BarChart>

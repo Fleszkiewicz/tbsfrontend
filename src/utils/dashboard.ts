@@ -22,7 +22,7 @@ export const C = {
 // Colores vivos (misma saturación que Estados de expedientes) para series con muchas categorías
 export const VIVOS = [C.blue, C.emerald, C.orange, C.violet, C.pink, C.cyan, C.yellow, C.red, C.teal, C.indigo, C.amber];
 
-export const SUCURSAL_COLORS: Record<string, string> = { Baradero: C.blue, Hurlingham: C.violet, "Sin sucursal": C.cyan };
+export const SUCURSAL_COLORS: Record<string, string> = { Baradero: C.emerald, Hurlingham: C.blue, "Sin sucursal": C.grayLight };
 
 
 export const AXIS_TICK = { fontSize: 12, fill: C.gray };
