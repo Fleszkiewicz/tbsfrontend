@@ -13,7 +13,6 @@ import {
   ChartTooltip,
   DonutChart,
   HorizontalBars,
-  KpiCard,
   ViewError,
   ViewSkeleton,
 } from "./DashboardUI";
@@ -34,10 +33,6 @@ export function ProductosView() {
 
   const nacional = data.tipos.find((t) => t.tipo === "nacional")?.cantidad ?? 0;
   const internacional = data.tipos.find((t) => t.tipo === "internacional")?.cantidad ?? 0;
-  const totalTipos = nacional + internacional;
-
-  const destinoTop = data.destinos[0];
-  const servicioTop = data.servicios[0];
 
   const destinos = data.destinos.map((d) => ({ label: d.destino, value: d.cantidad }));
   const servicios = data.servicios.map((s) => ({ ...s, nombre: capitalize(s.nombre) }));
@@ -56,29 +51,6 @@ export function ProductosView() {
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-        <KpiCard label="Pasajeros" value={fmtNum(data.kpis.pasajeros)} sub="No incluye legajos antiguos" />
-        <KpiCard
-          label="Destino más visitado"
-          value={<span className="text-[17px] md:text-[19px]">{destinoTop?.destino ?? "—"}</span>}
-          sub={destinoTop ? `${fmtNum(destinoTop.cantidad)} visitas` : undefined}
-        />
-        <KpiCard
-          label="Servicio más contratado"
-          value={<span className="text-[17px] md:text-[19px]">{servicioTop ? capitalize(servicioTop.nombre) : "—"}</span>}
-          sub={servicioTop ? `${fmtNum(servicioTop.cantidad)} servicios` : undefined}
-        />
-        <KpiCard
-          label="Nacional / Internacional"
-          value={
-            totalTipos > 0
-              ? `${Math.round(pct(nacional, totalTipos))} / ${Math.round(pct(internacional, totalTipos))} %`
-              : "—"
-          }
-          sub={`${fmtNum(nacional)} nacionales · ${fmtNum(internacional)} internacionales`}
-        />
-      </div>
-
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <ChartCard
           title="Top destinos"
@@ -123,7 +95,7 @@ export function ProductosView() {
 
         <ChartCard
           title="Composición de pasajeros"
-          subtitle="Por categoría de edad · no incluye legajos antiguos"
+          subtitle={`${fmtNum(totalEdades)} pasajeros por categoría de edad · no incluye legajos antiguos`}
           className="lg:col-span-2"
           height={120}
           isEmpty={totalEdades === 0}

@@ -11,16 +11,8 @@ import {
   YAxis,
 } from "recharts";
 import { useDashboard } from "../../../hooks/useDashboard";
-import { categoriaCancelacionLabel } from "../../../utils/cancelacion";
-import {
-  ChartCard,
-  ChartTooltip,
-  DonutChart,
-  HorizontalBars,
-  KpiCard,
-  ViewError,
-  ViewSkeleton,
-} from "./DashboardUI";
+import { CATEGORIAS_CANCELACION } from "../../../utils/cancelacion";
+import { ChartCard, ChartTooltip, DonutChart, ViewError, ViewSkeleton } from "./DashboardUI";
 import {
   AXIS_TICK,
   C,
@@ -28,9 +20,7 @@ import {
   fillMonths,
   fmtMoney,
   fmtNum,
-  fmtPct,
   mesLargo,
-  pct,
 } from "../../../utils/dashboard";
 
 const ESTADOS = [
@@ -49,9 +39,6 @@ export function ExpedientesView() {
   if (isLoading) return <ViewSkeleton />;
   if (isError || !data) return <ViewError />;
 
-  const { kpis } = data;
-  const tasaCancelacion = pct(kpis.cancelados, kpis.total);
-
   const estados = ESTADOS.map((e) => ({
     name: capitalize(e.key),
     value: data.estados.find((r) => r.estado === e.key)?.cantidad ?? 0,
@@ -60,25 +47,16 @@ export function ExpedientesView() {
 
   const evolucion = fillMonths(data.evolucion, { cantidad: 0 });
 
-  const motivos = data.motivos.map((m) => ({
-    label: categoriaCancelacionLabel(m.categoria) ?? m.categoria,
-    value: m.cantidad,
-  }));
+  // Las 7 categorías siempre, con 0 si no tienen registros, de mayor a menor
+  const motivos = CATEGORIAS_CANCELACION.map((c) => ({
+    label: c.label,
+    value: data.motivos.find((m) => m.categoria === c.value)?.cantidad ?? 0,
+  })).sort((a, b) => b.value - a.value);
+  const maxMotivo = Math.max(...motivos.map((m) => m.value), 0);
+  const totalMotivos = motivos.reduce((acc, m) => acc + m.value, 0);
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-        <KpiCard label="Total de expedientes" value={fmtNum(kpis.total)} sub="Todos los estados" />
-        <KpiCard label="Activos" value={fmtNum(kpis.activos)} sub="En espera y en curso" />
-        <KpiCard label="Finalizados" value={fmtNum(kpis.finalizados)} tone="positive" />
-        <KpiCard
-          label="Tasa de cancelación"
-          value={fmtPct(tasaCancelacion)}
-          sub={`${fmtNum(kpis.cancelados)} cancelados`}
-          tone={kpis.cancelados > 0 ? "negative" : "default"}
-        />
-      </div>
-
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <ChartCard title="Estados de expedientes" isEmpty={estados.length === 0}>
           <DonutChart data={estados} centerLabel="expedientes" />
@@ -122,7 +100,7 @@ export function ExpedientesView() {
 
         <ChartCard
           title="Evolución mensual"
-          subtitle="Expedientes por mes de reserva (siempre los 12 meses del año)"
+          subtitle="Cantidad de expedientes creados por mes (fecha de reserva)"
           className="lg:col-span-2"
           height={240}
         >
@@ -158,16 +136,32 @@ export function ExpedientesView() {
           </ResponsiveContainer>
         </ChartCard>
 
-        <ChartCard
-          title="Motivos de cancelación"
-          subtitle="No incluye legajos antiguos"
-          className="lg:col-span-2"
-          height={Math.max(160, motivos.length * 36)}
-          isEmpty={motivos.length === 0}
-          emptyText="No hay cancelaciones con motivo en este período"
-        >
-          <HorizontalBars data={motivos} color={C.red} name="Cancelaciones" labelWidth={180} />
-        </ChartCard>
+        <div className="lg:col-span-2 border border-gray-200 rounded-2xl p-4 md:p-5 min-w-0">
+          <div className="flex items-baseline justify-between gap-3 mb-3">
+            <h3 className="text-[14px] font-semibold text-[#1D1D1F]">Motivos de cancelación</h3>
+            <span className="text-[11px] text-gray-400">
+              {fmtNum(totalMotivos)} {totalMotivos === 1 ? "cancelación" : "cancelaciones"} · sin legajos antiguos
+            </span>
+          </div>
+          <ul className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-2">
+            {motivos.map((m) => (
+              <li key={m.label} className="flex items-center gap-3 text-[12px]">
+                <span className={`w-[160px] shrink-0 truncate ${m.value > 0 ? "text-gray-700" : "text-gray-400"}`}>
+                  {m.label}
+                </span>
+                <span className="flex-1 h-1.5 rounded-full bg-gray-100 overflow-hidden">
+                  <span
+                    className="block h-full rounded-full bg-red-400"
+                    style={{ width: `${maxMotivo > 0 ? (m.value / maxMotivo) * 100 : 0}%` }}
+                  />
+                </span>
+                <span className={`w-6 text-right font-semibold ${m.value > 0 ? "text-[#1D1D1F]" : "text-gray-300"}`}>
+                  {fmtNum(m.value)}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </div>
       </div>
     </div>
   );

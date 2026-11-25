@@ -11,14 +11,11 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import { IoInformationCircleOutline } from "react-icons/io5";
 import { useDashboard } from "../../../hooks/useDashboard";
 import {
   ChartCard,
   ChartTooltip,
   CurrencyToggle,
-  KpiCard,
-  MoneyPair,
   ViewError,
   ViewSkeleton,
 } from "./DashboardUI";
@@ -42,8 +39,6 @@ export function ExpensasView() {
   if (isLoading) return <ViewSkeleton />;
   if (isError || !data) return <ViewError />;
 
-  const { kpis } = data;
-
   const mensual = fillMonths(data.mensual, { ars: 0, usd: 0 }).map((m) => ({
     mes: m.mes,
     mes_num: m.mes_num,
@@ -57,31 +52,8 @@ export function ExpensasView() {
   }));
   const haySucursales = sucursales.some((s) => s.monto !== 0);
 
-  const balanceNegativo = kpis.balance_ars < 0 || kpis.balance_usd < 0;
-
   return (
     <div className="flex flex-col gap-4">
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-        <KpiCard label="Total de expensas" value={<MoneyPair ars={kpis.total_ars} usd={kpis.total_usd} />} />
-        <KpiCard label="Gasto Baradero" value={<MoneyPair ars={kpis.baradero_ars} usd={kpis.baradero_usd} />} />
-        <KpiCard label="Gasto Hurlingham" value={<MoneyPair ars={kpis.hurlingham_ars} usd={kpis.hurlingham_usd} />} />
-        <KpiCard
-          label="Balance neto"
-          value={<MoneyPair ars={kpis.balance_ars} usd={kpis.balance_usd} tone />}
-          sub="Ganancia de viajes − expensas"
-          tone={balanceNegativo ? "default" : "positive"}
-        />
-      </div>
-
-      <div className="flex items-start gap-2 bg-[#f5f5f5] rounded-2xl px-4 py-3 text-[12px] text-gray-500">
-        <IoInformationCircleOutline size={16} className="shrink-0 mt-px text-gray-400" />
-        <p>
-          El balance neto resta las expensas a la ganancia de los expedientes en espera, en curso y finalizados
-          (ganancia del período: {fmtMoney(kpis.ganancia_ars, "ARS")} y {fmtMoney(kpis.ganancia_usd, "USD")}). En la
-          vista Finanzas la ganancia se muestra sin restar expensas.
-        </p>
-      </div>
-
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <ChartCard
           title="Evolución mensual de gastos"

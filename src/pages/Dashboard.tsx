@@ -59,9 +59,6 @@ const Dashboard = () => {
         <h1 className="text-[29px] md:text-[32px] lg:text-[35px] font-bold text-[#1D1D1F] tracking-tight select-none cursor-default">
           Estadísticas
         </h1>
-        <p className="text-gray-500 mt-2 text-[13px] md:text-[15px]">
-          Visualiza el rendimiento y los datos generales de la agencia.
-        </p>
       </div>
 
       {/* Filtros globales: afectan a la vista activa */}

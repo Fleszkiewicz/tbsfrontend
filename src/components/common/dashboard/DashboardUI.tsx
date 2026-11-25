@@ -15,7 +15,6 @@ import {
 import {
   AXIS_TICK,
   C,
-  fmtMoney,
   fmtNum,
   fmtPct,
   pct,
@@ -23,43 +22,6 @@ import {
 } from "../../../utils/dashboard";
 
 // ─── Tarjetas ────────────────────────────────────────────────────────────────
-export function KpiCard({
-  label,
-  value,
-  sub,
-  tone = "default",
-}: {
-  label: string;
-  value: ReactNode;
-  sub?: ReactNode;
-  tone?: "default" | "positive" | "negative";
-}) {
-  const color =
-    tone === "positive" ? "text-emerald-600" : tone === "negative" ? "text-red-600" : "text-[#1D1D1F]";
-  return (
-    <div className="border border-gray-200 rounded-2xl p-3 md:p-4 flex flex-col justify-between min-w-0">
-      <span className="text-[12px] text-gray-500 font-medium">{label}</span>
-      <div className={`mt-1.5 text-[19px] md:text-[22px] font-bold leading-tight break-words ${color}`}>
-        {value}
-      </div>
-      {sub && <span className="text-[11px] text-gray-400 mt-1.5">{sub}</span>}
-    </div>
-  );
-}
-
-/** Importe en las dos monedas, una debajo de la otra (nunca sumadas) */
-export function MoneyPair({ ars, usd, tone }: { ars: number; usd: number; tone?: boolean }) {
-  const cls = (n: number) => (tone && n < 0 ? "text-red-600" : "");
-  return (
-    <div className="flex flex-col">
-      <span className={cls(ars)}>{fmtMoney(ars, "ARS")}</span>
-      <span className={`text-[14px] md:text-[16px] font-semibold text-gray-500 ${cls(usd)}`}>
-        {fmtMoney(usd, "USD")}
-      </span>
-    </div>
-  );
-}
-
 export function ChartCard({
   title,
   subtitle,
@@ -266,11 +228,6 @@ export function HorizontalBars({
 export function ViewSkeleton() {
   return (
     <div className="flex flex-col gap-4 animate-pulse">
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-        {Array.from({ length: 4 }, (_, i) => (
-          <div key={i} className="h-[92px] bg-gray-100 rounded-2xl" />
-        ))}
-      </div>
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <div className="h-[320px] bg-gray-100 rounded-2xl" />
         <div className="h-[320px] bg-gray-100 rounded-2xl" />

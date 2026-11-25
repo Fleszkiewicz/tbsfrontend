@@ -72,17 +72,26 @@ import { FinanzasView } from "../src/components/common/dashboard/FinanzasView";
 import { ExpensasView } from "../src/components/common/dashboard/ExpensasView";
 
 const vistas = [
-  ["Expedientes", ExpedientesView, ["Total de expedientes", "Tasa de cancelación", "1,9 %", "Motivos de cancelación"]],
-  ["Destinos y Servicios", ProductosView, ["Bariloche", "Tickets aereos", "25 / 75 %"]],
-  ["Finanzas", FinanzasView, ["$ 20.173.774", "USD 220.904", "Sin restar expensas", "17,6 %"]],
-  ["Expensas", ExpensasView, ["Balance neto", "-$ 2.018.561", "Ganancia de viajes − expensas"]],
+  [
+    "Expedientes",
+    ExpedientesView,
+    // Los 7 motivos aparecen aunque tengan 0
+    ["Estados de expedientes", "Cantidad de expedientes creados por mes", "Cambio de fechas o planes", "Sin respuesta del cliente"],
+  ],
+  ["Destinos y Servicios", ProductosView, ["Top destinos", "Servicios más utilizados", "Nacional vs. Internacional", "3 pasajeros"]],
+  ["Finanzas", FinanzasView, ["Ingresos, costos y ganancia", "Contado (efectivo)", "Distribución por moneda"]],
+  ["Expensas", ExpensasView, ["Evolución mensual de gastos", "Comparativa por sucursal"]],
 ] as const;
+
+// Lo que se quitó el 25/11/2026: tarjetas KPI, liquidación a socios y balance neto
+const quitados = ["Total de expedientes", "Tasa de cancelación", "Destino más visitado", "Margen promedio", "Liquidación a socios", "Balance neto"];
 
 describe("vistas del Dashboard", () => {
   it.each(vistas)("%s se dibuja con datos", (_, View, textos) => {
     mode = "data";
     const html = renderToString(<View />);
     for (const t of textos) expect(html).toContain(t);
+    for (const t of quitados) expect(html).not.toContain(t);
   });
 
   it.each(vistas)("%s se dibuja sin datos", (_, View) => {
