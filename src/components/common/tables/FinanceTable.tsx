@@ -9,14 +9,20 @@ const MESES = Array.from({ length: 12 }, (_, i) =>
 
 const EMPTY_RESUMEN = { ingreso: 0, egreso: 0, ganancia: 0 };
 
+// Ancho de las celdas fantasmas por moneda: ingreso, egreso, ganancia
+const skeletonCells = ["w-20", "w-20", "w-24"];
+
 export function FinanceTable({
   financeData,
   viewMode = null,
   month = null,
+  isLoading = false,
 }: {
-  financeData: FinanceData;
+  financeData: FinanceData | undefined;
   viewMode?: "ARS" | "USD" | null;
   month?: number | null;
+  /** Mientras carga: misma cabecera y filas fantasmas */
+  isLoading?: boolean;
 }) {
   const isAll = viewMode === null;
   const showArs = viewMode === "ARS" || isAll;
@@ -70,8 +76,25 @@ export function FinanceTable({
               )}
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-100">
-            {filas.map(({ mesNum, item }) => {
+          <tbody className={`divide-y divide-gray-100 ${isLoading ? "animate-pulse" : ""}`} aria-busy={isLoading || undefined}>
+            {isLoading && meses.map((mesNum) => (
+              <tr key={mesNum}>
+                <td className="py-4 px-3 md:px-6">
+                  <div className="h-3.5 w-9 bg-gray-200 rounded-md" />
+                </td>
+                {showArs && skeletonCells.map((w, i) => (
+                  <td key={`ars-${i}`} className="px-1 md:px-4 py-4">
+                    <div className={`h-3.5 ${w} bg-gray-200 rounded-md mx-auto`} />
+                  </td>
+                ))}
+                {showUsd && skeletonCells.map((w, i) => (
+                  <td key={`usd-${i}`} className={getUsdClass(`px-1 md:px-4 py-4 ${i === 0 ? "border-l border-gray-100" : ""}`)}>
+                    <div className={`h-3.5 ${w} bg-gray-200 rounded-md mx-auto`} />
+                  </td>
+                ))}
+              </tr>
+            ))}
+            {!isLoading && filas.map(({ mesNum, item }) => {
               const sinMovimiento = !item;
               const ars = item?.resumen.find((r) => r.moneda === "ars") || EMPTY_RESUMEN;
               const usd = item?.resumen.find((r) => r.moneda === "usd") || EMPTY_RESUMEN;

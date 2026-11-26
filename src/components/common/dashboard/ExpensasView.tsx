@@ -36,7 +36,7 @@ export function ExpensasView() {
   const [monedaMensual, setMonedaMensual] = useState<Moneda>("ARS");
   const [monedaSucursal, setMonedaSucursal] = useState<Moneda>("ARS");
 
-  if (isLoading) return <ViewSkeleton />;
+  if (isLoading) return <ViewSkeleton charts={[{ kind: "area", wide: true, height: 250 }, { kind: "bars", wide: true, height: 220 }]} />;
   if (isError || !data) return <ViewError />;
 
   const mensual = fillMonths(data.mensual, { ars: 0, usd: 0 }).map((m) => ({

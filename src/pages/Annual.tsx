@@ -38,9 +38,7 @@ function Annual() {
 
         <div className="mb-4">
           {isLoading ? (
-            <div className="flex justify-center p-20">
-              <p className="text-gray-400 font-medium animate-pulse">Cargando finanzas...</p>
-            </div>
+            <FinanceTable financeData={undefined} viewMode={currency} month={month} isLoading />
           ) : finance ? (
             <FinanceTable financeData={finance.data} viewMode={currency} month={month} />
           ) : (

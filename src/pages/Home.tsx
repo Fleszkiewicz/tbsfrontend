@@ -2,7 +2,6 @@ import { useNavigate } from "react-router-dom";
 import { useTrips } from "../hooks/useTrips";
 import { tripsStore } from "../store/tripsStore";
 import { Filter } from "../components/common/ui/Filter";
-import { Spinner } from "../components/common/ui/widget/Spinner";
 import { Pagination } from "../components/common/ui/Pagination";
 import { TripsTable } from "../components/common/tables/TripsTable";
 import { IoAdd, IoSearch, IoReloadOutline } from "react-icons/io5";
@@ -23,13 +22,6 @@ function Home() {
   };
 
 
-
-  if (isLoading)
-    return (
-      <div className="h-screen w-full flex justify-center items-center">
-        <Spinner text="Cargando" />
-      </div>
-    );
 
   return (
     <>
@@ -90,7 +82,7 @@ function Home() {
 
         {/* Tabla */}
         <div className="mb-2">
-          <TripsTable filteredTrips={trips?.data} />
+          <TripsTable filteredTrips={trips?.data} isLoading={isLoading} />
         </div>
 
         {/* Paginación */}

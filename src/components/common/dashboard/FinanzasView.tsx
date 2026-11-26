@@ -48,7 +48,7 @@ export function FinanzasView() {
   const { data, isLoading, isError } = useDashboard("finanzas");
   const [monedaMensual, setMonedaMensual] = useState<Moneda>("ARS");
 
-  if (isLoading) return <ViewSkeleton />;
+  if (isLoading) return <ViewSkeleton charts={[{ kind: "bars", wide: true, height: 280 }, { kind: "donut" }, { kind: "bars" }]} />;
   if (isError || !data) return <ViewError />;
 
   const sufijo = monedaMensual === "ARS" ? "ars" : "usd";

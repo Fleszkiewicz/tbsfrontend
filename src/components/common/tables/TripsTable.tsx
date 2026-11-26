@@ -15,10 +15,15 @@ const headers = [
     { label: "Acciones", key: "acciones" },
 ];
 
+// Ancho de las filas fantasmas: legajo, nombre, fecha, badge de estado, ícono
+const skeletonWidths = ["w-16", "w-36", "w-20", "w-20 h-5 rounded-full", "w-5"];
+
 export function TripsTable({
     filteredTrips,
+    isLoading = false,
 }: {
     filteredTrips: Trip[] | undefined;
+    isLoading?: boolean;
 }) {
     const navigate = useNavigate();
     const { mutate: trip } = useDeleteTrip();
@@ -31,6 +36,8 @@ export function TripsTable({
             <Table
                 headers={headers}
                 data={filteredTrips || []}
+                isLoading={isLoading}
+                skeletonWidths={skeletonWidths}
                 renderRow={(trip) => (
                     <tr
                         key={trip.id}

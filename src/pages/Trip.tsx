@@ -19,7 +19,7 @@ import { categoriaCancelacionLabel } from "../utils/cancelacion";
 import { useTrip, useSaveTrip, useCancelTrip, useRevertCancelTrip } from "../hooks/useTrips";
 import { CustomDatePicker } from "../components/common/ui/CustomDatePicker";
 import { CustomSelect } from "../components/common/ui/CustomSelect";
-import { Spinner } from "../components/common/ui/widget/Spinner";
+import { TripSkeleton } from "../components/common/ui/Skeleton";
 import { DestinationModal } from "../components/common/modals/DestinationModal";
 import { DestinationEditModal } from "../components/common/modals/DestinationEditModal";
 import { DestinationsTable } from "../components/common/tables/DestinationsTable";
@@ -319,13 +319,7 @@ function Trip() {
   const { mutate: revertCancel, isPending: isReverting } = useRevertCancelTrip();
   const isCanceled = tripData?.cancelado === 1;
 
-  if (isLoading) {
-    return (
-      <div className="flex justify-center items-center h-[calc(100vh-100px)]">
-        <Spinner size={50} text="Cargando detalles..." />
-      </div>
-    );
-  }
+  if (isLoading) return <TripSkeleton />;
 
   // ── Cálculos de liquidación a socios (visual) ──
   const monedaTrip = tripData?.moneda?.toLowerCase() || "ars";

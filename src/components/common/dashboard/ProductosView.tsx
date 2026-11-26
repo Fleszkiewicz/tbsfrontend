@@ -28,7 +28,7 @@ const EDADES = [
 export function ProductosView() {
   const { data, isLoading, isError } = useDashboard("productos");
 
-  if (isLoading) return <ViewSkeleton />;
+  if (isLoading) return <ViewSkeleton charts={[{ kind: "hbars" }, { kind: "donut" }, { kind: "bars", wide: true, height: 290 }, { kind: "stacked", wide: true, height: 120 }]} />;
   if (isError || !data) return <ViewError />;
 
   const nacional = data.tipos.find((t) => t.tipo === "nacional")?.cantidad ?? 0;

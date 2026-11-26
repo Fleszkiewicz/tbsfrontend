@@ -225,13 +225,101 @@ export function HorizontalBars({
 }
 
 // ─── Estados de carga / error ────────────────────────────────────────────────
-export function ViewSkeleton() {
-  return (
-    <div className="flex flex-col gap-4 animate-pulse">
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <div className="h-[320px] bg-gray-100 rounded-2xl" />
-        <div className="h-[320px] bg-gray-100 rounded-2xl" />
+export type SkeletonChart = {
+  kind: "bars" | "hbars" | "donut" | "area" | "stacked" | "list";
+  /** Ocupa las dos columnas en pantallas grandes */
+  wide?: boolean;
+  height?: number;
+};
+
+// Alturas fijas (en %) para que las barras simuladas no cambien en cada render
+const BAR_HEIGHTS = [45, 70, 55, 85, 40, 65, 75, 50, 90, 60, 35, 70];
+const HBAR_WIDTHS = [92, 78, 66, 55, 47, 38];
+
+function ChartBones({ kind, height }: { kind: SkeletonChart["kind"]; height: number }) {
+  if (kind === "donut")
+    return (
+      <div className="flex items-center justify-center gap-8 h-full">
+        <div className="w-[150px] h-[150px] rounded-full border-[22px] border-gray-200 shrink-0" />
+        <div className="flex flex-col gap-3">
+          {[24, 20, 28].map((w) => (
+            <div key={w} className="flex items-center gap-2">
+              <div className="w-2.5 h-2.5 rounded-full bg-gray-200" />
+              <div className="h-3 bg-gray-100 rounded-md" style={{ width: w * 3 }} />
+            </div>
+          ))}
+        </div>
       </div>
+    );
+  if (kind === "hbars")
+    return (
+      <div className="flex flex-col justify-center gap-3 h-full">
+        {HBAR_WIDTHS.map((w) => (
+          <div key={w} className="flex items-center gap-3">
+            <div className="h-3 w-16 bg-gray-100 rounded-md shrink-0" />
+            <div className="h-4 bg-gray-200 rounded-r-md" style={{ width: `${w}%` }} />
+          </div>
+        ))}
+      </div>
+    );
+  if (kind === "stacked")
+    return (
+      <div className="flex flex-col justify-center gap-3 h-full">
+        <div className="h-8 w-full rounded-lg bg-gray-200" />
+        <div className="flex gap-4">
+          {[16, 14, 16, 12].map((w, i) => (
+            <div key={i} className="h-3 bg-gray-100 rounded-md" style={{ width: w * 4 }} />
+          ))}
+        </div>
+      </div>
+    );
+  if (kind === "list")
+    return (
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-3">
+        {HBAR_WIDTHS.concat(30).map((w, i) => (
+          <div key={i} className="flex flex-col gap-1.5">
+            <div className="h-3 w-32 bg-gray-100 rounded-md" />
+            <div className="h-1.5 bg-gray-200 rounded-full" style={{ width: `${w}%` }} />
+          </div>
+        ))}
+      </div>
+    );
+  // bars / area: columnas sobre una base, con líneas de grilla tenues
+  const count = kind === "area" ? 12 : 6;
+  return (
+    <div className="relative flex items-end gap-2 md:gap-3 h-full border-b border-gray-200 px-1" style={{ height }}>
+      {[25, 50, 75].map((top) => (
+        <div key={top} className="absolute inset-x-0 border-t border-dashed border-gray-100" style={{ top: `${top}%` }} />
+      ))}
+      {BAR_HEIGHTS.slice(0, count).map((h, i) => (
+        <div
+          key={i}
+          className={`flex-1 ${kind === "area" ? "bg-gray-100 rounded-t-sm" : "bg-gray-200 rounded-t-md"}`}
+          style={{ height: `${h}%` }}
+        />
+      ))}
+    </div>
+  );
+}
+
+/** Imita la grilla de ChartCards de cada vista mientras cargan sus datos */
+export function ViewSkeleton({ charts }: { charts: SkeletonChart[] }) {
+  return (
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 animate-pulse" aria-busy="true" aria-label="Cargando estadísticas">
+      {charts.map(({ kind, wide, height = 260 }, i) => (
+        <div
+          key={i}
+          className={`border border-gray-200 rounded-2xl p-4 md:p-5 flex flex-col min-w-0 ${wide ? "lg:col-span-2" : ""}`}
+        >
+          <div className="mb-3">
+            <div className="h-3.5 w-40 bg-gray-200 rounded-md" />
+            <div className="h-2.5 w-56 max-w-full bg-gray-100 rounded-md mt-2" />
+          </div>
+          <div style={{ height: kind === "list" ? undefined : height }} className="w-full">
+            <ChartBones kind={kind} height={height} />
+          </div>
+        </div>
+      ))}
     </div>
   );
 }

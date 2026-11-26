@@ -36,7 +36,7 @@ const ESTADOS = [
 export function ExpedientesView() {
   const { data, isLoading, isError } = useDashboard("expedientes");
 
-  if (isLoading) return <ViewSkeleton />;
+  if (isLoading) return <ViewSkeleton charts={[{ kind: "donut" }, { kind: "bars" }, { kind: "area", wide: true, height: 240 }, { kind: "list", wide: true }]} />;
   if (isError || !data) return <ViewError />;
 
   const estados = ESTADOS.map((e) => ({

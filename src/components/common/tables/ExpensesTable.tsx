@@ -13,12 +13,17 @@ const headers = [
     { label: "Acciones", key: "acciones" },
 ];
 
+// Ancho de las filas fantasmas: id, motivo, fecha, cotización, monto, ícono
+const skeletonWidths = ["w-8", "w-40", "w-20", "w-16", "w-24", "w-5"];
+
 export function ExpensesTable({
     expenses,
     onDelete,
+    isLoading = false,
 }: {
     expenses: Expense[];
     onDelete: (id: number) => void;
+    isLoading?: boolean;
 }) {
     const handleDelete = (expense: Expense) => {
         Swal.fire({
@@ -52,6 +57,8 @@ export function ExpensesTable({
             <Table
                 headers={headers}
                 data={expenses}
+                isLoading={isLoading}
+                skeletonWidths={skeletonWidths}
                 noDataMessage="No hay expensas disponibles para este período."
                 renderRow={(expense) => (
                     <tr

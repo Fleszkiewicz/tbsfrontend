@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { Filter } from "../components/common/ui/Filter";
-import { Spinner } from "../components/common/ui/widget/Spinner";
 import { ExpensesTable } from "../components/common/tables/ExpensesTable";
 import { expensesStore } from "../store/expensesStore";
 import { useExpenses, useDeleteExpense } from "../hooks/useExpenses";
@@ -89,16 +88,12 @@ function Expenses() {
 
                 {/* Tabla */}
                 <div className="mb-2">
-                    {isLoading ? (
-                        <div className="flex justify-center p-20">
-                            <Spinner text="Cargando gastos..." />
-                        </div>
-                    ) : isError ? (
+                    {isError ? (
                         <div className="p-20 text-center text-gray-400 font-medium">
                             No se pudieron cargar los gastos.
                         </div>
                     ) : (
-                        <ExpensesTable expenses={pageExpenses} onDelete={deleteExpense} />
+                        <ExpensesTable expenses={pageExpenses} onDelete={deleteExpense} isLoading={isLoading} />
                     )}
                 </div>
                 {/* Paginación */}
