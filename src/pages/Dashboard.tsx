@@ -78,7 +78,7 @@ const Dashboard = () => {
 
       {/* Card carrusel */}
       <div className="bg-white rounded-2xl border border-gray-100 shadow-sm">
-        <div className="flex items-center justify-between gap-2 px-3 md:px-6 py-3 md:py-4 bg-black rounded-t-2xl">
+        <div className="flex items-center justify-between gap-2 px-3 md:px-6 py-3 md:py-2 bg-black rounded-t-2xl">
           <button
             type="button"
             onClick={() => goTo(vista - 1)}
@@ -89,10 +89,10 @@ const Dashboard = () => {
           </button>
 
           <div className="flex flex-col items-center min-w-0">
-            <h2 className="text-[16px] md:text-[18px] font-semibold text-white select-none truncate">
+            <h2 className="text-[13px] md:text-[15px] font-semibold text-white select-none truncate">
               {actual.title}
             </h2>
-            <div className="flex items-center gap-1.5 mt-2">
+            {/* <div className="flex items-center gap-1.5 mt-0.5">
               {VISTAS.map((v, i) => (
                 <button
                   key={v.key}
@@ -100,12 +100,11 @@ const Dashboard = () => {
                   onClick={() => goTo(i)}
                   title={v.title}
                   aria-label={v.title}
-                  className={`h-1.5 rounded-full transition-all duration-300 ${
-                    i === vista ? "w-5 bg-white" : "w-1.5 bg-white/35 hover:bg-white/60"
-                  }`}
+                  className={`h-1.5 rounded-full transition-all duration-300 ${i === vista ? "w-1.5 bg-white/45" : "w-1.5 bg-white/25 hover:bg-white/60"
+                    }`}
                 />
               ))}
-            </div>
+            </div> */}
           </div>
 
           <button
