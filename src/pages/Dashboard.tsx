@@ -78,18 +78,18 @@ const Dashboard = () => {
 
       {/* Card carrusel */}
       <div className="bg-white rounded-2xl border border-gray-100 shadow-sm">
-        <div className="flex items-center justify-between gap-2 px-3 md:px-6 py-3 md:py-4 border-b border-gray-100">
+        <div className="flex items-center justify-between gap-2 px-3 md:px-6 py-3 md:py-4 bg-black rounded-t-2xl">
           <button
             type="button"
             onClick={() => goTo(vista - 1)}
-            className="w-9 h-9 rounded-full flex items-center justify-center text-gray-500 hover:text-black hover:bg-gray-100 transition-colors shrink-0"
+            className="w-9 h-9 rounded-full flex items-center justify-center text-white hover:bg-white/15 transition-colors shrink-0"
             title={`Anterior: ${VISTAS[(vista - 1 + VISTAS.length) % VISTAS.length].title}`}
           >
             <IoChevronBack size={18} />
           </button>
 
           <div className="flex flex-col items-center min-w-0">
-            <h2 className="text-[16px] md:text-[18px] font-semibold text-[#1D1D1F] select-none truncate">
+            <h2 className="text-[16px] md:text-[18px] font-semibold text-white select-none truncate">
               {actual.title}
             </h2>
             <div className="flex items-center gap-1.5 mt-2">
@@ -101,7 +101,7 @@ const Dashboard = () => {
                   title={v.title}
                   aria-label={v.title}
                   className={`h-1.5 rounded-full transition-all duration-300 ${
-                    i === vista ? "w-5 bg-[#1D1D1F]" : "w-1.5 bg-gray-300 hover:bg-gray-400"
+                    i === vista ? "w-5 bg-white" : "w-1.5 bg-white/35 hover:bg-white/60"
                   }`}
                 />
               ))}
@@ -111,7 +111,7 @@ const Dashboard = () => {
           <button
             type="button"
             onClick={() => goTo(vista + 1)}
-            className="w-9 h-9 rounded-full flex items-center justify-center text-gray-500 hover:text-black hover:bg-gray-100 transition-colors shrink-0"
+            className="w-9 h-9 rounded-full flex items-center justify-center text-white hover:bg-white/15 transition-colors shrink-0"
             title={`Siguiente: ${VISTAS[(vista + 1) % VISTAS.length].title}`}
           >
             <IoChevronForward size={18} />
